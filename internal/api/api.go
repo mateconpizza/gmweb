@@ -3,7 +3,7 @@ package api
 
 import (
 	"errors"
-	"fmt"
+	"log/slog"
 	"net/http"
 	"sync/atomic"
 	"time"
@@ -67,15 +67,15 @@ func New(opts ...OptFn) *API {
 		optFn(o)
 	}
 
-	var handler http.Handler = o.router
+	var router http.Handler = o.router
 	for i := len(o.middlewares) - 1; i >= 0; i-- {
-		handler = o.middlewares[i](handler)
+		router = o.middlewares[i](router)
 	}
 
 	return &API{
 		Server: &http.Server{
 			Addr:         o.addr,
-			Handler:      handler,
+			Handler:      router,
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 30 * time.Second,
 			IdleTimeout:  60 * time.Second,
@@ -89,6 +89,6 @@ func (a *API) Start() error {
 		return ErrServerAlreadyRunning
 	}
 
-	fmt.Printf("Server running on http://localhost%s\n", a.addr)
+	slog.Info("starting server", "addr", a.addr)
 	return a.ListenAndServeTLS(a.certFile, a.keyFile)
 }
