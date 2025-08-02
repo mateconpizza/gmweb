@@ -115,6 +115,17 @@ func RemoveAll(s string) error {
 	return nil
 }
 
+func Rename(oldPath, newName string) error {
+	if !Exists(oldPath) {
+		return fmt.Errorf("%w: %q", ErrFileNotFound, oldPath)
+	}
+
+	basePath := filepath.Dir(oldPath)
+	newPath := filepath.Join(basePath, newName)
+
+	return os.Rename(oldPath, newPath)
+}
+
 // EnsureSuffix appends the specified suffix to the filename.
 func EnsureSuffix(s, suffix string) string {
 	if s == "" {
@@ -193,4 +204,20 @@ func findByExt(root, ext string) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+// PrioritizeFile moves a file to the front of the list.
+func PrioritizeFile(files []string, name string) {
+	if len(files) == 0 {
+		return
+	}
+
+	for i, f := range files {
+		if filepath.Base(f) == name {
+			if i != 0 {
+				files[0], files[i] = files[i], files[0]
+			}
+			break
+		}
+	}
 }
