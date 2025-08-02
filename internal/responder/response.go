@@ -1,4 +1,4 @@
-package api
+package responder
 
 import (
 	"encoding/json"
@@ -20,7 +20,8 @@ type FetchDataResponse struct {
 	Title      string   `json:"title"`
 	Desc       string   `json:"desc"`
 	Tags       []string `json:"tags"`
-	FaviconURL string   `json:"favicon"`
+	FaviconURL string   `json:"favicon_url"`
+	ArchiveURL string   `json:"archive_url"`
 }
 
 type QRCodeResponse struct {
@@ -42,7 +43,7 @@ type RepoStatsResponse struct {
 	Favorites int    `json:"favorites"`
 }
 
-func encodeErrJSON(w http.ResponseWriter, statusCode int, err string) {
+func EncodeErrJSON(w http.ResponseWriter, statusCode int, err string) {
 	w.WriteHeader(statusCode)
 	if err := json.NewEncoder(w).Encode(&ResponseError{Error: err, StatusCode: statusCode}); err != nil {
 		slog.Error("encoding error", "error", err)
