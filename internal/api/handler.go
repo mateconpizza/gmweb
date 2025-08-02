@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"path/filepath"
 
 	"github.com/mateconpizza/gmweb/internal/files"
 	"github.com/mateconpizza/gmweb/internal/models"
@@ -16,11 +15,10 @@ var ErrPathNotFound = errors.New("path not found")
 type HandlerOptFn func(*handlerOpt)
 
 type handlerOpt struct {
-	repoLoader    func(string) (*models.BookmarkModel, error)
-	defaultDBName string
-	appInfo       any
-	dataDir       string // dataDir path where the database are found, the home app.
-	cacheDir      string // dataDir path where the database are found.
+	repoLoader func(string) (*models.BookmarkModel, error)
+	appInfo    any
+	dataDir    string // dataDir path where the database are found, the home app.
+	cacheDir   string // dataDir path where the database are found.
 }
 
 type Handler struct {
@@ -30,12 +28,6 @@ type Handler struct {
 func WithRepoLoader(fn func(string) (*models.BookmarkModel, error)) HandlerOptFn {
 	return func(o *handlerOpt) {
 		o.repoLoader = fn
-	}
-}
-
-func WithDefaultDBName(s string) HandlerOptFn {
-	return func(o *handlerOpt) {
-		o.defaultDBName = s
 	}
 }
 
@@ -68,18 +60,17 @@ func NewHandler(opts ...HandlerOptFn) *Handler {
 	}
 }
 
-func dbStats(h *Handler, path string) (*responder.RepoStatsResponse, error) {
-	repo, err := h.repoLoader(path)
+func dbStats(h *Handler, dbKey string) (*responder.RepoStatsResponse, error) {
+	repo, err := h.repoLoader(dbKey)
 	if err != nil {
-		slog.Error("listing bookmarks", "error", err, "db", filepath.Base(path))
+		slog.Error("listing bookmarks", "error", err, "db", dbKey)
 		return nil, err
 	}
-	defer repo.Close()
 
 	return &responder.RepoStatsResponse{
-		Name:      repo.Name(),
-		Bookmarks: repo.CountRecords("bookmarks"),
-		Tags:      repo.CountRecords("tags"),
+		Name:      dbKey,
+		Bookmarks: repo.Count("bookmarks"),
+		Tags:      repo.Count("tags"),
 		Favorites: repo.CountFavorites(),
 	}, nil
 }
