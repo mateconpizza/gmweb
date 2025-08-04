@@ -25,6 +25,13 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.Handle("GET "+r.Edit("{db}", "{id}"), requireIDAndDB(h.editRecord))
 	mux.Handle("GET "+r.QRCode("{db}", "{id}"), requireIDAndDB(h.showQR))
 
+	// user related
+	mux.HandleFunc("GET "+r.UserSignup(), h.userSignup)
+	mux.HandleFunc("POST "+r.UserSignup(), h.userSignupPost)
+	mux.HandleFunc("GET "+r.UserLogin(), h.userLogin)
+	mux.HandleFunc("POST "+r.UserLogin(), h.userLoginPost)
+	mux.HandleFunc("POST "+r.UserLogout(), h.userLogoutPost)
+
 	// static and cache files
 	staticFS, err := fs.Sub(h.static, "ui/static")
 	if err != nil {
@@ -52,8 +59,24 @@ func (h *Handler) recordDetail(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Show Detail bookmark's form...")
 }
 
-func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Show New bookmark's form...")
+func (h *Handler) userSignup(w http.ResponseWriter, r *http.Request, n int, page string, d *TemplateData) {
+	fmt.Fprintln(w, "Show 'signup' form...")
+}
+
+func (h *Handler) userSignupPost(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "'signup' form...")
+}
+
+func (h *Handler) userLogin(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Show 'login' form...")
+}
+
+func (h *Handler) userLoginPost(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Authenticate and login the user...")
+}
+
+func (h *Handler) userLogoutPost(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Logout the user...")
 }
 
 func (h *Handler) renderPage(w http.ResponseWriter, r *http.Request, n int, page string, d *TemplateData) {
