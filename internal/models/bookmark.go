@@ -26,7 +26,7 @@ var (
 	fromDBModel = repository.FromDBModel
 )
 
-func (bm *BookmarkModel) Insert(ctx context.Context, b *bookmark.Bookmark) (int64, error) {
+func (bm *BookmarkModel) InsertOne(ctx context.Context, b *bookmark.Bookmark) (int64, error) {
 	b.GenChecksum()
 	return bm.store.InsertOne(ctx, toDBModel(b))
 }
@@ -35,11 +35,11 @@ func (bm *BookmarkModel) Update(ctx context.Context, newB, oldB *bookmark.Bookma
 	return bm.store.Update(ctx, toDBModel(newB), repository.ToDBModel(oldB))
 }
 
-func (bm *BookmarkModel) MarkAsFavorite(ctx context.Context, b *bookmark.Bookmark) error {
+func (bm *BookmarkModel) SetFavorite(ctx context.Context, b *bookmark.Bookmark) error {
 	return bm.store.SetFavorite(ctx, toDBModel(b))
 }
 
-func (bm *BookmarkModel) AddVisit(ctx context.Context, bID int) error {
+func (bm *BookmarkModel) AddVisitAndUpdateCount(ctx context.Context, bID int) error {
 	return bm.store.AddVisitAndUpdateCount(ctx, bID)
 }
 
@@ -51,7 +51,7 @@ func (bm *BookmarkModel) Has(url string) (*bookmark.Bookmark, bool) {
 	return fromDBModel(b), ok
 }
 
-func (bm *BookmarkModel) Delete(ctx context.Context, bs []*bookmark.Bookmark) error {
+func (bm *BookmarkModel) DeleteMany(ctx context.Context, bs []*bookmark.Bookmark) error {
 	bookmarks := make([]*db.BookmarkModel, len(bs))
 	for i, m := range bs {
 		bookmarks[i] = toDBModel(m)
@@ -105,7 +105,7 @@ func (bm *BookmarkModel) Name() string {
 	return bm.store.Name()
 }
 
-func (bm *BookmarkModel) CountRecords(table string) int {
+func (bm *BookmarkModel) Count(table string) int {
 	return bm.store.CountRecordsFrom(table)
 }
 

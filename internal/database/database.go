@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/mateconpizza/gmweb/internal/models"
@@ -23,18 +24,19 @@ func Get(dbKey string) (*models.BookmarkModel, error) {
 	mu.RUnlock()
 
 	if exists {
+		slog.Debug("database connection already open", "database", dbKey)
 		return repo, nil
 	}
 
 	path, ok := Path(dbKey)
 	if !ok {
-		return nil, fmt.Errorf("%w: %s", ErrDBNotAllowed, dbKey)
+		return nil, fmt.Errorf("%w: %q", ErrDBNotAllowed, dbKey)
 	}
 
-	dsn := fmt.Sprintf("file:%s?_cache=shared&_journal_mode=WAL", path)
+	dsn := path
 	newDB, err := models.New(dsn)
 	if err != nil {
-		return nil, fmt.Errorf("error al abrir base de datos %s: %w", dbKey, err)
+		return nil, fmt.Errorf("error opening database %s: %w", dbKey, err)
 	}
 
 	mu.Lock()
@@ -48,6 +50,13 @@ func Get(dbKey string) (*models.BookmarkModel, error) {
 func CloseAll() {
 	mu.Lock()
 	defer mu.Unlock()
+
+	slog.Info("database: closing connections")
+	if len(connections) == 0 {
+		slog.Info("database: no connections found")
+		return
+	}
+
 	for key, db := range connections {
 		db.Close()
 		delete(connections, key)
@@ -66,6 +75,11 @@ func Path(dbKey string) (string, bool) {
 	return path, ok
 }
 
-func Add(dbKey, dbPath string) {
+func Register(dbKey, dbPath string) {
 	Valid[dbKey] = dbPath
+}
+
+func Forget(dbKey string) {
+	delete(connections, dbKey)
+	delete(Valid, dbKey)
 }

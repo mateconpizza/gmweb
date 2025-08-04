@@ -16,7 +16,7 @@ func New() *App {
 	return &App{
 		Cfg: &Config{
 			Name:    appName,
-			MainDB:  mainDBName,
+			MainDB:  mainDB,
 			DataDir: "gomarks",
 			Info: &information{
 				URL:   "https://github.com/mateconpizza/gmweb#readme",

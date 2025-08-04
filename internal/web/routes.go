@@ -60,11 +60,11 @@ func (h *Handler) renderPage(w http.ResponseWriter, r *http.Request, n int, page
 	buf := new(bytes.Buffer)
 
 	// Write the template to the buffer, instead of straight to the
-	// http.ResponseWriter. If there's an error, call our serverError() helper
+	// http.ResponseWriter. If there's an error, call our responder.ServerErr() helper
 	// and then return.
 	err := h.template.ExecuteTemplate(buf, page, d)
 	if err != nil {
-		serverError(w, r, err)
+		responder.ServerErr(w, r, err)
 		return
 	}
 
@@ -76,7 +76,7 @@ func (h *Handler) renderPage(w http.ResponseWriter, r *http.Request, n int, page
 	// is another time where we pass our http.ResponseWriter to a function that
 	// takes an io.Writer.
 	if _, err := buf.WriteTo(w); err != nil {
-		serverError(w, r, err)
+		responder.ServerErr(w, r, err)
 		return
 	}
 }

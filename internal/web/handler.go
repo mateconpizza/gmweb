@@ -1,3 +1,5 @@
+// Package web provides HTTP handlers and utilities for rendering HTML pages
+// and serving static assets.
 package web
 
 import (
@@ -25,6 +27,7 @@ type Handler struct {
 	template     *template.Template
 	qrImgSize    int
 	colorschemes []string
+	routes       *webRoutes
 }
 
 func WithTemplates(t *embed.FS) OptFn {
@@ -84,5 +87,30 @@ func NewHandler(opts ...OptFn) *Handler {
 		Opt:          wo,
 		qrImgSize:    512,
 		colorschemes: themes,
+		routes:       &webRoutes{},
 	}
 }
+
+type webRoutes struct{}
+
+func (w *webRoutes) Index(s string) string { return "/" + s }
+
+func (w *webRoutes) All(db string) string { return "/web/" + db + "/bookmarks/all" }
+
+func (w *webRoutes) New(db string) string { return "/web/" + db + "/bookmarks/new" }
+
+func (w *webRoutes) Detail(db, bID string) string { return "/web/" + db + "/bookmarks/detail/" + bID }
+
+func (w *webRoutes) View(db, bID string) string { return "/web/" + db + "/bookmarks/view/" + bID }
+
+func (w *webRoutes) Edit(db, bID string) string { return "/web/" + db + "/bookmarks/edit/" + bID }
+
+func (w *webRoutes) QRCode(db, bID string) string { return "/web/" + db + "/bookmarks/qr/" + bID }
+
+func (w *webRoutes) UserSignup() string { return "/user/signup" }
+
+func (w *webRoutes) UserLogin() string { return "/user/login" }
+
+func (w *webRoutes) UserLogout() string { return "/user/logout" }
+
+func (w *webRoutes) Favicon() string { return "/static/img/favicon.png" }

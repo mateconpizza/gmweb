@@ -49,3 +49,13 @@ func EncodeErrJSON(w http.ResponseWriter, statusCode int, err string) {
 		slog.Error("encoding error", "error", err)
 	}
 }
+
+func ServerErr(w http.ResponseWriter, r *http.Request, err error) {
+	var (
+		method = r.Method
+		uri    = r.URL.RequestURI()
+	)
+
+	slog.Error(err.Error(), "method", method, "uri", uri)
+	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}

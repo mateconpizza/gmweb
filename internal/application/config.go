@@ -17,8 +17,8 @@ import (
 var version string = "0.1.0"
 
 const (
-	appName    string = "gmweb"
-	mainDBName string = "main.db" // Default name of the main database
+	appName string = "gmweb"
+	mainDB  string = "main.db" // Default name of the main database
 )
 
 type (
@@ -107,6 +107,7 @@ func (a *App) Parse() *App {
 		os.Exit(1)
 	}
 
+	a.Cfg.DataDir = a.Flags.Path
 	if err := files.MkdirAll(a.Cfg.CacheDir, a.Cfg.DataDir); err != nil {
 		panic(err)
 	}

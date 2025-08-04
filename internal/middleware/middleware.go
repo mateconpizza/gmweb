@@ -43,7 +43,7 @@ func Logging(next http.Handler) http.Handler {
 
 		next.ServeHTTP(wrapped, r)
 
-		if strings.HasPrefix(r.URL.Path, "/static/") {
+		if strings.HasPrefix(r.URL.Path, "/static/") || strings.HasPrefix(r.URL.Path, "/cache/favicon") {
 			return
 		}
 
@@ -79,7 +79,7 @@ func RequireDBPath(next http.Handler) http.Handler {
 		dbParam := r.PathValue("db")
 
 		if err := validateDBParam(dbParam); err != nil {
-			slog.Error("db validation failed", "error", err, "path", dbParam)
+			slog.Error("db validation failed", "error", err, "dbParam", dbParam)
 			responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -156,7 +156,7 @@ func validateDBParam(dbParam string) error {
 
 	// Path traversal protection
 	cleanDB := filepath.Clean(dbParam)
-	if cleanDB != dbParam || strings.Contains(cleanDB, "..") || strings.Contains(cleanDB, "/") {
+	if cleanDB != dbParam || strings.Contains(dbParam, "/") {
 		return ErrRepoInvalidPath
 	}
 
