@@ -112,8 +112,6 @@ func (a *App) Parse() *App {
 		panic(err)
 	}
 
-	setVerbosity(a.Flags.Verbose)
-
 	return a
 }
 
@@ -144,6 +142,7 @@ func setVerbosity(verbose int) {
 			},
 		}),
 	)
+
 	slog.SetDefault(logger)
 
 	slog.Debug("logging", "level", level)

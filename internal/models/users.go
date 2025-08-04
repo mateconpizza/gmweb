@@ -1,10 +1,9 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"time"
-
-	"github.com/mateconpizza/gm/pkg/db"
 )
 
 var (
@@ -35,7 +34,7 @@ type User struct {
 }
 
 type UserModel struct {
-	store *db.SQLite
+	store *sql.DB
 }
 
 func (m *UserModel) Insert(name, password string) error {

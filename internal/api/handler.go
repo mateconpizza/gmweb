@@ -3,9 +3,7 @@ package api
 import (
 	"errors"
 	"log/slog"
-	"net/http"
 
-	"github.com/mateconpizza/gmweb/internal/files"
 	"github.com/mateconpizza/gmweb/internal/models"
 	"github.com/mateconpizza/gmweb/internal/responder"
 )
@@ -15,7 +13,7 @@ var ErrPathNotFound = errors.New("path not found")
 type HandlerOptFn func(*handlerOpt)
 
 type handlerOpt struct {
-	repoLoader func(string) (*models.BookmarkModel, error)
+	repoLoader func(string) (models.Repo, error)
 	appInfo    any
 	dataDir    string // dataDir path where the database are found, the home app.
 	cacheDir   string // dataDir path where the database are found.
@@ -25,13 +23,13 @@ type Handler struct {
 	*handlerOpt
 }
 
-func WithRepoLoader(fn func(string) (*models.BookmarkModel, error)) HandlerOptFn {
+func WithRepoLoader(fn func(string) (models.Repo, error)) HandlerOptFn {
 	return func(o *handlerOpt) {
 		o.repoLoader = fn
 	}
 }
 
-func WithInformation(info any) HandlerOptFn {
+func WithAppInfo(info any) HandlerOptFn {
 	return func(o *handlerOpt) {
 		o.appInfo = info
 	}
@@ -73,14 +71,4 @@ func dbStats(h *Handler, dbKey string) (*responder.RepoStatsResponse, error) {
 		Tags:      repo.Count("tags"),
 		Favorites: repo.CountFavorites(),
 	}, nil
-}
-
-func extractDBName(r *http.Request, def string) string {
-	dbName := r.URL.Query().Get("db")
-	if dbName == "" {
-		slog.Debug("no database name provided, using main database")
-		dbName = def
-	}
-
-	return files.EnsureSuffix(dbName, ".db")
 }

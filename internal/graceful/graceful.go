@@ -23,7 +23,7 @@ func Listen(ctx context.Context, cancel context.CancelFunc, cleanups ...CleanupF
 			fmt.Println()
 			slog.Info("received interruption signal", "signal", sig)
 			executeCleanups(cleanups...)
-			os.Exit(0)
+			cancel()
 		case <-ctx.Done():
 			slog.Debug("interrupt handler canceled by context")
 		}

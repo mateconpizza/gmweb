@@ -13,12 +13,12 @@ var ErrDBNotAllowed = errors.New("database not allowed")
 
 var (
 	Valid       = make(map[string]string)
-	connections = make(map[string]*models.BookmarkModel)
+	connections = make(map[string]models.Repo)
 	mu          sync.RWMutex
 )
 
 // Get returns a reusable connection to the requested base.
-func Get(dbKey string) (*models.BookmarkModel, error) {
+func Get(dbKey string) (models.Repo, error) {
 	mu.RLock()
 	repo, exists := connections[dbKey]
 	mu.RUnlock()

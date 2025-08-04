@@ -16,7 +16,7 @@ type OptFn func(*Opt)
 type Opt struct {
 	templates    *embed.FS
 	static       *embed.FS
-	repoLoader   func(string) (*models.BookmarkModel, error)
+	repoLoader   func(string) (models.Repo, error)
 	cacheDir     string // dataDir path where the database are found.
 	itemsPerPage int
 	appCfg       *application.Config
@@ -42,7 +42,7 @@ func WithStaticFiles(s *embed.FS) OptFn {
 	}
 }
 
-func WithRepoLoader(fn func(string) (*models.BookmarkModel, error)) OptFn {
+func WithRepoLoader(fn func(string) (models.Repo, error)) OptFn {
 	return func(o *Opt) {
 		o.repoLoader = fn
 	}
