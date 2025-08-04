@@ -2,9 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
+	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/mateconpizza/gmweb/internal/api"
@@ -78,9 +82,23 @@ func run(app *application.App) error {
 		return err
 	}
 
+	logFile := filepath.Join(app.Flags.Path, "log.json")
+	f, logger, err := setupLogger(logFile, app.Flags.Verbose)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		slog.Info("closing logfile")
+		if err := f.Close(); err != nil {
+			slog.Error("failed to close logfile", "err", err)
+		}
+	}()
+
 	mux := setupRoutes(app)
 	srv := server.New(
 		server.WithAddr(app.Flags.Addr),
+		server.WithLogger(logger),
 		server.WithMux(mux),
 		server.WithMiddleware(
 			middleware.CommonHeaders,
@@ -106,4 +124,48 @@ func run(app *application.App) error {
 	graceful.Listen(ctx, cancel, cleanups...)
 
 	return srv.Start()
+}
+
+func setupLogger(fn string, verbosity int) (*os.File, *slog.Logger, error) {
+	levels := []slog.Level{
+		slog.LevelError,
+		slog.LevelWarn,
+		slog.LevelInfo,
+		slog.LevelDebug,
+	}
+	level := levels[min(max(verbosity, 0), len(levels)-1)]
+
+	f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, files.FilePerm)
+	if err != nil {
+		return nil, nil, fmt.Errorf("open log file: %w", err)
+	}
+
+	multiWriter := io.MultiWriter(f, os.Stdout)
+
+	logger := slog.New(slog.NewJSONHandler(multiWriter, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     level,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			switch a.Key {
+			case slog.TimeKey:
+				return slog.String("time", a.Value.Time().Format(time.RFC3339))
+			case slog.LevelKey:
+				return slog.String("level", strings.ToLower(a.Value.String()))
+			case slog.SourceKey:
+				if source, ok := a.Value.Any().(*slog.Source); ok {
+					dir, file := filepath.Split(source.File)
+					shortFile := filepath.Join(filepath.Base(filepath.Clean(dir)), file)
+					return slog.String("src", fmt.Sprintf("%s:%d", shortFile, source.Line))
+				}
+			case slog.MessageKey:
+				return a
+			}
+			return a
+		},
+	}))
+
+	slog.SetDefault(logger)
+	slog.Debug("logging initialized", "level", level)
+
+	return f, logger, nil
 }

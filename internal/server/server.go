@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"os"
 	"sync/atomic"
 	"time"
 )
@@ -29,6 +31,7 @@ type ServerOptFn func(*serverOpt)
 type serverOpt struct {
 	addr        string
 	router      *http.ServeMux
+	logger      *slog.Logger
 	middlewares []Middleware
 	certFile    string
 	keyFile     string
@@ -63,11 +66,21 @@ func WithTLS(certFile, keyFile string) ServerOptFn {
 	}
 }
 
+func WithLogger(l *slog.Logger) ServerOptFn {
+	return func(o *serverOpt) {
+		o.logger = l
+	}
+}
+
 // New creates a new Server with the given options.
 func New(opts ...ServerOptFn) *Server {
 	o := &serverOpt{
 		router: http.NewServeMux(),
 		addr:   ":8080",
+	}
+
+	if o.logger == nil {
+		o.logger = slog.New(slog.NewTextHandler(os.Stderr, nil))
 	}
 
 	// Apply options
@@ -85,9 +98,10 @@ func New(opts ...ServerOptFn) *Server {
 		httpServer: &http.Server{
 			Addr:         o.addr,
 			Handler:      handler,
-			ReadTimeout:  10 * time.Second,
-			WriteTimeout: 30 * time.Second,
-			IdleTimeout:  60 * time.Second,
+			ErrorLog:     slog.NewLogLogger(o.logger.Handler(), slog.LevelError),
+			IdleTimeout:  time.Minute,
+			ReadTimeout:  5 * time.Second,
+			WriteTimeout: 10 * time.Second,
 		},
 		certFile: o.certFile,
 		keyFile:  o.keyFile,
