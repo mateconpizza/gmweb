@@ -1,4 +1,21 @@
-# 🔖 gmweb
+<div align="center">
+  <img src="https://raw.githubusercontent.com/MariaLetta/free-gophers-pack/master/illustrations/png/24.png" width="180" alt="Gopher logo"/>
+  <h2>GoMarks Web</h2>
+  
+  <p>A simple and powerful bookmark manager built with Go.</p>
+  
+  <p>
+    <img src="https://img.shields.io/github/go-mod/go-version/mateconpizza/gm" alt="Go Version"/>
+    <img src="https://img.shields.io/badge/-Linux-grey?logo=linux" alt="Linux compatible"/>
+    <img src="https://img.shields.io/badge/sqlite-%2307405e.svg?style=Flat&logo=sqlite&logoColor=white" alt="SQLite database"/>
+  </p>
+  
+  <p><sub><i>🚧 Work in Progress</i></sub></p>
+</div>
+
+
+<details>
+<summary><strong>Routes</strong></summary>
 
 ## API Routes
 
@@ -32,3 +49,5 @@
 | /web/{db}/bookmarks/qr/{id}     | GET    | showQR          | show bookmark QRCode        |
 | /static/                        | GET    | http.FileServer | static files (css, js, img) |
 | /cache/                         | GET    | http.FileServer | favicons                    |
+
+</details>
