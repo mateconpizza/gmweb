@@ -6,20 +6,23 @@ import (
 	"embed"
 	"html/template"
 	"log"
+	"log/slog"
 
 	"github.com/mateconpizza/gmweb/internal/application"
 	"github.com/mateconpizza/gmweb/internal/models"
+	"github.com/mateconpizza/gmweb/internal/router"
 )
 
 type OptFn func(*Opt)
 
 type Opt struct {
-	templates    *embed.FS
-	static       *embed.FS
+	files        *embed.FS
 	repoLoader   func(string) (models.Repo, error)
 	cacheDir     string // dataDir path where the database are found.
 	itemsPerPage int
 	appCfg       *application.Config
+	logger       *slog.Logger
+	routes       *router.Router
 }
 
 type Handler struct {
@@ -27,18 +30,11 @@ type Handler struct {
 	template     *template.Template
 	qrImgSize    int
 	colorschemes []string
-	routes       *webRoutes
 }
 
-func WithTemplates(t *embed.FS) OptFn {
+func WithFiles(f *embed.FS) OptFn {
 	return func(o *Opt) {
-		o.templates = t
-	}
-}
-
-func WithStaticFiles(s *embed.FS) OptFn {
-	return func(o *Opt) {
-		o.static = s
+		o.files = f
 	}
 }
 
@@ -66,18 +62,30 @@ func WithCfg(info *application.Config) OptFn {
 	}
 }
 
+func WithLogger(l *slog.Logger) OptFn {
+	return func(o *Opt) {
+		o.logger = l
+	}
+}
+
+func WithRoutes(r *router.Router) OptFn {
+	return func(o *Opt) {
+		o.routes = r
+	}
+}
+
 func NewHandler(opts ...OptFn) *Handler {
 	wo := &Opt{}
 	for _, opt := range opts {
 		opt(wo)
 	}
 
-	tmpl, err := createMainTemplate(wo.templates)
+	tmpl, err := createMainTemplate(wo.files)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	themes, err := getColorschemesNames(wo.static)
+	themes, err := getColorschemesNames(wo.files)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -87,30 +95,5 @@ func NewHandler(opts ...OptFn) *Handler {
 		Opt:          wo,
 		qrImgSize:    512,
 		colorschemes: themes,
-		routes:       &webRoutes{},
 	}
 }
-
-type webRoutes struct{}
-
-func (w *webRoutes) Index(s string) string { return "/" + s }
-
-func (w *webRoutes) All(db string) string { return "/web/" + db + "/bookmarks/all" }
-
-func (w *webRoutes) New(db string) string { return "/web/" + db + "/bookmarks/new" }
-
-func (w *webRoutes) Detail(db, bID string) string { return "/web/" + db + "/bookmarks/detail/" + bID }
-
-func (w *webRoutes) View(db, bID string) string { return "/web/" + db + "/bookmarks/view/" + bID }
-
-func (w *webRoutes) Edit(db, bID string) string { return "/web/" + db + "/bookmarks/edit/" + bID }
-
-func (w *webRoutes) QRCode(db, bID string) string { return "/web/" + db + "/bookmarks/qr/" + bID }
-
-func (w *webRoutes) UserSignup() string { return "/user/signup" }
-
-func (w *webRoutes) UserLogin() string { return "/user/login" }
-
-func (w *webRoutes) UserLogout() string { return "/user/logout" }
-
-func (w *webRoutes) Favicon() string { return "/static/img/favicon.png" }
