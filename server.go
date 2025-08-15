@@ -18,34 +18,40 @@ import (
 	"github.com/mateconpizza/gmweb/internal/graceful"
 	"github.com/mateconpizza/gmweb/internal/middleware"
 	"github.com/mateconpizza/gmweb/internal/models"
+	"github.com/mateconpizza/gmweb/internal/router"
 	"github.com/mateconpizza/gmweb/internal/server"
 	"github.com/mateconpizza/gmweb/internal/web"
+	"github.com/mateconpizza/gmweb/ui"
 )
 
 // setupRoutes configures and returns the main HTTP router with all handlers.
 func setupRoutes(app *application.App) *http.ServeMux {
-	router := http.NewServeMux()
+	r := router.New("{db}")
+	mux := http.NewServeMux()
 
 	apiHandler := api.NewHandler(
 		api.WithRepoLoader(database.Get),
 		api.WithAppInfo(app.Cfg.Info),
 		api.WithDataDir(app.Flags.Path),
 		api.WithCacheDir(app.Cfg.CacheDir),
+		api.WithLogger(app.Log),
+		api.WithRoutes(r),
 	)
-	apiHandler.Routes(router)
+	apiHandler.Routes(mux)
 
 	// FIX: inject the `app` struct?
 	webHandler := web.NewHandler(
 		web.WithRepoLoader(database.Get),
 		web.WithCacheDir(app.Cfg.CacheDir),
-		web.WithStaticFiles(app.Server.StaticFiles),
-		web.WithTemplates(app.Server.TemplatesFiles),
+		web.WithFiles(&ui.Files),
 		web.WithItemsPerPage(app.Server.ItemsPerPage),
 		web.WithCfg(app.Cfg),
+		web.WithLogger(app.Log),
+		web.WithRoutes(r),
 	)
-	webHandler.Routes(router)
+	webHandler.Routes(mux)
 
-	return router
+	return mux
 }
 
 func setupRepos(app *application.App) error {
@@ -56,8 +62,8 @@ func setupRepos(app *application.App) error {
 
 	// first run?
 	if len(paths) == 0 {
-		slog.Debug("first run: create main database")
-		dbPath := filepath.Join(app.Cfg.DataDir, app.Cfg.MainDB)
+		dbPath := files.EnsureSuffix(filepath.Join(app.Cfg.DataDir, app.Cfg.MainDB), ".db")
+		app.Log.Debug("first run: creating main database")
 		_, err := models.Initialize(context.Background(), dbPath)
 		if err != nil {
 			return err
@@ -78,10 +84,6 @@ func run(app *application.App) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if err := setupRepos(app); err != nil {
-		return err
-	}
-
 	logFile := filepath.Join(app.Flags.Path, "log.json")
 	f, logger, err := setupLogger(logFile, app.Flags.Verbose)
 	if err != nil {
@@ -95,15 +97,23 @@ func run(app *application.App) error {
 		}
 	}()
 
+	app.Log = logger
+	app.Log.Debug("app paths", "data", app.Cfg.DataDir, "cache", app.Cfg.CacheDir, "log", logFile)
+
+	if err := setupRepos(app); err != nil {
+		return err
+	}
+
 	mux := setupRoutes(app)
 	srv := server.New(
 		server.WithAddr(app.Flags.Addr),
-		server.WithLogger(logger),
+		server.WithLogger(app.Log),
 		server.WithMux(mux),
 		server.WithMiddleware(
 			middleware.CommonHeaders,
 			middleware.Logging,
 			middleware.PanicRecover,
+			middleware.NoSurf,
 		),
 		server.WithTLS(app.Server.CertFile, app.Server.KeyFile),
 	)
@@ -114,7 +124,7 @@ func run(app *application.App) error {
 			return nil
 		},
 		func() error {
-			slog.Info("shutting down HTTP server")
+			app.Log.Info("shutting down HTTP server")
 			shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer shutdownCancel()
 			return srv.Shutdown(shutdownCtx)
@@ -165,7 +175,6 @@ func setupLogger(fn string, verbosity int) (*os.File, *slog.Logger, error) {
 	}))
 
 	slog.SetDefault(logger)
-	slog.Debug("logging initialized", "level", level)
 
 	return f, logger, nil
 }
