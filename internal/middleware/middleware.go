@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"errors"
+	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -13,12 +14,19 @@ import (
 	"strings"
 	"time"
 
+	"github.com/justinas/nosurf"
+
 	"github.com/mateconpizza/gmweb/internal/database"
 	"github.com/mateconpizza/gmweb/internal/responder"
 )
 
+const (
+	chromeExtID  = "mllmmjngfojnegaaaidjdmcpaknhjcjb"
+	firefoxExtID = "78fc8a7e-8e4f-4ab6-a941-f37cb9617369"
+)
+
 var (
-	ErrRepoNotProvided = errors.New("repo not provided")
+	ErrRepoNotProvided = errors.New("repo name not provided")
 	ErrRepoInvalidPath = errors.New("invalid repo path")
 )
 
@@ -63,18 +71,25 @@ func Logging(next http.Handler) http.Handler {
 
 func CommonHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().
-			Set("Content-Security-Policy", "default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com")
+		basePolicy := "default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com"
+		frameAncestors := fmt.Sprintf(
+			"frame-ancestors 'self' chrome-extension://%s moz-extension://%s",
+			chromeExtID,
+			firefoxExtID,
+		)
+		cspHeader := fmt.Sprintf("%s; %s", basePolicy, frameAncestors)
+		w.Header().Set("Content-Security-Policy", cspHeader)
+
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Frame-Options", "deny")
+		// w.Header().Set("X-Frame-Options", "deny")
 		w.Header().Set("X-XSS-Protection", "0")
 		w.Header().Set("Server", "Go")
 		next.ServeHTTP(w, r)
 	})
 }
 
-func RequireDBPath(next http.Handler) http.Handler {
+func RequireDBParam(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		dbParam := r.PathValue("db")
 
@@ -88,7 +103,7 @@ func RequireDBPath(next http.Handler) http.Handler {
 	})
 }
 
-func RequireIDAndDB(next http.Handler) http.Handler {
+func RequireIDAndDBParam(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		idStr := r.PathValue("id")
 		if idStr == "" {
@@ -149,6 +164,20 @@ func PanicRecover(next http.Handler) http.Handler {
 	})
 }
 
+// NoSurf uses a customized CSRF cookie with the Secure, Path and HttpOnly
+// attributes set.
+func NoSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	return csrfHandler
+}
+
 func validateDBParam(dbParam string) error {
 	if dbParam == "" {
 		return ErrRepoNotProvided
@@ -162,7 +191,7 @@ func validateDBParam(dbParam string) error {
 
 	// Business logic validation
 	if !database.IsValid(cleanDB) {
-		return database.ErrDBNotAllowed
+		return fmt.Errorf("%w: '%s'", database.ErrDBNotFound, dbParam)
 	}
 
 	return nil
