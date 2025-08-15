@@ -1,11 +1,8 @@
 package application
 
 import (
-	"embed"
 	"fmt"
-	"log/slog"
 	"os"
-	"path/filepath"
 	"runtime"
 
 	gap "github.com/muesli/go-app-paths"
@@ -18,7 +15,7 @@ var version string = "0.1.0"
 
 const (
 	appName string = "gmweb"
-	mainDB  string = "main.db" // Default name of the main database
+	mainDB  string = "main" // Default name of the main database
 )
 
 type (
@@ -33,12 +30,10 @@ type (
 
 	// Server holds configuration specific to the web server.
 	Server struct {
-		QRImgSize      int       // QR image size
-		ItemsPerPage   int       // ItemsPerPage
-		TemplatesFiles *embed.FS // Templates embedded file system
-		StaticFiles    *embed.FS // Static files embedded file system
-		CertFile       string    // Certificate file path for HTTPS
-		KeyFile        string    // Key file path for HTTPS
+		QRImgSize    int    // QR image size
+		ItemsPerPage int    // ItemsPerPage
+		CertFile     string // Certificate file path for HTTPS
+		KeyFile      string // Key file path for HTTPS
 	}
 
 	// Flags holds command-line interface flags.
@@ -113,37 +108,4 @@ func (a *App) Parse() *App {
 	}
 
 	return a
-}
-
-func setVerbosity(verbose int) {
-	levels := []slog.Level{
-		slog.LevelError,
-		slog.LevelWarn,
-		slog.LevelInfo,
-		slog.LevelDebug,
-	}
-	level := levels[min(verbose, len(levels)-1)]
-
-	logger := slog.New(
-		slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-			AddSource: true,
-			Level:     level,
-			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-				if a.Key == "source" {
-					if source, ok := a.Value.Any().(*slog.Source); ok {
-						dir, file := filepath.Split(source.File)
-						source.File = filepath.Join(filepath.Base(filepath.Clean(dir)), file)
-
-						return slog.Attr{Key: "source", Value: slog.AnyValue(source)}
-					}
-				}
-
-				return a
-			},
-		}),
-	)
-
-	slog.SetDefault(logger)
-
-	slog.Debug("logging", "level", level)
 }

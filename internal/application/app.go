@@ -3,6 +3,7 @@ package application
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 )
 
@@ -10,6 +11,7 @@ type App struct {
 	Cfg    *Config
 	Flags  *Flags
 	Server *Server
+	Log    *slog.Logger
 }
 
 func New() *App {
