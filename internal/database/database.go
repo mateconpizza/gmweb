@@ -9,7 +9,10 @@ import (
 	"github.com/mateconpizza/gmweb/internal/models"
 )
 
-var ErrDBNotAllowed = errors.New("database not allowed")
+var (
+	ErrDBNotAllowed = errors.New("database not allowed")
+	ErrDBNotFound   = errors.New("database not found")
+)
 
 var (
 	Valid       = make(map[string]string)

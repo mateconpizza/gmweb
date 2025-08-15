@@ -4,11 +4,9 @@ package models
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/mateconpizza/gm/pkg/bookmark"
 	"github.com/mateconpizza/gm/pkg/db"
-	"github.com/mateconpizza/gm/pkg/repository"
 )
 
 var (
@@ -21,26 +19,20 @@ type BookmarkModel struct {
 	store *db.SQLite
 }
 
-var (
-	toDBModel   = repository.ToDBModel
-	fromDBModel = repository.FromDBModel
-)
-
 func (bm *BookmarkModel) InsertOne(ctx context.Context, b *bookmark.Bookmark) (int64, error) {
-	b.GenChecksum()
-	return bm.store.InsertOne(ctx, toDBModel(b))
+	return bm.store.InsertOne(ctx, b)
 }
 
 func (bm *BookmarkModel) Update(ctx context.Context, newB, oldB *bookmark.Bookmark) error {
-	return bm.store.Update(ctx, toDBModel(newB), repository.ToDBModel(oldB))
+	return bm.store.Update(ctx, newB, oldB)
 }
 
 func (bm *BookmarkModel) SetFavorite(ctx context.Context, b *bookmark.Bookmark) error {
-	return bm.store.SetFavorite(ctx, toDBModel(b))
+	return bm.store.SetFavorite(ctx, b)
 }
 
-func (bm *BookmarkModel) AddVisitAndUpdateCount(ctx context.Context, bID int) error {
-	return bm.store.AddVisitAndUpdateCount(ctx, bID)
+func (bm *BookmarkModel) AddVisit(ctx context.Context, bID int) error {
+	return bm.store.AddVisit(ctx, bID)
 }
 
 func (bm *BookmarkModel) Has(url string) (*bookmark.Bookmark, bool) {
@@ -48,29 +40,11 @@ func (bm *BookmarkModel) Has(url string) (*bookmark.Bookmark, bool) {
 	if !ok {
 		return nil, ok
 	}
-	return fromDBModel(b), ok
+	return b, ok
 }
 
 func (bm *BookmarkModel) DeleteMany(ctx context.Context, bs []*bookmark.Bookmark) error {
-	bookmarks := make([]*db.BookmarkModel, len(bs))
-	for i, m := range bs {
-		bookmarks[i] = toDBModel(m)
-	}
-
-	// delete records from main table.
-	if err := bm.store.DeleteMany(ctx, bookmarks); err != nil {
-		return fmt.Errorf("deleting records: %w", err)
-	}
-	// reorder IDs from main table to avoid gaps.
-	if err := bm.store.ReorderIDs(ctx); err != nil {
-		return fmt.Errorf("reordering IDs: %w", err)
-	}
-	// recover space after deletion.
-	if err := bm.store.Vacuum(ctx); err != nil {
-		return fmt.Errorf("vacuum: %w", err)
-	}
-
-	return nil
+	return bm.store.DeleteMany(ctx, bs)
 }
 
 func (bm *BookmarkModel) ByID(bID int) (*bookmark.Bookmark, error) {
@@ -79,22 +53,11 @@ func (bm *BookmarkModel) ByID(bID int) (*bookmark.Bookmark, error) {
 		return nil, err
 	}
 
-	return fromDBModel(b), nil
+	return b, nil
 }
 
 func (bm *BookmarkModel) All() ([]*bookmark.Bookmark, error) {
-	dbModels, err := bm.store.All()
-	if err != nil {
-		return nil, err
-	}
-
-	// Translate the slice of db models to a slice of domain models.
-	bookmarks := make([]*bookmark.Bookmark, len(dbModels))
-	for i, m := range dbModels {
-		bookmarks[i] = fromDBModel(m)
-	}
-
-	return bookmarks, nil
+	return bm.store.All()
 }
 
 func (bm *BookmarkModel) Close() {
@@ -106,7 +69,7 @@ func (bm *BookmarkModel) Name() string {
 }
 
 func (bm *BookmarkModel) Count(table string) int {
-	return bm.store.CountRecordsFrom(table)
+	return bm.store.Count(table)
 }
 
 func (bm *BookmarkModel) CountTags() (map[string]int, error) {

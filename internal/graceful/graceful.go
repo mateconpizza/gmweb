@@ -21,11 +21,11 @@ func Listen(ctx context.Context, cancel context.CancelFunc, cleanups ...CleanupF
 		select {
 		case sig := <-sigChan:
 			fmt.Println()
-			slog.Info("received interruption signal", "signal", sig)
+			slog.Info("[graceful] received interruption signal", "signal", sig)
 			executeCleanups(cleanups...)
 			cancel()
 		case <-ctx.Done():
-			slog.Debug("interrupt handler canceled by context")
+			slog.Debug("[graceful] interrupt handler canceled by context")
 		}
 	}()
 }

@@ -1,3 +1,5 @@
+// Package forms provides a way to decode form data from HTTP requests into Go
+// structs.
 package forms
 
 import (

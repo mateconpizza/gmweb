@@ -182,8 +182,7 @@ linters:
     presets:
       - common-false-positives
     paths:
-      - cmd/Test.go
-      - internal/format/color/colorhex.go
+      - internal/routes/routes.go
       - third_party$
       - builtin$
       - examples$

@@ -2,7 +2,11 @@
 package helpers
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
+	"net/url"
 	"sort"
 	"strings"
 	"time"
@@ -43,7 +47,7 @@ func TitleFirstLetter(s string) string {
 	return string(titleRune) + s[size:]
 }
 
-func DateFormat(s string) string {
+func FormatDate(s string) string {
 	t, err := time.Parse(time.RFC3339, s)
 	if err != nil {
 		return s
@@ -51,6 +55,20 @@ func DateFormat(s string) string {
 
 	// Format: "Jan. 2, 2006, 3:04 p.m."
 	return t.Format("Jan. 2, 2006, 3:04 p.m.")
+}
+
+// FormatTimestamp converts a timestamp string into format "Jan. 2, 2006, 3:04
+// p.m.".
+func FormatTimestamp(timestamp string) string {
+	// FIX: wrong format
+	const inputLayout = "20060102150405"
+	const outputLayout = "Jan. 2, 2006, 3:04 p.m."
+	t, err := time.Parse(inputLayout, timestamp)
+	if err != nil {
+		return timestamp
+	}
+
+	return t.Format(outputLayout)
 }
 
 // RelativeISOTime takes a timestamp string in ISO 8601 format (e.g., "2025-02-27T05:03:28Z")
@@ -229,6 +247,19 @@ func SortBy(s string, bs []*bookmark.Bookmark) []*bookmark.Bookmark {
 		sort.Slice(bs, func(i, j int) bool {
 			return bs[i].VisitCount > bs[j].VisitCount
 		})
+	case "inactive":
+		sort.Slice(bs, func(i, j int) bool {
+			// Si el bookmark i es inactivo (false) y el bookmark j es activo (true),
+			// i va antes que j.
+			if !bs[i].IsActive && bs[j].IsActive {
+				return true
+			}
+			// En cualquier otro caso (ambos activos o ambos inactivos), el orden no cambia.
+			if !bs[i].IsActive == !bs[j].IsActive {
+				return false
+			}
+			return false
+		})
 	}
 
 	return bs
@@ -293,4 +324,87 @@ func GetTagsFn(tag, query string, bs, paginatedBs []*bookmark.Bookmark) func() [
 	return func() []string {
 		return ExtractTags(items)
 	}
+}
+
+// GenChecksum generates a checksum for the bookmark.
+func GenChecksum(rawURL, title, desc, tags string) string {
+	data := fmt.Sprintf("u:%s|t:%s|d:%s|tags:%s", rawURL, title, desc, tags)
+	return generateHash(data, 8)
+}
+
+func generateHash(s string, c int) string {
+	hash := sha256.Sum256([]byte(s))
+	return base64.RawURLEncoding.EncodeToString(hash[:])[:c]
+}
+
+// PrintTable prints data in a markdown-style table format.
+func PrintTable(headers []string, rows [][]string) {
+	if len(headers) == 0 {
+		return
+	}
+
+	// Calculate column widths
+	colWidths := make([]int, len(headers))
+
+	// Initialize with header lengths
+	for i, header := range headers {
+		colWidths[i] = len(header)
+	}
+
+	// Check row data for maximum width
+	for _, row := range rows {
+		for i, cell := range row {
+			if i < len(colWidths) && len(cell) > colWidths[i] {
+				colWidths[i] = len(cell)
+			}
+		}
+	}
+
+	// Add padding
+	for i := range colWidths {
+		colWidths[i] += 2 // Add 1 space on each side
+	}
+
+	// Print header
+	fmt.Print("|")
+	for i, header := range headers {
+		fmt.Printf("%-*s|", colWidths[i], " "+header+" ")
+	}
+	fmt.Println()
+
+	// Print separator
+	fmt.Print("|")
+	for _, width := range colWidths {
+		fmt.Print(strings.Repeat("-", width) + "|")
+	}
+	fmt.Println()
+
+	// Print rows
+	for _, row := range rows {
+		fmt.Print("|")
+		for i, cell := range row {
+			if i < len(colWidths) {
+				fmt.Printf("%-*s|", colWidths[i], " "+cell+" ")
+			}
+		}
+		// Fill empty cells if row is shorter than headers
+		for i := len(row); i < len(colWidths); i++ {
+			fmt.Printf("%-*s|", colWidths[i], " ")
+		}
+		fmt.Println()
+	}
+}
+
+func HashString(s string, n int) string {
+	sum := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(sum[:])[:n]
+}
+
+func HashDomain(u string) (string, error) {
+	parsedURL, err := url.Parse(u)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", HashString(parsedURL.Host, 12)), nil
 }

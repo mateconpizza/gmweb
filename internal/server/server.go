@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -94,11 +95,17 @@ func New(opts ...ServerOptFn) *Server {
 		handler = o.middlewares[i](handler)
 	}
 
+	tlsConfig := &tls.Config{
+		MinVersion:       tls.VersionTLS12,
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	return &Server{
 		httpServer: &http.Server{
 			Addr:         o.addr,
 			Handler:      handler,
 			ErrorLog:     slog.NewLogLogger(o.logger.Handler(), slog.LevelError),
+			TLSConfig:    tlsConfig,
 			IdleTimeout:  time.Minute,
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
@@ -115,6 +122,7 @@ func (s *Server) Start() error {
 	}
 
 	fmt.Print("starting server on ")
+	slog.Info("starting server", "addr", s.httpServer.Addr)
 
 	// Start server with or without TLS based on configuration
 	if s.certFile != "" && s.keyFile != "" {

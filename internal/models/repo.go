@@ -39,7 +39,7 @@ type Writer interface {
 	SetFavorite(ctx context.Context, b *bookmark.Bookmark) error
 
 	// AddVisitAndUpdateCount adds a visit to a bookmark and updates its count.
-	AddVisitAndUpdateCount(ctx context.Context, bID int) error
+	AddVisit(ctx context.Context, bID int) error
 
 	// DeleteMany deletes multiple bookmarks.
 	DeleteMany(ctx context.Context, bs []*bookmark.Bookmark) error
