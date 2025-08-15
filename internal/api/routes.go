@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -30,32 +30,34 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/scrape", h.scrapeData)
 	mux.HandleFunc("POST /api/qr", h.genQR)
 	mux.HandleFunc("POST /api/qr/png", h.genQRPNG)
-
-	// Database|Repository
-	mux.HandleFunc("GET /api/repo/list", h.dbList)
-	mux.HandleFunc("GET /api/repo/all", h.dbInfoAll)
+	mux.HandleFunc("POST /api/archive", h.snapshotURL)
+	mux.HandleFunc("GET /api/health", h.health)
 
 	// Middleware
-	requireIDAndDB := func(fn http.HandlerFunc) http.Handler {
-		return middleware.RequireIDAndDB(fn)
+	mustIDAndDBParam := func(fn func(w http.ResponseWriter, r *http.Request)) http.Handler {
+		return middleware.RequireIDAndDBParam(http.HandlerFunc(fn))
 	}
-	requireDBPath := func(fn http.HandlerFunc) http.Handler {
-		return middleware.RequireDBPath(fn)
+	mustDBParam := func(fn func(w http.ResponseWriter, r *http.Request)) http.Handler {
+		return middleware.RequireDBParam(http.HandlerFunc(fn))
 	}
 
+	r := h.routes.API
 	// Records
-	mux.Handle("GET /api/{db}/bookmarks/{id}", requireIDAndDB(h.recordByID))
-	mux.Handle("GET /api/{db}/bookmarks/tags", requireDBPath(h.allTags))
-	mux.Handle("POST /api/{db}/bookmarks/new", requireDBPath(h.newRecord))
-	mux.Handle("PUT /api/{db}/bookmarks/{id}/favorite", requireIDAndDB(h.toggleFavorite))
-	mux.Handle("PUT /api/{db}/bookmarks/{id}/visit", requireIDAndDB(h.addVisit))
-	mux.Handle("PUT /api/{db}/bookmarks/{id}/update", requireIDAndDB(h.updateRecord))
-	mux.Handle("DELETE /api/{db}/bookmarks/{id}/delete", requireIDAndDB(h.deleteRecord))
+	mux.Handle("GET "+r.GetByID("{id}"), mustIDAndDBParam(h.recordByID))
+	mux.Handle("GET "+r.Tags(), mustDBParam(h.allTags))
+	mux.Handle("POST "+r.NewBookmark(), mustDBParam(h.newRecord))
+	mux.Handle("PUT "+r.ToggleFavorite("{id}"), mustIDAndDBParam(h.toggleFavorite))
+	mux.Handle("PUT "+r.AddVisit("{id}"), mustIDAndDBParam(h.addVisit))
+	mux.Handle("PUT "+r.UpdateBookmark("{id}"), mustIDAndDBParam(h.updateRecord))
+	mux.Handle("DELETE "+r.DeleteBookmark("{id}"), mustIDAndDBParam(h.deleteRecord))
+	mux.Handle("GET "+r.CheckStatus("{id}"), mustIDAndDBParam(h.checkStatus))
 
 	// Repositories
-	mux.Handle("GET /api/{db}/info", requireDBPath(h.dbInfo))
-	mux.HandleFunc("POST /api/{db}/new", h.dbCreate)
-	mux.Handle("DELETE /api/{db}/delete", requireDBPath(h.dbDelete))
+	mux.HandleFunc("GET "+r.RepoList(), h.dbList)
+	mux.HandleFunc("GET "+r.RepoAll(), h.dbInfoAll)
+	mux.Handle("GET "+r.RepoInfo(), mustDBParam(h.dbInfo))
+	mux.Handle("DELETE "+r.RepoDelete(), mustDBParam(h.dbDelete))
+	mux.HandleFunc("POST "+r.RepoNew(), h.dbCreate)
 }
 
 func (h *Handler) index(w http.ResponseWriter, _ *http.Request) {
@@ -70,7 +72,7 @@ func (h *Handler) index(w http.ResponseWriter, _ *http.Request) {
 func (h *Handler) dbList(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// FIX: add `.enc` extension
+	// FIX: add `.enc` extension?
 	paths, err := files.FindByExtList(h.dataDir, ".db")
 	if err != nil {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
@@ -115,9 +117,15 @@ func (h *Handler) dbInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	dbName := r.PathValue("db")
+	if dbName == "" {
+		h.logger.Error("repo info, dbName empty")
+		responder.EncodeErrJSON(w, http.StatusBadRequest, middleware.ErrRepoNotProvided.Error())
+		return
+	}
+
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		slog.Error("listing bookmarks", "error", err, "db", dbName)
+		h.logger.Error("repo info", "error", err, "repo", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -142,16 +150,16 @@ func (h *Handler) scrapeData(w http.ResponseWriter, r *http.Request) {
 
 	u := r.URL.Query().Get("url")
 	if u == "" {
-		slog.Debug("fetching URL", "error", "empty URL")
+		h.logger.Error("fetching URL", "error", "empty URL")
 		responder.EncodeErrJSON(w, http.StatusBadRequest, "empty URL")
 		return
 	}
 
-	slog.Debug("fetching URL", "url", u)
+	h.logger.Debug("fetching URL", "url", u)
 
 	sc := scraper.New(u)
 	if err := sc.Start(); err != nil {
-		slog.Error("scrape new bookmark", "error", err)
+		h.logger.Error("scrape new bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -174,7 +182,7 @@ func (h *Handler) scrapeData(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewEncoder(w).Encode(responsePayload)
 	if err != nil {
-		slog.Error("fetching response: failed to encode JSON", "error", err, "url", u)
+		h.logger.Error("fetching response: failed to encode JSON", "error", err, "url", u)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 	}
 }
@@ -185,13 +193,13 @@ func (h *Handler) genQR(w http.ResponseWriter, r *http.Request) {
 
 	req := &responder.QRCodeRequest{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-		slog.Error("gen QRCode", "error", err)
+		h.logger.Error("gen QRCode", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			slog.Error("gen QRCode: closing request body", "error", err)
+			h.logger.Error("gen QRCode: closing request body", "error", err)
 		}
 	}()
 
@@ -215,7 +223,7 @@ func (h *Handler) genQR(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		slog.Error("gen QRCode: failed to encode JSON", "error", err)
+		h.logger.Error("gen QRCode: failed to encode JSON", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -227,13 +235,13 @@ func (h *Handler) genQRPNG(w http.ResponseWriter, r *http.Request) {
 
 	req := &responder.QRCodeRequest{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-		slog.Error("gen QRCode", "error", err)
+		h.logger.Error("gen QRCode", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			slog.Error("gen QRCode: closing request body", "error", err)
+			h.logger.Error("gen QRCode: closing request body", "error", err)
 		}
 	}()
 
@@ -264,7 +272,7 @@ func (h *Handler) dbDelete(w http.ResponseWriter, r *http.Request) {
 
 	repo, err := h.repoLoader(r.PathValue("db"))
 	if err != nil {
-		slog.Error("listing bookmarks", "error", err, "db", r.PathValue("db"))
+		h.logger.Error("listing bookmarks", "error", err, "db", r.PathValue("db"))
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -275,7 +283,7 @@ func (h *Handler) dbDelete(w http.ResponseWriter, r *http.Request) {
 	dbName := files.EnsureSuffix(r.PathValue("db"), ".db")
 	dbPath := filepath.Clean(filepath.Join(h.dataDir, dbName))
 	if err := files.Rename(dbPath, dbName+".bk"); err != nil {
-		slog.Error("renaming repo", "err", err)
+		h.logger.Error("renaming repo", "err", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -300,22 +308,21 @@ func (h *Handler) dbCreate(w http.ResponseWriter, r *http.Request) {
 
 	dbParam := r.PathValue("db")
 	if dbParam == "" {
-		slog.Error("create database: no name provided")
+		h.logger.Error("create database: no name provided")
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, "no name provide")
 		return
 	}
 
-	newDBName := files.EnsureSuffix(r.PathValue("db"), ".db")
-	dbPath := filepath.Join(h.dataDir, newDBName)
-	dbPath = filepath.Clean(dbPath)
+	newDBName := files.EnsureSuffix(dbParam, ".db")
+	dbPath := filepath.Clean(filepath.Join(h.dataDir, newDBName))
 	_, err := models.Initialize(context.Background(), dbPath)
 	if err != nil {
-		slog.Error("creating database", "error", err, "db", newDBName)
+		h.logger.Error("creating database", "error", err, "db", newDBName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	database.Register(r.PathValue("db"), dbPath)
+	database.Register(dbParam, dbPath)
 
 	w.WriteHeader(http.StatusCreated)
 	res := &responder.ResponseData{
@@ -335,7 +342,7 @@ func (h *Handler) recordByID(w http.ResponseWriter, r *http.Request) {
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		slog.Error("listing bookmarks", "error", err, "db", dbName)
+		h.logger.Error("listing bookmarks", "error", err, "db", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -344,12 +351,12 @@ func (h *Handler) recordByID(w http.ResponseWriter, r *http.Request) {
 	bID, _ := strconv.Atoi(idStr)
 	b, err := repo.ByID(bID)
 	if err != nil {
-		slog.Error("deleting bookmark", "error", err)
+		h.logger.Error("deleting bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(b); err != nil {
+	if err := json.NewEncoder(w).Encode(b.JSON()); err != nil {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -362,20 +369,20 @@ func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		slog.Error("listing bookmarks", "error", err, "db", dbName)
+		h.logger.Error("new record", "error", err, "db", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	bj := bookmark.NewJSON()
 	if err := json.NewDecoder(r.Body).Decode(bj); err != nil {
-		slog.Error("creating bookmark", "error", err)
+		h.logger.Error("creating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			slog.Error("creating bookmark: closing request body", "error", err)
+			h.logger.Error("creating bookmark: closing request body", "error", err)
 		}
 	}()
 
@@ -386,7 +393,7 @@ func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
 
 	bj.URL = strings.TrimSuffix(bj.URL, "/")
 	if _, exists := repo.Has(bj.URL); exists {
-		slog.Error("creating bookmark", "error", models.ErrRecordDuplicate)
+		h.logger.Error("creating bookmark", "error", models.ErrRecordDuplicate)
 		responder.EncodeErrJSON(w, http.StatusBadRequest, models.ErrRecordDuplicate.Error())
 		return
 	}
@@ -405,13 +412,13 @@ func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
 	newB.URL = u.String()
 
 	if err := bookmark.Validate(newB); err != nil {
-		slog.Error("creating bookmark", "error", err)
+		h.logger.Error("creating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if _, err := repo.InsertOne(context.Background(), newB); err != nil {
-		slog.Error("creating bookmark", "error", err)
+		h.logger.Error("creating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -423,45 +430,46 @@ func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		slog.Error("creating bookmark", "error", err)
+		h.logger.Error("creating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 	}
 }
 
 // updateRecord updates the given record.
 func (h *Handler) updateRecord(w http.ResponseWriter, r *http.Request) {
+	// FIX: use normal bookmark, drop BookmarkJSON
 	w.Header().Set("Content-Type", "application/json")
 
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		slog.Error("listing bookmarks", "error", err, "db", dbName)
+		h.logger.Error("listing bookmarks", "error", err, "db", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	bj := bookmark.NewJSON()
 	if err := json.NewDecoder(r.Body).Decode(bj); err != nil {
-		slog.Error("updating bookmark", "error", err)
+		h.logger.Error("updating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			slog.Error("updating bookmark: closing request body", "error", err)
+			h.logger.Error("updating bookmark: closing request body", "error", err)
 		}
 	}()
 
 	newB := bookmark.NewFromJSON(bj)
 	oldB, err := repo.ByID(bj.ID)
 	if err != nil {
-		slog.Error("updating bookmark", "error", err)
+		h.logger.Error("updating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if err := bookmark.Validate(newB); err != nil {
-		slog.Error("updating bookmark", "error", err)
+		h.logger.Error("updating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -476,13 +484,9 @@ func (h *Handler) updateRecord(w http.ResponseWriter, r *http.Request) {
 	newB.LastVisit = oldB.LastVisit
 	newB.Favorite = oldB.Favorite
 	newB.VisitCount = oldB.VisitCount
-	if oldB.URL == newB.URL {
-		newB.FaviconURL = oldB.FaviconURL
-		newB.FaviconLocal = oldB.FaviconLocal
-	}
 
 	if err := repo.Update(context.Background(), newB, oldB); err != nil {
-		slog.Error("updating bookmark", "error", err)
+		h.logger.Error("updating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -491,7 +495,6 @@ func (h *Handler) updateRecord(w http.ResponseWriter, r *http.Request) {
 		Message:    "Bookmark updated successfully!",
 		StatusCode: http.StatusOK,
 	}
-
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
@@ -505,7 +508,7 @@ func (h *Handler) deleteRecord(w http.ResponseWriter, r *http.Request) {
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		slog.Error("delete: repo loader", "error", err, "db", dbName)
+		h.logger.Error("delete: repo loader", "error", err, "db", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -515,15 +518,15 @@ func (h *Handler) deleteRecord(w http.ResponseWriter, r *http.Request) {
 
 	b, err := repo.ByID(bID)
 	if err != nil {
-		slog.Error("delete: getting by ID", "error", err)
+		h.logger.Error("delete: getting by ID", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	slog.Debug("delete: bookmark", "id", b.ID)
+	h.logger.Debug("delete: bookmark", "id", b.ID)
 
 	if err := repo.DeleteMany(context.Background(), []*bookmark.Bookmark{b}); err != nil {
-		slog.Error("deleting bookmark", "error", err)
+		h.logger.Error("deleting bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -543,7 +546,7 @@ func (h *Handler) addVisit(w http.ResponseWriter, r *http.Request) {
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		slog.Error("toggle favorite", "error", err, "db", dbName)
+		h.logger.Error("toggle favorite", "error", err, "db", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -551,8 +554,8 @@ func (h *Handler) addVisit(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	bID, _ := strconv.Atoi(idStr)
 
-	if err := repo.AddVisitAndUpdateCount(context.Background(), bID); err != nil {
-		slog.Error("visit update", "error", err, "id", bID)
+	if err := repo.AddVisit(context.Background(), bID); err != nil {
+		h.logger.Error("visit update", "error", err, "id", bID)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -577,7 +580,7 @@ func (h *Handler) toggleFavorite(w http.ResponseWriter, r *http.Request) {
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		slog.Error("toggle favorite", "error", err, "db", dbName)
+		h.logger.Error("toggle favorite", "error", err, "db", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -586,7 +589,7 @@ func (h *Handler) toggleFavorite(w http.ResponseWriter, r *http.Request) {
 	bID, _ := strconv.Atoi(idStr)
 	b, err := repo.ByID(bID)
 	if err != nil {
-		slog.Error("toggle favorite", "error", err, "id", bID)
+		h.logger.Error("toggle favorite", "error", err, "id", bID)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -598,7 +601,7 @@ func (h *Handler) toggleFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := repo.SetFavorite(context.Background(), b); err != nil {
-		slog.Error("toggle favorite", "error", err, "id", bID)
+		h.logger.Error("toggle favorite", "error", err, "id", bID)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 	}
 
@@ -609,7 +612,7 @@ func (h *Handler) toggleFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		slog.Error("toggle favorite", "error", err, "id", bID)
+		h.logger.Error("toggle favorite", "error", err, "id", bID)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -624,7 +627,7 @@ func (h *Handler) allTags(w http.ResponseWriter, r *http.Request) {
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		slog.Error("listing bookmarks", "error", err, "db", dbName)
+		h.logger.Error("listing bookmarks", "error", err, "db", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -637,6 +640,91 @@ func (h *Handler) allTags(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(tags); err != nil {
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+}
+
+func (h *Handler) snapshotURL(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	u := r.URL.Query().Get("url")
+	if u == "" {
+		h.logger.Error("internet archive URL", "error", "empty URL")
+		responder.EncodeErrJSON(w, http.StatusBadRequest, "empty URL")
+		return
+	}
+
+	h.logger.Debug("internet archive URL", "url", u)
+
+	ws, err := scraper.WaybackSnapshot(u)
+	if err != nil {
+		h.logger.Error("internet archive URL", "error", err)
+		if errors.Is(err, scraper.ErrNoVersionAvailable) {
+			responder.EncodeErrJSON(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	u = strings.TrimSuffix(u, "/")
+	b := bookmark.NewJSON()
+	b.URL = u
+	b.ArchiveURL = ws.URL
+	b.ArchiveTimestamp = ws.Timestamp
+
+	if err := json.NewEncoder(w).Encode(b); err != nil {
+		h.logger.Error("internet archive URL: failed to encode JSON", "error", err, "url", u)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+	}
+}
+
+func (h *Handler) health(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	res := &responder.ResponseData{
+		Message:    "health OK",
+		StatusCode: http.StatusOK,
+	}
+
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+}
+
+func (h *Handler) checkStatus(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	dbName := r.PathValue("db")
+	repo, err := h.repoLoader(dbName)
+	if err != nil {
+		h.logger.Error("listing bookmarks", "error", err, "db", dbName)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	idStr := r.PathValue("id")
+	bID, _ := strconv.Atoi(idStr)
+	b, err := repo.ByID(bID)
+	if err != nil {
+		h.logger.Error("deleting bookmark", "error", err)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	_ = b.CheckStatus()
+
+	if err := repo.Update(context.Background(), b, b); err != nil {
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(b); err != nil {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}

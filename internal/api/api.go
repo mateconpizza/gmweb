@@ -27,5 +27,7 @@ func New(opts ...OptFn) *API {
 		optFn(o)
 	}
 
-	return &API{apiOpt: o}
+	return &API{
+		apiOpt: o,
+	}
 }

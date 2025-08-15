@@ -6,6 +6,7 @@ import (
 
 	"github.com/mateconpizza/gmweb/internal/models"
 	"github.com/mateconpizza/gmweb/internal/responder"
+	"github.com/mateconpizza/gmweb/internal/router"
 )
 
 var ErrPathNotFound = errors.New("path not found")
@@ -17,6 +18,8 @@ type handlerOpt struct {
 	appInfo    any
 	dataDir    string // dataDir path where the database are found, the home app.
 	cacheDir   string // dataDir path where the database are found.
+	logger     *slog.Logger
+	routes     *router.Router
 }
 
 type Handler struct {
@@ -44,6 +47,18 @@ func WithDataDir(path string) HandlerOptFn {
 func WithCacheDir(s string) HandlerOptFn {
 	return func(o *handlerOpt) {
 		o.cacheDir = s
+	}
+}
+
+func WithLogger(l *slog.Logger) HandlerOptFn {
+	return func(o *handlerOpt) {
+		o.logger = l
+	}
+}
+
+func WithRoutes(r *router.Router) HandlerOptFn {
+	return func(o *handlerOpt) {
+		o.routes = r
 	}
 }
 
