@@ -16,6 +16,7 @@ var (
 		ID:    4,
 		URL:   "https://golang.org/",
 		Title: "The Go Programming Language",
+		Tags:  "golang,awesome",
 		Desc:  "Go is an open source programming language that makes it simple to build secure,\nscalable systems.",
 	}
 
@@ -39,19 +40,18 @@ type Mock struct {
 	MockSetVisitCount func(ctx context.Context, bID int) error
 	Records           []*bookmark.Bookmark
 	TagsCount         map[string]int
-	MockByID          int
 	MockHas           func(url string) (*bookmark.Bookmark, bool)
 }
 
 func (m *Mock) All(ctx context.Context) ([]*bookmark.Bookmark, error) { return m.Records, nil }
 
 func (m *Mock) ByID(ctx context.Context, id int) (*bookmark.Bookmark, error) {
-	switch id {
-	case 1:
-		return Bookmarks[0], nil
-	default:
-		return nil, bookmark.ErrBookmarkNotFound
+	for _, b := range m.Records {
+		if b.ID == id {
+			return b, nil
+		}
 	}
+	return nil, bookmark.ErrBookmarkNotFound
 }
 
 func (m *Mock) Has(ctx context.Context, url string) (*bookmark.Bookmark, bool) {

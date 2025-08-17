@@ -31,7 +31,7 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 		return middleware.RequireDBParam(fn)
 	}
 
-	r := h.routes
+	r := h.router
 	mux.HandleFunc("GET /not/implemented", h.notImplementedYet)
 	mux.HandleFunc("GET "+r.Web.Index("{$}"), h.indexRedirect)
 	mux.Handle("GET "+r.Web.All(), requireDB(h.index))
@@ -63,8 +63,8 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 }
 
 func (h *Handler) indexRedirect(w http.ResponseWriter, r *http.Request) {
-	h.routes.SetRepo("main")
-	http.Redirect(w, r, h.routes.Web.All(), http.StatusSeeOther)
+	h.router.SetRepo("main")
+	http.Redirect(w, r, h.router.Web.All(), http.StatusSeeOther)
 }
 
 func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +111,7 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 		Request:    r,
 		Bookmarks:  paginated,
 		Params:     p,
-		Routes:     h.routes,
+		Routes:     h.router,
 		TagsFn:     helpers.GetTagsFn(p.Tag, p.Query, records, paginated),
 		Pagination: pagination,
 	}

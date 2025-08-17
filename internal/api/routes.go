@@ -40,7 +40,7 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 		return middleware.RequireDBParam(http.HandlerFunc(fn))
 	}
 
-	r := h.routes.API
+	r := h.router.API
 	// Records
 	mux.Handle("GET "+r.GetByID("{id}"), mustIDAndDBParam(h.recordByID))
 	mux.Handle("GET "+r.Tags(), mustDBParam(h.allTags))
@@ -136,10 +136,7 @@ func (h *Handler) dbInfo(w http.ResponseWriter, r *http.Request) {
 		Favorites: repo.CountFavorites(r.Context()),
 	}
 
-	if err := json.NewEncoder(w).Encode(stats); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, stats)
 }
 
 // scrapeData scrapes a URL and returns its data.
@@ -170,8 +167,6 @@ func (h *Handler) scrapeData(w http.ResponseWriter, r *http.Request) {
 	b.Tags = strings.Split(k, ",")
 	b.FaviconURL, _ = sc.Favicon()
 
-	w.WriteHeader(http.StatusOK)
-
 	responsePayload := &responder.FetchDataResponse{
 		Title:      b.Title,
 		Desc:       b.Desc,
@@ -179,11 +174,7 @@ func (h *Handler) scrapeData(w http.ResponseWriter, r *http.Request) {
 		FaviconURL: b.FaviconURL,
 	}
 
-	err := json.NewEncoder(w).Encode(responsePayload)
-	if err != nil {
-		h.logger.Error("fetching response: failed to encode JSON", "error", err, "url", u)
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-	}
+	responder.WriteJSON(w, http.StatusOK, responsePayload)
 }
 
 // genQR generates a QR-code as a Base64.
@@ -293,12 +284,7 @@ func (h *Handler) dbDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	database.Forget(dbName)
-	w.WriteHeader(http.StatusOK)
-
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, res)
 }
 
 // dbCreate creates a new repository.
@@ -321,17 +307,13 @@ func (h *Handler) dbCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	database.Register(dbParam, dbPath)
-
-	w.WriteHeader(http.StatusCreated)
 	res := &responder.ResponseData{
 		Message:    fmt.Sprintf("New database %q successfully created", newDBName),
 		StatusCode: http.StatusOK,
 	}
 
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-	}
+	database.Register(dbParam, dbPath)
+	responder.WriteJSON(w, http.StatusCreated, res)
 }
 
 // recordByID returns a record with the given ID.
@@ -350,15 +332,12 @@ func (h *Handler) recordByID(w http.ResponseWriter, r *http.Request) {
 	bID, _ := strconv.Atoi(idStr)
 	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
-		h.logger.Error("deleting bookmark", "error", err)
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		h.logger.Error("getting bookmark by id", "error", err, "id", bID)
+		responder.EncodeErrJSON(w, http.StatusBadRequest, fmt.Sprintf("%s: id=%d", err.Error(), bID))
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(b.JSON()); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, b.JSON())
 }
 
 // newRecord creates a new record in the repository.
@@ -422,16 +401,12 @@ func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
 	res := &responder.ResponseData{
 		Message:    "New bookmark successfully created",
 		StatusCode: http.StatusOK,
 	}
 
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		h.logger.Error("creating bookmark", "error", err)
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-	}
+	responder.WriteJSON(w, http.StatusCreated, res)
 }
 
 // updateRecord updates the given record.
@@ -494,10 +469,8 @@ func (h *Handler) updateRecord(w http.ResponseWriter, r *http.Request) {
 		Message:    "Bookmark updated successfully!",
 		StatusCode: http.StatusOK,
 	}
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-	}
+
+	responder.WriteJSON(w, http.StatusOK, res)
 }
 
 // deleteRecord deletes the given record id.
@@ -530,12 +503,8 @@ func (h *Handler) deleteRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	res := &responder.ResponseData{Message: "Bookmark deleted successfully!", StatusCode: http.StatusOK}
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, res)
 }
 
 // addVisit adds a visit to the bookmark in the repository.
@@ -559,17 +528,12 @@ func (h *Handler) addVisit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-
 	res := &responder.ResponseData{
 		Message:    fmt.Sprintf("Bookmark id=%d: visited on database %q", bID, dbName),
 		StatusCode: http.StatusOK,
 	}
 
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, res)
 }
 
 // toggleFavorite toggles record favorite status.
@@ -604,17 +568,12 @@ func (h *Handler) toggleFavorite(w http.ResponseWriter, r *http.Request) {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 	}
 
-	w.WriteHeader(http.StatusOK)
 	res := &responder.ResponseData{
 		Message:    fmt.Sprintf("Bookmark %q: %s", helpers.ShortStr(b.URL, 60), status),
 		StatusCode: http.StatusOK,
 	}
 
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		h.logger.Error("toggle favorite", "error", err, "id", bID)
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, res)
 }
 
 // allTags return all tags and counts.
@@ -637,11 +596,7 @@ func (h *Handler) allTags(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(tags); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, tags)
 }
 
 func (h *Handler) snapshotURL(w http.ResponseWriter, r *http.Request) {
@@ -668,17 +623,13 @@ func (h *Handler) snapshotURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	u = strings.TrimSuffix(u, "/")
 	b := bookmark.NewJSON()
 	b.URL = u
 	b.ArchiveURL = ws.URL
 	b.ArchiveTimestamp = ws.Timestamp
 
-	if err := json.NewEncoder(w).Encode(b); err != nil {
-		h.logger.Error("internet archive URL: failed to encode JSON", "error", err, "url", u)
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-	}
+	responder.WriteJSON(w, http.StatusOK, b)
 }
 
 func (h *Handler) health(w http.ResponseWriter, r *http.Request) {
@@ -690,10 +641,7 @@ func (h *Handler) health(w http.ResponseWriter, r *http.Request) {
 		StatusCode: http.StatusOK,
 	}
 
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, res)
 }
 
 func (h *Handler) checkStatus(w http.ResponseWriter, r *http.Request) {
@@ -723,8 +671,5 @@ func (h *Handler) checkStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(b); err != nil {
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	responder.WriteJSON(w, http.StatusOK, b)
 }

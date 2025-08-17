@@ -192,7 +192,7 @@ func TestAllTags(t *testing.T) {
 }
 
 func TestRecordByID_Success(t *testing.T) {
-	t.Skip("not full implemented yet")
+	t.Parallel()
 	mock := mocks.New()
 	mock.Records = mocks.Bookmarks
 	want := mocks.Bookmark
@@ -201,7 +201,7 @@ func TestRecordByID_Success(t *testing.T) {
 
 	h := setupHandler(t, mock)
 
-	req := httptest.NewRequest(http.MethodGet, h.routes.API.GetByID(wantID), http.NoBody)
+	req := httptest.NewRequest(http.MethodGet, h.router.API.GetByID(wantID), http.NoBody)
 	req.SetPathValue("db", mock.Name())
 	req.SetPathValue("id", wantID)
 

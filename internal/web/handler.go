@@ -22,7 +22,7 @@ type Opt struct {
 	itemsPerPage int
 	appCfg       *application.Config
 	logger       *slog.Logger
-	routes       *router.Router
+	router       *router.Router
 }
 
 type Handler struct {
@@ -70,7 +70,7 @@ func WithLogger(l *slog.Logger) OptFn {
 
 func WithRoutes(r *router.Router) OptFn {
 	return func(o *Opt) {
-		o.routes = r
+		o.router = r
 	}
 }
 

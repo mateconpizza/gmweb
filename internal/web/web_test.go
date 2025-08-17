@@ -10,8 +10,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mateconpizza/gm/pkg/bookmark"
-
 	"github.com/mateconpizza/gmweb/internal/application"
 	"github.com/mateconpizza/gmweb/internal/database"
 	"github.com/mateconpizza/gmweb/internal/models"
@@ -76,14 +74,14 @@ func TestIndex(t *testing.T) {
 	m := mocks.New()
 	m.Records = mocks.Bookmarks
 	h := setupHandler(t, m)
-	router := http.NewServeMux()
-	h.Routes(router)
+	mux := http.NewServeMux()
+	h.Routes(mux)
 
-	ts := newTestServer(t, router)
+	ts := newTestServer(t, mux)
 	defer ts.Close()
 
-	h.routes.SetRepo(m.Name())
-	code, _, body := ts.get(t, h.routes.Web.All())
+	h.router.SetRepo(m.Name())
+	code, _, body := ts.get(t, h.router.Web.All())
 	_ = body
 
 	if code != http.StatusOK {
@@ -106,16 +104,16 @@ func TestIndex(t *testing.T) {
 func TestEdit(t *testing.T) {
 	t.Parallel()
 	m := mocks.New()
-	m.Records = []*bookmark.Bookmark{mocks.Bookmark}
+	m.Records = mocks.Bookmarks
 
 	h := setupHandler(t, m)
-	router := http.NewServeMux()
-	h.Routes(router)
+	mux := http.NewServeMux()
+	h.Routes(mux)
 
-	ts := newTestServer(t, router)
+	ts := newTestServer(t, mux)
 	defer ts.Close()
 
-	h.routes.SetRepo(m.Name())
+	h.router.SetRepo(m.Name())
 
 	tests := []struct {
 		name     string
@@ -125,33 +123,33 @@ func TestEdit(t *testing.T) {
 	}{
 		{
 			name:     "Valid-ID",
-			urlPath:  h.routes.Web.Edit("1"),
+			urlPath:  h.router.Web.Edit("1"),
 			wantCode: http.StatusOK,
 			wantBody: mocks.Bookmarks[0].URL,
 		},
 		{
 			name:     "Non-existent-ID",
-			urlPath:  h.routes.Web.Edit("100000"),
+			urlPath:  h.router.Web.Edit("100000"),
 			wantCode: http.StatusInternalServerError,
 		},
 		{
 			name:     "Negative-ID",
-			urlPath:  h.routes.Web.Edit("-1"),
+			urlPath:  h.router.Web.Edit("-1"),
 			wantCode: http.StatusNotFound,
 		},
 		{
 			name:     "Decimal-ID",
-			urlPath:  h.routes.Web.Edit("1.23"),
+			urlPath:  h.router.Web.Edit("1.23"),
 			wantCode: http.StatusNotFound,
 		},
 		{
 			name:     "String-ID",
-			urlPath:  h.routes.Web.Edit("foo"),
+			urlPath:  h.router.Web.Edit("foo"),
 			wantCode: http.StatusNotFound,
 		},
 		{
 			name:     "Empty-ID",
-			urlPath:  h.routes.Web.Edit(""),
+			urlPath:  h.router.Web.Edit(""),
 			wantCode: http.StatusNotFound,
 		},
 	}

@@ -20,7 +20,7 @@ type handlerOpt struct {
 	dataDir    string // dataDir path where the database are found, the home app.
 	cacheDir   string // dataDir path where the database are found.
 	logger     *slog.Logger
-	routes     *router.Router
+	router     *router.Router
 }
 
 type Handler struct {
@@ -59,7 +59,7 @@ func WithLogger(l *slog.Logger) HandlerOptFn {
 
 func WithRoutes(r *router.Router) HandlerOptFn {
 	return func(o *handlerOpt) {
-		o.routes = r
+		o.router = r
 	}
 }
 

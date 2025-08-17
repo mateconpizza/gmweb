@@ -69,3 +69,18 @@ func ServerCustomErr(w http.ResponseWriter, r *http.Request, err error, statusCo
 	slog.Error(err.Error(), "method", method, "uri", uri)
 	http.Error(w, err.Error(), statusCode)
 }
+
+func WriteJSON(w http.ResponseWriter, statusCode int, data any) {
+	ct := w.Header().Get("Content-Type")
+	if ct == "" || ct != "application/json" {
+		w.Header().Set("Content-Type", "application/json")
+	}
+
+	w.WriteHeader(statusCode)
+
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		slog.Error("fetching response: failed to encode JSON", "error", err, "data", data)
+		EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+}
