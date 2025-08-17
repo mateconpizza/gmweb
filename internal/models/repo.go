@@ -9,22 +9,22 @@ import (
 // Reader provides methods to read from the repository.
 type Reader interface {
 	// All returns all bookmarks.
-	All() ([]*bookmark.Bookmark, error)
+	All(ctx context.Context) ([]*bookmark.Bookmark, error)
 
 	// ByID returns a bookmark by its ID.
-	ByID(id int) (*bookmark.Bookmark, error)
+	ByID(ctx context.Context, id int) (*bookmark.Bookmark, error)
 
 	// Has returns a bookmark by its URL and a boolean indicating if it exists.
-	Has(url string) (*bookmark.Bookmark, bool)
+	Has(ctx context.Context, url string) (*bookmark.Bookmark, bool)
 
 	// Count returns the number of records in the given table.
-	Count(table string) int
+	Count(ctx context.Context, table string) int
 
 	// CountFavorites returns the number of favorite records.
-	CountFavorites() int
+	CountFavorites(ctx context.Context) int
 
 	// CountTags returns tags and their counts.
-	CountTags() (map[string]int, error)
+	CountTags(ctx context.Context) (map[string]int, error)
 }
 
 // Writer provides methods to write, update to the repository.

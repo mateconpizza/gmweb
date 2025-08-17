@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -92,12 +91,12 @@ func (h *Handler) dbList(w http.ResponseWriter, _ *http.Request) {
 }
 
 // dbInfoAll returns all repo stats.
-func (h *Handler) dbInfoAll(w http.ResponseWriter, _ *http.Request) {
+func (h *Handler) dbInfoAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	stats := make([]*responder.RepoStatsResponse, 0, len(database.Valid))
 	for k := range database.Valid {
-		stat, err := dbStats(h, k)
+		stat, err := dbStats(r, h, k)
 		if err != nil {
 			responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 			return
@@ -132,9 +131,9 @@ func (h *Handler) dbInfo(w http.ResponseWriter, r *http.Request) {
 
 	stats := &responder.RepoStatsResponse{
 		Name:      dbName,
-		Bookmarks: repo.Count("bookmarks"),
-		Tags:      repo.Count("tags"),
-		Favorites: repo.CountFavorites(),
+		Bookmarks: repo.Count(r.Context(), "bookmarks"),
+		Tags:      repo.Count(r.Context(), "tags"),
+		Favorites: repo.CountFavorites(r.Context()),
 	}
 
 	if err := json.NewEncoder(w).Encode(stats); err != nil {
@@ -315,7 +314,7 @@ func (h *Handler) dbCreate(w http.ResponseWriter, r *http.Request) {
 
 	newDBName := files.EnsureSuffix(dbParam, ".db")
 	dbPath := filepath.Clean(filepath.Join(h.dataDir, newDBName))
-	_, err := models.Initialize(context.Background(), dbPath)
+	_, err := models.Initialize(r.Context(), dbPath)
 	if err != nil {
 		h.logger.Error("creating database", "error", err, "db", newDBName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
@@ -349,7 +348,7 @@ func (h *Handler) recordByID(w http.ResponseWriter, r *http.Request) {
 
 	idStr := r.PathValue("id")
 	bID, _ := strconv.Atoi(idStr)
-	b, err := repo.ByID(bID)
+	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
 		h.logger.Error("deleting bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
@@ -392,7 +391,7 @@ func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bj.URL = strings.TrimSuffix(bj.URL, "/")
-	if _, exists := repo.Has(bj.URL); exists {
+	if _, exists := repo.Has(r.Context(), bj.URL); exists {
 		h.logger.Error("creating bookmark", "error", models.ErrRecordDuplicate)
 		responder.EncodeErrJSON(w, http.StatusBadRequest, models.ErrRecordDuplicate.Error())
 		return
@@ -417,7 +416,7 @@ func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := repo.InsertOne(context.Background(), newB); err != nil {
+	if _, err := repo.InsertOne(r.Context(), newB); err != nil {
 		h.logger.Error("creating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -461,7 +460,7 @@ func (h *Handler) updateRecord(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	newB := bookmark.NewFromJSON(bj)
-	oldB, err := repo.ByID(bj.ID)
+	oldB, err := repo.ByID(r.Context(), bj.ID)
 	if err != nil {
 		h.logger.Error("updating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
@@ -485,7 +484,7 @@ func (h *Handler) updateRecord(w http.ResponseWriter, r *http.Request) {
 	newB.Favorite = oldB.Favorite
 	newB.VisitCount = oldB.VisitCount
 
-	if err := repo.Update(context.Background(), newB, oldB); err != nil {
+	if err := repo.Update(r.Context(), newB, oldB); err != nil {
 		h.logger.Error("updating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -516,7 +515,7 @@ func (h *Handler) deleteRecord(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	bID, _ := strconv.Atoi(idStr)
 
-	b, err := repo.ByID(bID)
+	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
 		h.logger.Error("delete: getting by ID", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
@@ -525,7 +524,7 @@ func (h *Handler) deleteRecord(w http.ResponseWriter, r *http.Request) {
 
 	h.logger.Debug("delete: bookmark", "id", b.ID)
 
-	if err := repo.DeleteMany(context.Background(), []*bookmark.Bookmark{b}); err != nil {
+	if err := repo.DeleteMany(r.Context(), []*bookmark.Bookmark{b}); err != nil {
 		h.logger.Error("deleting bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -554,7 +553,7 @@ func (h *Handler) addVisit(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	bID, _ := strconv.Atoi(idStr)
 
-	if err := repo.AddVisit(context.Background(), bID); err != nil {
+	if err := repo.AddVisit(r.Context(), bID); err != nil {
 		h.logger.Error("visit update", "error", err, "id", bID)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -587,7 +586,7 @@ func (h *Handler) toggleFavorite(w http.ResponseWriter, r *http.Request) {
 
 	idStr := r.PathValue("id")
 	bID, _ := strconv.Atoi(idStr)
-	b, err := repo.ByID(bID)
+	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
 		h.logger.Error("toggle favorite", "error", err, "id", bID)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
@@ -600,7 +599,7 @@ func (h *Handler) toggleFavorite(w http.ResponseWriter, r *http.Request) {
 		status = "Favorited"
 	}
 
-	if err := repo.SetFavorite(context.Background(), b); err != nil {
+	if err := repo.SetFavorite(r.Context(), b); err != nil {
 		h.logger.Error("toggle favorite", "error", err, "id", bID)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 	}
@@ -632,7 +631,7 @@ func (h *Handler) allTags(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tags, err := repo.CountTags()
+	tags, err := repo.CountTags(r.Context())
 	if err != nil {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -710,7 +709,7 @@ func (h *Handler) checkStatus(w http.ResponseWriter, r *http.Request) {
 
 	idStr := r.PathValue("id")
 	bID, _ := strconv.Atoi(idStr)
-	b, err := repo.ByID(bID)
+	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
 		h.logger.Error("deleting bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
@@ -719,7 +718,7 @@ func (h *Handler) checkStatus(w http.ResponseWriter, r *http.Request) {
 
 	_ = b.CheckStatus()
 
-	if err := repo.Update(context.Background(), b, b); err != nil {
+	if err := repo.Update(r.Context(), b, b); err != nil {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}

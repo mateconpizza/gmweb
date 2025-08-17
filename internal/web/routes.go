@@ -77,7 +77,7 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	records, err := repo.All()
+	records, err := repo.All(r.Context())
 	if err != nil {
 		responder.ServerErr(w, r, err)
 		return
@@ -133,7 +133,7 @@ func (h *Handler) showQR(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bID, _ := strconv.Atoi(r.PathValue("id"))
-	b, err := repo.ByID(bID)
+	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
 		responder.ServerErr(w, r, err)
 		return
@@ -195,7 +195,7 @@ func (h *Handler) editRecord(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	bID, _ := strconv.Atoi(idStr)
 
-	b, err := repo.ByID(bID)
+	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
 		responder.ServerErr(w, r, err)
 		return
@@ -223,7 +223,7 @@ func (h *Handler) recordDetail(w http.ResponseWriter, r *http.Request) {
 
 	idStr := r.PathValue("id")
 	bID, _ := strconv.Atoi(idStr)
-	b, err := repo.ByID(bID)
+	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
 		responder.ServerErr(w, r, err)
 	}
@@ -304,7 +304,7 @@ func (h *Handler) newRecordFrame(w http.ResponseWriter, r *http.Request) {
 	data.URL = buildURLs(p, r)
 
 	templateName := "bookmark-new-frame"
-	if b, ok := repo.Has(u); ok {
+	if b, ok := repo.Has(r.Context(), u); ok {
 		data.Bookmark = b
 		data.PageTitle = "Edit Bookmark"
 		templateName = "bookmark-edit-frame"

@@ -43,18 +43,18 @@ type Mock struct {
 	MockHas           func(url string) (*bookmark.Bookmark, bool)
 }
 
-func (m *Mock) All() ([]*bookmark.Bookmark, error) { return m.Records, nil }
+func (m *Mock) All(ctx context.Context) ([]*bookmark.Bookmark, error) { return m.Records, nil }
 
-func (m *Mock) ByID(id int) (*bookmark.Bookmark, error) {
+func (m *Mock) ByID(ctx context.Context, id int) (*bookmark.Bookmark, error) {
 	switch id {
 	case 1:
 		return Bookmarks[0], nil
 	default:
-		return nil, bookmark.ErrNotFound
+		return nil, bookmark.ErrBookmarkNotFound
 	}
 }
 
-func (m *Mock) Has(url string) (*bookmark.Bookmark, bool) {
+func (m *Mock) Has(ctx context.Context, url string) (*bookmark.Bookmark, bool) {
 	if m.MockHas != nil {
 		return m.MockHas(url)
 	}
@@ -67,11 +67,11 @@ func (m *Mock) Has(url string) (*bookmark.Bookmark, bool) {
 	return nil, false
 }
 
-func (m *Mock) Count(table string) int { return 5 }
+func (m *Mock) Count(ctx context.Context, table string) int { return 5 }
 
-func (m *Mock) CountFavorites() int { return 2 }
+func (m *Mock) CountFavorites(ctx context.Context) int { return 2 }
 
-func (m *Mock) CountTags() (map[string]int, error) { return m.TagsCount, nil }
+func (m *Mock) CountTags(ctx context.Context) (map[string]int, error) { return m.TagsCount, nil }
 
 func (m *Mock) Close() {}
 

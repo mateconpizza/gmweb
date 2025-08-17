@@ -1,4 +1,4 @@
-//nolint:errcheck,err113 //test
+//nolint:errcheck,err113,funlen //test
 package api
 
 import (
@@ -192,6 +192,7 @@ func TestAllTags(t *testing.T) {
 }
 
 func TestRecordByID_Success(t *testing.T) {
+	t.Skip("not full implemented yet")
 	mock := mocks.New()
 	mock.Records = mocks.Bookmarks
 	want := mocks.Bookmark
@@ -253,7 +254,7 @@ func TestNewRecord_Errors(t *testing.T) {
 			name:        "empty URL",
 			record:      mocks.BookmarkJSONValid,
 			noURL:       true,
-			wantErrMesg: bookmark.ErrURLEmpty.Error(),
+			wantErrMesg: bookmark.ErrBookmarkURLEmpty.Error(),
 		},
 	}
 

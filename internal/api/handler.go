@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"log/slog"
+	"net/http"
 
 	"github.com/mateconpizza/gmweb/internal/models"
 	"github.com/mateconpizza/gmweb/internal/responder"
@@ -73,7 +74,7 @@ func NewHandler(opts ...HandlerOptFn) *Handler {
 	}
 }
 
-func dbStats(h *Handler, dbKey string) (*responder.RepoStatsResponse, error) {
+func dbStats(r *http.Request, h *Handler, dbKey string) (*responder.RepoStatsResponse, error) {
 	repo, err := h.repoLoader(dbKey)
 	if err != nil {
 		slog.Error("listing bookmarks", "error", err, "db", dbKey)
@@ -82,8 +83,8 @@ func dbStats(h *Handler, dbKey string) (*responder.RepoStatsResponse, error) {
 
 	return &responder.RepoStatsResponse{
 		Name:      dbKey,
-		Bookmarks: repo.Count("bookmarks"),
-		Tags:      repo.Count("tags"),
-		Favorites: repo.CountFavorites(),
+		Bookmarks: repo.Count(r.Context(), "bookmarks"),
+		Tags:      repo.Count(r.Context(), "tags"),
+		Favorites: repo.CountFavorites(r.Context()),
 	}, nil
 }

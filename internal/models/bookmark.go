@@ -35,8 +35,8 @@ func (bm *BookmarkModel) AddVisit(ctx context.Context, bID int) error {
 	return bm.store.AddVisit(ctx, bID)
 }
 
-func (bm *BookmarkModel) Has(url string) (*bookmark.Bookmark, bool) {
-	b, ok := bm.store.Has(url)
+func (bm *BookmarkModel) Has(ctx context.Context, url string) (*bookmark.Bookmark, bool) {
+	b, ok := bm.store.Has(ctx, url)
 	if !ok {
 		return nil, ok
 	}
@@ -47,8 +47,8 @@ func (bm *BookmarkModel) DeleteMany(ctx context.Context, bs []*bookmark.Bookmark
 	return bm.store.DeleteMany(ctx, bs)
 }
 
-func (bm *BookmarkModel) ByID(bID int) (*bookmark.Bookmark, error) {
-	b, err := bm.store.ByID(bID)
+func (bm *BookmarkModel) ByID(ctx context.Context, bID int) (*bookmark.Bookmark, error) {
+	b, err := bm.store.ByID(ctx, bID)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +56,8 @@ func (bm *BookmarkModel) ByID(bID int) (*bookmark.Bookmark, error) {
 	return b, nil
 }
 
-func (bm *BookmarkModel) All() ([]*bookmark.Bookmark, error) {
-	return bm.store.All()
+func (bm *BookmarkModel) All(ctx context.Context) ([]*bookmark.Bookmark, error) {
+	return bm.store.All(ctx)
 }
 
 func (bm *BookmarkModel) Close() {
@@ -68,16 +68,16 @@ func (bm *BookmarkModel) Name() string {
 	return bm.store.Name()
 }
 
-func (bm *BookmarkModel) Count(table string) int {
-	return bm.store.Count(table)
+func (bm *BookmarkModel) Count(ctx context.Context, table string) int {
+	return bm.store.Count(ctx, table)
 }
 
-func (bm *BookmarkModel) CountTags() (map[string]int, error) {
-	return bm.store.TagsCounter()
+func (bm *BookmarkModel) CountTags(ctx context.Context) (map[string]int, error) {
+	return bm.store.TagsCounter(ctx)
 }
 
-func (bm *BookmarkModel) CountFavorites() int {
-	return bm.store.CountFavorites()
+func (bm *BookmarkModel) CountFavorites(ctx context.Context) int {
+	return bm.store.CountFavorites(ctx)
 }
 
 func New(dsn string) (*BookmarkModel, error) {
