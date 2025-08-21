@@ -1,0 +1,131 @@
+/* CSS Variables for Light|Dark Mode - Catppuccin */
+
+/* Light theme colors - Catppuccin Latte */
+:root {
+  /* Base Colors */
+  --bg: #eff1f5;
+  --bg-alt: #e6e9ef;
+  --bg-hover: #dce0e8;
+  --bg-card: #e6e9ef;
+  --text: #4c4f69;
+  --text-secondary: #5c5f77;
+  --text-muted: #8c8fa1;
+  --text-light: #5c5f77;
+  --border: #bcc0cc;
+  --edit: #dce0e8;
+  --favorite: #df8e1d;
+  --active-item: #40a02b;
+
+  /* Accent Colors */
+  --accent: #5c5f77;
+  --accent-light: #fe640b;
+  --text-on-accent: #eff1f5;
+  --current-db: #1e66f5;
+
+  /* Action Colors */
+  --link: #1e66f5;
+  --link-hover: #40a02b;
+  --error-dark: #d20f39;
+  --error: #e64553;
+  --error-bright: #dd7878;
+  --success: #40a02b;
+  --success-dark: #35a76c;
+  --success-darker: #df8e1d;
+  --warning: #df8e1d;
+
+  /* Component Specific */
+  --header-bg: rgba(239, 241, 245, 0.95);
+  --input-bg: rgba(230, 233, 239, 0.95);
+  --modal-overlay: rgba(76, 79, 105, 0.5);
+  --error-dark-confirm: #eff1f5;
+
+  /* Shadows */
+  --shadow-input: 0 8px 32px rgba(76, 79, 105, 0.1);
+  --shadow-light: 0 2px 4px rgba(76, 79, 105, 0.05);
+  --shadow-medium: 0 4px 20px rgba(76, 79, 105, 0.05);
+  --shadow-strong: 0 8px 30px rgba(76, 79, 105, 0.1);
+  --shadow-dropdown: 0 4px 10px rgba(76, 79, 105, 0.1);
+  --shadow-autocomplete: 0 4px 6px rgba(76, 79, 105, 0.1);
+  --shadow-modal: 0 20px 40px rgba(76, 79, 105, 0.2);
+
+  /* Button Shadows */
+  --btn-success-shadow: 0 6px 12px rgba(64, 160, 43, 0.3);
+  --btn-success-shadow-hover: 0 8px 16px rgba(64, 160, 43, 0.4);
+  --btn-success-shadow-active: 0 4px 8px rgba(64, 160, 43, 0.2);
+  --btn-error-shadow: 0 6px 12px rgba(210, 15, 57, 0.3);
+  --btn-error-shadow-hover: 0 8px 16px rgba(210, 15, 57, 0.4);
+  --btn-error-shadow-active: 0 4px 8px rgba(210, 15, 57, 0.2);
+
+  /* Button Backgrounds with Transparency */
+  --btn-error-bg-light: rgba(210, 15, 57, 0.1);
+  --btn-accent-bg-light: rgba(30, 102, 245, 0.1);
+  --btn-favorite-bg-light: rgba(223, 142, 29, 0.1);
+
+  /* Gradient Colors */
+  --gradient-start: rgba(210, 15, 57, 0.4);
+  --gradient-end: rgba(210, 15, 57, 0);
+}
+
+/* Dark theme colors - Catppuccin Mocha */
+[data-theme="dark"] {
+  /* Base Colors */
+  --bg: #1e1e2e;
+  --bg-alt: #181825;
+  --bg-hover: #313244;
+  --bg-card: #181825;
+  --text: #cdd6f4;
+  --text-secondary: #bac2de;
+  --text-muted: #7f849c;
+  --text-light: #bac2de;
+  --text-on-accent: #1e1e2e;
+  --border: #585b70;
+
+  /* Accent Colors */
+  --accent: #585b70;
+  --accent-light: #fe640b;
+  --accent-hover: #a6e3a1;
+  --active-item: #a6e3a1;
+  --favorite: #f9e2af;
+  --edit: #6c7086;
+  --current-db: #cba6f7;
+
+  /* Action Colors */
+  --link: #89b4fa;
+  --link-hover: #a6e3a1;
+  --success: #a6e3a1;
+  --success-dark: #94e2d5;
+  --success-darker: #f9e2af;
+  --error: #eba0ac;
+  --error-bright: #eba0ac;
+  --error-dark: #f38ba8;
+  --warning: #f9e2af;
+  --error-dark-confirm: #cdd6f4;
+
+  /* Component Specific */
+  --header-bg: rgba(30, 30, 46, 0.95);
+  --input-bg: rgba(24, 24, 37, 0.95);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Shadows */
+  --shadow-input: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-dropdown: 0 4px 10px rgba(0, 0, 0, 0.3);
+  --shadow-autocomplete: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.4);
+
+  /* Button Shadows */
+  --btn-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  --btn-success-shadow: 0 6px 12px rgba(166, 227, 161, 0.3);
+  --btn-success-shadow-hover: 0 8px 16px rgba(166, 227, 161, 0.4);
+  --btn-success-shadow-active: 0 4px 8px rgba(166, 227, 161, 0.2);
+  --btn-error-shadow: 0 6px 12px rgba(243, 139, 168, 0.3);
+  --btn-error-shadow-hover: 0 8px 16px rgba(243, 139, 168, 0.4);
+  --btn-error-shadow-active: 0 4px 8px rgba(243, 139, 168, 0.2);
+
+  /* Button Backgrounds with Transparency */
+  --btn-error-bg-light: rgba(243, 139, 168, 0.1);
+  --btn-accent-bg-light: rgba(137, 180, 250, 0.15);
+  --btn-favorite-bg-light: rgba(166, 227, 161, 0.15);
+}

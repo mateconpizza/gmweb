@@ -1,0 +1,134 @@
+/* CSS Variables for Light|Dark Mode - Gruvbox Material */
+
+:root {
+  /* Base Colors */
+  --bg: #fbf1c7;
+  --bg-alt: #f2e5bc;
+  --bg-hover: #ebdbb2;
+  --bg-card: #f9f5d7;
+  --text: #3c3836;
+  --text-secondary: #665c54;
+  --text-muted: #665c54;
+  --text-light: #504945;
+  --border: #d5c4a1;
+
+  /* Accent Colors */
+  --accent: #458588;
+  --accent-hover: #076678;
+  --accent-light: #83a598;
+  --text-on-accent: #fbf1c7;
+
+  /* Action Colors */
+  --link: #076678;
+  --link-hover: #427b58;
+  --success: #98971a;
+  --success-dark: #79740e;
+  --success-darker: #b57614;
+  --error: #9d0006;
+  --error-bright: #fb4934;
+  --error-dark: #cc241d;
+  --warning: #d79921;
+  --favorite: #d79921;
+  --edit: #d5c4a1;
+  --current-db: #076678;
+  --active-item: #b8bb26;
+
+  /* Shadows */
+  --shadow-light: 0 2px 4px rgba(60, 56, 54, 0.05);
+  --shadow-medium: 0 4px 20px rgba(60, 56, 54, 0.05);
+  --shadow-strong: 0 8px 30px rgba(60, 56, 54, 0.1);
+  --shadow-modal: 0 20px 40px rgba(60, 56, 54, 0.2);
+  --shadow-dropdown: 0 4px 10px rgba(60, 56, 54, 0.1);
+  --shadow-autocomplete: 0 4px 6px rgba(60, 56, 54, 0.1);
+  --shadow-input: 0 8px 32px rgba(60, 56, 54, 0.1);
+
+  /* Button Shadows */
+  --btn-success-shadow: 0 6px 12px rgba(152, 151, 26, 0.3);
+  --btn-success-shadow-hover: 0 8px 16px rgba(152, 151, 26, 0.4);
+  --btn-success-shadow-active: 0 4px 8px rgba(152, 151, 26, 0.2);
+  --btn-error-shadow: 0 6px 12px rgba(204, 36, 29, 0.3);
+  --btn-error-shadow-hover: 0 8px 16px rgba(204, 36, 29, 0.4);
+  --btn-error-shadow-active: 0 4px 8px rgba(204, 36, 29, 0.2);
+
+  /* Component Specific */
+  --header-bg: rgba(251, 241, 199, 0.95);
+  --input-bg: rgba(249, 245, 215, 0.95);
+  --modal-overlay: rgba(60, 56, 54, 0.5);
+
+  /* Button Backgrounds with Transparency */
+  --btn-error-bg-light: rgba(204, 36, 29, 0.1);
+  --error-dark-confirm: #fbf1c7; /* Light text */
+  --btn-accent-bg-light: rgba(7, 102, 120, 0.1);
+  --btn-favorite-bg-light: rgba(215, 153, 33, 0.1);
+
+  /* Gradient Colors */
+  --gradient-start: rgba(204, 36, 29, 0.4);
+  --gradient-end: rgba(204, 36, 29, 0);
+}
+
+/* Gruvbox Material Dark Theme */
+[data-theme="dark"] {
+  /* Base Colors */
+  --bg: #1d2021;
+  --bg-alt: #282828;
+  --bg-hover: #3c3836;
+  --bg-card: #282828;
+  --text: #fbf1c7;
+  --text-secondary: #d5c4a1;
+  --text-muted: #928374;
+  --text-light: #a89984;
+  --text-on-accent: #1d2021;
+  --border: #504945;
+
+  /* Accent Colors */
+  --accent: #83a598;
+  --accent-hover: #8ec07c;
+  --accent-light: #fe8019;
+  --active-item: #b8bb26;
+  --current-db: #d3869b;
+  --favorite: #fabd2f;
+  --edit: #a89984;
+
+  /* Action Colors */
+  --link: #8ec07c;
+  --link-hover: #83a598;
+  --success: #b8bb26;
+  --success-dark: #98971a;
+  --success-darker: #79740e;
+  --error: #cc241d;
+  --error-bright: #fb4934;
+  --error-dark: #fb4934;
+  --warning: #fe8019;
+  --error-dark-confirm: #1d2021;
+
+  /* Component Specific */
+  --header-bg: rgba(29, 32, 33, 0.95);
+  --input-bg: rgba(40, 40, 40, 0.95);
+  --modal-overlay: rgba(0, 0, 0, 0.6);
+
+  /* Shadows */
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-input: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-dropdown: 0 4px 10px rgba(0, 0, 0, 0.3);
+  --shadow-autocomplete: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.5);
+
+  /* Button Shadows */
+  --btn-success-shadow: 0 6px 12px rgba(184, 187, 38, 0.3);
+  --btn-success-shadow-hover: 0 8px 16px rgba(184, 187, 38, 0.4);
+  --btn-success-shadow-active: 0 4px 8px rgba(184, 187, 38, 0.2);
+  --btn-error-shadow: 0 6px 12px rgba(251, 73, 52, 0.3);
+  --btn-error-shadow-hover: 0 8px 16px rgba(251, 73, 52, 0.4);
+  --btn-error-shadow-active: 0 4px 8px rgba(251, 73, 52, 0.2);
+
+  /* Button Backgrounds with Transparency */
+  --btn-error-bg-light: rgba(251, 73, 52, 0.2);
+  --btn-accent-bg-light: rgba(131, 165, 152, 0.2);
+  --btn-favorite-bg-light: rgba(250, 189, 47, 0.2);
+
+  /* Gradient Colors */
+  --gradient-start: rgba(251, 73, 52, 0.4);
+  --gradient-end: rgba(251, 73, 52, 0);
+}

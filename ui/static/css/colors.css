@@ -1,0 +1,333 @@
+/* CSS Variables for Light|Dark Mode - Standard Theme */
+
+:root {
+  /* ----- Base Colors ----- */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f3f4f6;
+  --color-bg-tertiary: #ffffff; /* Cards and modals */
+  --color-bg-hover: #e5e7eb;
+
+  --color-text-primary: #374151;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+
+  --color-border: #d1d5db;
+  --color-border-light: #e2e8f0;
+
+  /* ----- Accent Colors ----- */
+  --color-primary: #007bff; /* Blue */
+  --color-primary-hover: #0056b3; /* Dark blue */
+  --color-secondary: #667eea; /* Purple-blue */
+  --color-success: #38a169; /* Green */
+  --color-warning: #f6ad55; /* Orange */
+  --color-error: #dc3545; /* Red */
+  --color-error-light: #ef4444; /* Light red */
+  --color-error-dark: #c82333; /* Dark red */
+
+  /* ----- shadows ----- */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  /* ----- component specific ----- */
+
+  /* Header */
+  --header-bg: rgba(248, 249, 250, 0.95);
+
+  /* Input */
+  --input-bg: rgba(255, 255, 255, 0.95);
+  --input-border: #e1e5e9;
+  --input-border-focus: var(--color-primary);
+  --input-placeholder: #999;
+
+  /* Links */
+  --link: #2d3748;
+  --link-hover: var(--color-secondary);
+
+  /* Tags */
+  --accent: #495057;
+  --text-on-accent: #ffffff;
+  --bg-alt: var(--color-bg-secondary);
+  --text-secondary: #444;
+  --accent: #4b5563;
+  --text-on-accent: var(--color-bg-secondary);
+  --active-item: #b2f5ea; /* Light cyan */
+  --text: #2c5282; /* Dark blue */
+  --accent: #e3f2fd; /* Light blue */
+  --color-secondary: var(--color-secondary);
+  --accent-light: #bbdefb;
+
+  /* Buttons */
+  --color-primary: var(--color-primary);
+  --btn-primary-hover: var(--color-primary-hover);
+  --btn-primary-text: #ffffff;
+
+  --bg-alt: #f8f9fa;
+  --text: #666;
+  --border: #dee2e6;
+  --bg-hover: #e9ecef;
+  --text: #333;
+
+  --btn-success-bg: var(--color-success);
+  --btn-success-hover: #2f855a;
+  --btn-success-active: #276749;
+  --btn-success-shadow: 0 6px 12px rgba(56, 161, 105, 0.3);
+  --btn-success-hover-shadow: 0 8px 16px rgba(56, 161, 105, 0.4);
+  --btn-success-active-shadow: 0 4px 8px rgba(56, 161, 105, 0.2);
+
+  --btn-special-bg: var(--color-secondary); /* New bookmark btn */
+  --btn-special-hover: #5a67d8;
+  --btn-special-active: #4c56be;
+  --btn-special-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+  --btn-special-hover-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+  --btn-special-active-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+
+  /* Action Buttons */
+  --color-error: var(--color-error);
+  --color-error: var(--color-error);
+  --btn-error-bg-light: rgba(220, 53, 69, 0.1);
+  --error: var(--color-error-dark);
+  --btn-remove-confirm-color: #ffffff;
+  --error-dark: #bd2130;
+
+  --color-primary: var(--color-primary);
+  --color-primary: var(--color-primary);
+  --btn-accent-bg-light: rgba(0, 123, 255, 0.1);
+
+  --color-warning: var(--color-warning);
+  --color-warning: var(--color-warning);
+  --btn-favorite-bg-light: rgba(246, 173, 85, 0.1);
+
+  /* Filter */
+  --text-light: #4a5568;
+  --bg-hover: var(--color-border-light);
+  --text: #4a5568;
+  --border: #cbd5e0;
+  --color-secondary: var(--color-secondary);
+  --text: #ffffff;
+
+  /* Letter Filter */
+  --bg-alt: var(--color-bg-secondary);
+  --bg-hover: #ddd;
+  --accent: #444;
+  --text-on-accent: #ffffff;
+
+  /* Dropdown */
+  --bg-card: var(--color-bg-tertiary);
+  --border: #ddd;
+  --shadow-dropdown: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --dropdown-item-color: #333;
+  --dropdown-item-hover-bg: var(--color-bg-secondary);
+  --dropdown-item-hover-color: var(--color-secondary);
+  --dropdown-current-bg: var(--color-bg-secondary);
+  --dropdown-current-color: var(--color-secondary);
+
+  /* Autocomplete */
+  --bg-card: var(--color-bg-tertiary);
+  --bg-hover: #e1e5e9;
+  --shadow-autocomplete: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --bg-alt: #f1f3f4;
+  --bg-alt: #ddd;
+  --autocomplete-tag-icon: #e53e3e;
+  --autocomplete-tag-text: #444;
+  --bg-hover: #e1e5e9;
+  --text: #000000;
+
+  /* Pagination */
+  --pagination-bg: var(--color-bg-secondary);
+  --pagination-hover-bg: var(--color-border-light);
+  --bg: #f0f0f0;
+  --edit: #aaa;
+  --text: #555;
+
+  /* Modal */
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+  --bg-card: var(--color-bg-tertiary);
+  --border: var(--color-border);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --text: #333;
+  --modal-close-color: #666;
+  --modal-close-hover-bg: #f0f0f0;
+  --modal-close-hover-color: #333;
+  --color-error: var(--color-error);
+
+  /* States */
+  --state-error-bg: #ffebeb;
+  --state-error-color: #c0392b;
+  --state-error-border: #e74c3c;
+
+  --state-success-bg: #e6ffe6;
+  --state-success-color: #27ae60;
+  --state-success-border: #2ecc71;
+
+  /* Active Values */
+  --active-item-bg: #b2f5ea; /* Light cyan */
+  --active-item-color: #2c5282; /* Dark blue */
+
+  /* Misc */
+  --color-text-muted: #6c757d;
+  --clear-btn-hover: var(--color-error);
+  --error-dark: #e53e3e;
+  --clear-filter-btn-hover: #c53030;
+  --error-dark: var(--color-error-light);
+  --text-muted: #6c757d;
+  --text-light: var(--color-text-secondary);
+  --text-muted: #888;
+  --warning: #e0af68;
+}
+
+/* ----- DARK THEME ----- */
+[data-theme="dark"] {
+  /* ----- Base Colors ----- */
+  --color-bg-primary: #111827;
+  --color-bg-secondary: #1f2937;
+  --color-bg-tertiary: #1f2937;
+  --color-bg-hover: #374151;
+
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #d1d5db;
+  --color-text-muted: #9ca3af;
+
+  --color-border: #4b5563;
+  --color-border-light: #374151;
+
+  /* Accent Colors */
+  --color-primary: #a78bfa; /* Purple */
+  --color-primary-hover: #9333ea; /* Dark purple */
+  --color-secondary: #93c5fd; /* Light blue */
+  --color-success: #10b981; /* Emerald */
+  --color-warning: #facc15; /* Yellow */
+  --color-error: #ef4444; /* Red */
+  --color-error-light: #f87171; /* Light red */
+  --color-error-dark: #dc2626; /* Dark red */
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* Header */
+  --header-bg: rgba(17, 24, 39, 0.95);
+
+  /* Input */
+  --input-bg: rgba(31, 41, 55, 0.95);
+  --input-border: var(--color-border-light);
+  --input-border-focus: var(--color-primary);
+
+  /* Links */
+  --link: var(--color-secondary);
+  --link-hover: #bfdbfe;
+
+  /* Tags */
+  --bg-alt: var(--color-border-light);
+  --text-secondary: var(--color-text-primary);
+  --accent: var(--color-border);
+  --active-item: #34d399; /* Emerald */
+  --text: var(--color-bg-primary);
+  --accent: #22d3ee; /* Cyan */
+  --color-secondary: var(--color-bg-primary);
+  --accent-light: #67e8f9;
+
+  /* Buttons */
+  --btn-primary-text: var(--color-text-primary);
+
+  --bg-alt: var(--color-border-light);
+  --text: var(--color-text-primary);
+  --border: var(--color-border);
+  --bg-hover: var(--color-border);
+  --text: var(--color-text-primary);
+
+  --btn-success-hover: #059669;
+  --btn-success-active: #047857;
+  --btn-success-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+  --btn-success-hover-shadow: 0 8px 16px rgba(16, 185, 129, 0.4);
+  --btn-success-active-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+
+  --btn-special-bg: #7c3aed; /* Purple */
+  --btn-special-hover: #6d28d9;
+  --btn-special-active: #5b21b6;
+  --btn-special-shadow: 0 6px 12px rgba(124, 58, 237, 0.3);
+  --btn-special-hover-shadow: 0 8px 16px rgba(124, 58, 237, 0.4);
+  --btn-special-active-shadow: 0 4px 8px rgba(124, 58, 237, 0.2);
+
+  --color-error: #ff6b6b;
+  --color-error: #ff6b6b;
+  --btn-error-bg-light: rgba(255, 107, 107, 0.1);
+  --error: #e03c3c;
+  --btn-remove-confirm-color: #ffffff;
+  --error-dark: #d03030;
+
+  --color-primary: #6aabff;
+  --color-primary: #6aabff;
+  --btn-accent-bg-light: rgba(106, 171, 255, 0.15);
+
+  --color-warning: #72ec7e;
+  --color-warning: #72ec7e;
+  --btn-favorite-bg-light: rgba(114, 236, 126, 0.15);
+
+  /* Filter */
+  --text-light: var(--color-text-secondary);
+  --bg-hover: var(--color-border-light);
+  --text: var(--color-text-primary);
+  --border: var(--color-border);
+  --text: #ffffff;
+
+  /* Letter Filter */
+  --bg-alt: var(--color-border-light);
+  --bg-hover: var(--color-border);
+  --accent: var(--color-border);
+
+  /* Dropdown */
+  --dropdown-item-color: var(--color-text-primary);
+  --dropdown-item-hover-bg: var(--color-border-light);
+  --dropdown-item-hover-color: #a78bfa;
+  --dropdown-current-bg: var(--color-border-light);
+  --dropdown-current-color: #a78bfa;
+
+  /* Autocomplete */
+  --bg-hover: var(--color-border-light);
+  --bg-alt: var(--color-border-light);
+  --bg-alt: var(--color-border-light);
+  --autocomplete-tag-icon: #fca5a5;
+  --autocomplete-tag-text: var(--color-text-primary);
+  --bg-hover: var(--color-border-light);
+  --text: var(--color-text-primary);
+
+  /* Pagination */
+  --pagination-bg: var(--color-border-light);
+  --pagination-hover-bg: var(--color-border);
+  --bg: #2d3748;
+  --edit: var(--color-text-secondary);
+  --text: var(--color-text-primary);
+
+  /* Modal */
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --text: var(--color-text-primary);
+  --modal-close-color: var(--color-text-muted);
+  --modal-close-hover-bg: var(--color-border-light);
+  --modal-close-hover-color: var(--color-text-primary);
+  --color-error: var(--color-error-light);
+
+  /* States */
+  --state-error-bg: var(--color-error);
+  --state-error-color: #fee2e2;
+  --state-error-border: var(--color-error-light);
+
+  --state-success-bg: var(--color-success);
+  --state-success-color: #d1fae5;
+  --state-success-border: #34d399;
+
+  /* Active Values */
+  --active-item-bg: #34d399; /* Emerald */
+  --active-item-color: var(--color-bg-primary);
+
+  /* Misc */
+  --color-text-muted: var(--color-text-muted);
+  --clear-btn-hover: var(--color-error);
+  --error-dark: var(--color-error);
+  --clear-filter-btn-hover: var(--color-error-dark);
+  --error-dark: var(--color-error-light);
+  --text-muted: var(--color-text-muted);
+}

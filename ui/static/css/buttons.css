@@ -1,0 +1,469 @@
+@import "base.css";
+
+.btn {
+  padding: var(--space-xs) var(--space-m);
+  border-radius: var(--radius-xs);
+  font-size: var(font-size-s);
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  font-family: inherit;
+  white-space: nowrap;
+  position: relative;
+  justify-content: center;
+}
+
+.btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* New Bookmark Button Styles */
+.btn-new-bookmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-xs);
+  background-color: var(--error);
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
+  box-shadow: var(--shadow-strong);
+  outline: none;
+  flex-shrink: 0;
+}
+
+.btn-new-bookmark:hover {
+  background-color: var(--error-bright);
+  transform: translateY(-2px);
+  box-shadow: var(--btn-error-shadow-hover);
+}
+
+.btn-new-bookmark:active {
+  background-color: var(--error-dark);
+  transform: translateY(0);
+  box-shadow: var(--btn-error-shadow-active);
+}
+
+.btn-new-bookmark svg {
+  width: 20px;
+  height: 20px;
+  stroke: white;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.2s ease;
+}
+
+.btn-new-bookmark:hover svg {
+  transform: rotate(90deg);
+}
+
+/* Primary - Subtle filled */
+.btn-primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Secondary - Clean outline */
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn-qrcode {
+  background: var(--favorite);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-qrcode:hover {
+  background: var(--favorite);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-link {
+  background: transparent;
+  color: var(--accent);
+  border: none;
+  padding: var(--space-xxs) 0;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+}
+
+.btn-link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Size variants */
+.btn-sm {
+  padding: var(--space-xs) var(--space-s);
+  font-size: var(--fs-xs);
+  gap: var(--space-xxs);
+}
+
+.btn-sm svg {
+  width: 12px;
+  height: 12px;
+}
+
+.btn-lg {
+  padding: var(--space-s) var(--space-xl);
+  font-size: var(--fs-s);
+  gap: var(--space-xs);
+}
+
+.btn-lg svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Icon only */
+.btn-icon {
+  padding: var(--space-xs);
+  aspect-ratio: 1;
+}
+
+.btn-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: var(--fs-xxl);
+  color: var(--edit);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* --- Hover State --- */
+.close-btn:hover {
+  background-color: var(--bg-alt, rgba(0, 0, 0, 0.08));
+  color: var(--text);
+}
+
+/* --- Active/Click State --- */
+.close-btn:active {
+  transform: scale(0.98);
+}
+
+/* Repository Info Start */
+.btn-change-repo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs) var(--space-xs);
+  gap: var(--space-xs);
+  background-color: var(--bg-hover);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-xs);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: var(--fs-m);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.btn-change-repo svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.btn-change-repo:hover {
+  color: var(--accent);
+  border-color: var(--btn-accent-bg-light);
+  background-color: var(--btn-accent-bg-light);
+}
+
+@media (max-width: 767px) {
+  .btn-change-repo {
+    padding: var(--space-xs) var(--space-s);
+    font-size: var(--radius-m);
+  }
+
+  .btn-change-repo svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .btn-qr,
+  .btn-edit {
+    display: none;
+  }
+}
+/* Repository Info END */
+
+/* --- Bookmark Footer Buttons --- */
+.btn-base {
+  background-color: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-s);
+  text-decoration: none;
+  border-radius: var(--radius-xxs);
+  border: none;
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-xs);
+  transition: all 0.2s ease;
+}
+
+.btn-view-details:hover {
+  color: var(--favorite);
+  border-color: var(--btn-favorite-bg-light);
+  background-color: var(--btn-favorite-bg-light);
+}
+
+.btn-qr:hover {
+  color: var(--favorite);
+  border-color: var(--btn-favorite-bg-light);
+  background-color: var(--btn-favorite-bg-light);
+}
+
+.btn-edit:hover {
+  color: var(--accent);
+  border-color: var(--btn-accent-bg-light);
+  background-color: var(--btn-accent-bg-light);
+}
+
+.btn-remove-detail {
+  color: var(--remove-btn-text-mobile);
+  background-color: var(--btn-error-bg-light);
+}
+
+.btn-remove-detail:hover {
+  color: var(--error-dark);
+  border-color: var(--error-dark);
+  background-color: var(--btn-error-bg-light);
+}
+
+.btn-remove:hover {
+  color: var(--error-dark);
+  border-color: var(--error-dark);
+  background-color: var(--btn-error-bg-light);
+}
+
+/* Styles for the "Confirm" state */
+.btn-remove.confirm-state {
+  background-color: var(--error-dark);
+  color: var(--error-dark-confirm);
+  border-color: var(--error-dark);
+  font-weight: bold;
+  animation: pulseRed 0.5s infinite alternate;
+}
+
+@keyframes pulseRed {
+  from {
+    box-shadow: 0 0 0 0 var(--gradient-start);
+  }
+  to {
+    box-shadow: 0 0 0 10px var(--gradient-end);
+  }
+}
+
+.btn-remove.confirm-state:hover {
+  background-color: var(--error);
+  border-color: var(--error-dark);
+  color: var(--error-dark-confirm);
+}
+
+@media (max-width: 767px) {
+  .btn-view-details,
+  .btn-qr,
+  .btn-edit,
+  .btn-remove {
+    background-color: var(--bg-alt);
+    color: var(--text);
+    padding: var(--space-s) var(--space-m);
+    font-size: var(--fs-xs);
+    border-radius: var(--radius-xs);
+  }
+}
+/* --- Bookmark Footer END --- */
+
+.no-records-state {
+  text-align: center;
+  padding: var(--space-xxxxl) var(--space-l);
+  margin-top: var(--space-xxxxl);
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--ff);
+  min-height: 200px;
+}
+
+.no-records-state p {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--space-xxxl);
+}
+
+.add-button-large {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: var(--fs-m);
+  font-weight: 500;
+  padding: var(--space-xl) var(--space-xxl);
+  border: 2px solid var(--bg-alt);
+  border-radius: var(--radius-m);
+  background-color: var(--bg-alt);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-subtle);
+  position: relative;
+  overflow: hidden;
+}
+
+.add-button-large::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--accent), #2980b9);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 0;
+}
+
+.add-button-large:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--link-hover);
+}
+
+.add-button-large:hover::before {
+  opacity: 0.05;
+}
+
+.add-button-large:hover {
+  color: var(--text);
+}
+
+.add-button-large svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: var(--space-xs);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  z-index: 1;
+  position: relative;
+}
+
+.add-button-large:hover svg {
+  color: var(--accent);
+  transform: scale(1.05);
+}
+
+.add-button-large span {
+  z-index: 1;
+  position: relative;
+  letter-spacing: 0.01em;
+}
+
+.add-button-large:active {
+  transform: translateY(0);
+}
+
+/* Theme Mode Btn */
+.dark-mode-toggle {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  border-radius: var(--radius-xs);
+  border: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--bg-hover);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.dark-mode-toggle:hover {
+  background: var(--bg-hover);
+  transform: scale(1.05);
+}
+
+.dark-mode-toggle:hover svg {
+  transform: scale(1.05);
+}
+
+.theme-icon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  transition: all 0.3s ease;
+  color: var(--text);
+}
+
+.theme-icon:hover svg {
+  transform: rotate(90deg);
+}
+
+.sun-icon {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+.moon-icon {
+  opacity: 0;
+  transform: rotate(180deg);
+}
+
+/* Dark mode specific adjustments for the toggle (already using vars) */
+[data-theme="dark"] .sun-icon {
+  opacity: 0;
+  transform: rotate(180deg);
+}
+
+[data-theme="dark"] .moon-icon {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+/* Theme Mode Btn END */

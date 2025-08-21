@@ -1,0 +1,131 @@
+/* Gruvbox Medium Light|Dark Palette */
+
+:root {
+  /* Base Colors */
+  --bg: #fbf1c7;
+  --bg-alt: #ebdbb2;
+  --bg-hover: #d5c4a1;
+  --bg-card: #f9f5d7;
+  --text: #3c3836;
+  --text-secondary: #504945;
+  --text-muted: #7c6f64;
+  --text-light: #665c54;
+  --border: #bdae93;
+
+  /* Accent Colors */
+  --accent: #458588;
+  --accent-hover: #076678;
+  --accent-light: #83a598;
+  --text-on-accent: #fbf1c7;
+
+  /* Action Colors */
+  --link: #076678;
+  --link-hover: #427b58;
+  --success: #98971a;
+  --success-dark: #79740e;
+  --success-darker: #65680c;
+  --error: #cc241d;
+  --error-bright: #fb4934;
+  --error-dark: #9d0006;
+  --warning: #d65d0e;
+  --favorite: #af3a03;
+  --edit: #a89984;
+  --current-db: #8f3f71;
+  --active-item: #8ec07c;
+
+  /* Shadows */
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-input: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-dropdown: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --shadow-autocomplete: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  /* Component Specific */
+  --header-bg: rgba(235, 219, 178, 0.95);
+  --input-bg: rgba(253, 244, 193, 0.95);
+  --modal-overlay: rgba(0, 0, 0, 0.3);
+
+  /* Button Shadows */
+  --btn-success-shadow: 0 6px 12px rgba(152, 151, 26, 0.3);
+  --btn-success-shadow-hover: 0 8px 16px rgba(152, 151, 26, 0.4);
+  --btn-success-shadow-active: 0 4px 8px rgba(152, 151, 26, 0.2);
+  --btn-error-shadow: 0 6px 12px rgba(204, 36, 29, 0.3);
+  --btn-error-shadow-hover: 0 8px 16px rgba(204, 36, 29, 0.4);
+  --btn-error-shadow-active: 0 4px 8px rgba(204, 36, 29, 0.2);
+
+  /* Button Backgrounds with Transparency */
+  --btn-error-bg-light: rgba(157, 0, 6, 0.1);
+  --btn-accent-bg-light: rgba(69, 133, 136, 0.1);
+  --btn-favorite-bg-light: rgba(175, 58, 3, 0.1);
+
+  /* Gradient Colors */
+  --gradient-start: rgba(157, 0, 6, 0.4);
+  --gradient-end: rgba(157, 0, 6, 0);
+}
+
+[data-theme="dark"] {
+  /* Base Colors */
+  --bg: #282828;
+  --bg-alt: #3c3836;
+  --bg-hover: #504945;
+  --bg-card: #3c3836;
+  --text: #fbf1c7;
+  --text-secondary: #ebdbb2;
+  --text-muted: #a89984;
+  --text-light: #d5c4a1;
+  --border: #665c54;
+
+  /* Accent Colors */
+  --accent: #83a598;
+  --accent-hover: #b8bb26;
+  --accent-light: #a89984;
+  --text-on-accent: #3c3836;
+
+  /* Action Colors */
+  --link: #83a598;
+  --link-hover: #b8bb26;
+  --success: #b8bb26;
+  --success-dark: #98971a;
+  --success-darker: #79740e;
+  --error: #fb4934;
+  --error-bright: #fe8019;
+  --error-dark: #cc241d;
+  --warning: #fabd2f;
+  --favorite: #d65d0e;
+  --edit: #a89984;
+  --current-db: #d3869b;
+  --active-item: #8ec07c;
+
+  /* Shadows */
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --shadow-input: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --shadow-dropdown: 0 4px 10px rgba(0, 0, 0, 0.2);
+  --shadow-autocomplete: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+  /* Component Specific */
+  --header-bg: rgba(60, 56, 54, 0.95);
+  --input-bg: rgba(40, 40, 40, 0.95);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Button Shadows */
+  --btn-success-shadow: 0 6px 12px rgba(184, 187, 38, 0.3);
+  --btn-success-shadow-hover: 0 8px 16px rgba(184, 187, 38, 0.4);
+  --btn-success-shadow-active: 0 4px 8px rgba(184, 187, 38, 0.2);
+  --btn-error-shadow: 0 6px 12px rgba(251, 73, 52, 0.3);
+  --btn-error-shadow-hover: 0 8px 16px rgba(251, 73, 52, 0.4);
+  --btn-error-shadow-active: 0 4px 8px rgba(251, 73, 52, 0.2);
+
+  /* Button Backgrounds with Transparency */
+  --btn-error-bg-light: rgba(251, 73, 52, 0.1);
+  --btn-accent-bg-light: rgba(131, 165, 152, 0.1);
+  --btn-favorite-bg-light: rgba(214, 93, 14, 0.1);
+
+  /* Gradient Colors */
+  --gradient-start: rgba(251, 73, 52, 0.4);
+  --gradient-end: rgba(251, 73, 52, 0);
+}
