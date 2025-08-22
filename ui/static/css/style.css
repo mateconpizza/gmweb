@@ -1,5 +1,3 @@
-@import "base.css";
-
 * {
   box-sizing: border-box;
 }
@@ -671,7 +669,6 @@ sup.new {
   }
 
   .close-btn:hover:not([data-theme]) {
-    background: var(--bg-alt);
     color: var(--text);
   }
 

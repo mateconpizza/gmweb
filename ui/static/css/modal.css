@@ -1,20 +1,5 @@
-@import "base.css";
-
-/* Repo Information */
-.db-info {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: var(--bg-alt);
-  padding: var(--space-xs) var(--space-s);
-  border-radius: var(--radius-xs);
-  font-size: var(--fs-xs);
-  color: var(--current-db);
-  box-shadow: var(--shadow-light);
-  border: 1px solid var(--border);
-}
-
-.db-info-window {
+/* Modal Styles */
+.modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -32,16 +17,129 @@
     visibility 0.3s ease;
 }
 
-.db-info-window.show {
+.modal.show {
   opacity: 1;
   visibility: visible;
 }
 
+.modal-content {
+  background-color: var(--bg-card);
+  padding: var(--space-xl) var(--space-xxl);
+  border-radius: var(--radius-s);
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 15px var(--shadow-medium);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  font-family: var(--ff);
+  color: var(--text);
+
+  /* Animation for appearing/disappearing */
+  transform: translateY(20px);
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.modal.show .modal-content {
+  transform: scale(1);
+}
+
+/* Close Button */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--fs-xxl);
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: var(--text);
+}
+
+/* Modal Content Styling */
+.modal-header h1 {
+  font-weight: 700;
+  font-size: var(--h1);
+  margin-bottom: var(--space-xl);
+  color: var(--text-secondary);
+}
+
+.about-desc {
+  font-weight: 400;
+  text-align: center;
+  line-height: 1.6;
+  font-size: var(--fs-m);
+  margin-bottom: var(--space-xl);
+}
+
+.link-container {
+  margin-top: var(--space-xxl);
+}
+
+.author {
+  text-align: center;
+}
+
+.link-author {
+  color: var(--text);
+  background-color: var(--border);
+  text-decoration: none;
+  padding: var(--space-xs);
+  border-radius: var(--radius-xs);
+  margin-top: 2px;
+}
+
+.link-author:hover {
+  font-weight: 600;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
+.link-container a {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--btn-border);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.link-container a:hover {
+  background-color: var(--border);
+  color: var(--link-hover);
+  box-shadow: 0 2px 8px var(--shadow-modal);
+}
+
+/* Repo Information */
+.db-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--bg-alt);
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-xs);
+  font-size: var(--fs-xs);
+  color: var(--current-db);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border);
+}
+
 /* Content box for the information */
 .db-info-content {
-  background-color: var(--bg-alt);
+  background-color: var(--bg-card);
   padding: var(--space-xl) var(--space-xxl);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-s);
+  border: 2px solid var(--border);
   box-shadow: 0 4px 15px var(--shadow-medium);
   max-width: 350px;
   width: 90%;
@@ -183,34 +281,12 @@
 /* Repo Information END */
 
 /* START db-list */
-.db-list-window {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--modal-overlay);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.3s ease,
-    visibility 0.3s ease;
-}
-
-.db-list-window.show {
-  opacity: 1;
-  visibility: visible;
-}
-
 .db-list-content {
   position: relative;
-  background-color: var(--bg-alt);
+  background-color: var(--bg);
   padding: var(--space-xl) var(--space-xxl);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-s);
+  border: 2px solid var(--border);
   box-shadow: 0 4px 15px var(--shadow-medium);
   max-width: 350px;
   width: 90%;
@@ -237,7 +313,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--bg);
+  background-color: var(--bg-alt);
   padding: var(--space-s) var(--space-m);
   border-radius: var(--radius-xxs);
   margin-bottom: var(--space-xxs);
@@ -246,8 +322,8 @@
 }
 
 .db-item:hover {
-  background-color: var(--bg-alt);
-  border-color: var(--accent);
+  background-color: var(--bg-hover);
+  border-color: var(--border);
 }
 
 .db-item:active {
@@ -437,9 +513,9 @@
   width: 100%;
   height: 100%;
   background-color: var(--modal-overlay);
-  display: flex; /* This is key for centering its direct child */
-  justify-content: center; /* Centers horizontally */
-  align-items: center; /* Centers vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
@@ -463,7 +539,8 @@
 
   background-color: var(--bg-alt);
   padding: var(--space-s);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-s);
+  border: 2px solid var(--border);
   box-shadow: 0 4px 15px var(--shadow-medium);
 
   width: 512px;
@@ -484,20 +561,6 @@
 .qr-code.show .qr-code-content {
   transform: translateY(0);
   opacity: 1;
-}
-
-/* Close button positioning */
-.qr-code-content .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 2em;
-  cursor: pointer;
-  color: var(--text);
-  line-height: var(--lh-xxs);
-  padding: 0;
 }
 
 /* Styles for the QR Code Image */
@@ -529,33 +592,11 @@
 }
 
 /* Import source */
-.import-source-window {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--modal-overlay);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.3s ease,
-    visibility 0.3s ease;
-}
-
-.import-source-window.show {
-  opacity: 1;
-  visibility: visible;
-}
-
 .import-source-content {
-  background-color: var(--bg-alt);
+  background-color: var(--bg);
   padding: var(--space-xl) var(--space-xxl);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-s);
+  border: 2px solid var(--border);
   box-shadow: 0 4px 15px var(--shadow-medium);
   max-width: 450px;
   width: 90%;
@@ -582,17 +623,17 @@
 }
 
 .import-option {
+  background-color: var(--bg-alt);
   border-radius: var(--radius-xs);
   padding: var(--space-xxs) var(--space-xs);
   cursor: pointer;
-  background-color: var(--bg);
   position: relative;
   overflow: hidden;
   transition: all 0.2s ease;
 }
 
 .import-option:hover {
-  background-color: var(--bg-alt);
+  background-color: var(--bg-hover);
   border-color: var(--link-hover);
 }
 

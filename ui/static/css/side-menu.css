@@ -1,5 +1,3 @@
-@import "base.css";
-
 /* Hamburger Button Styles */
 .hamburger-btn {
   display: flex;
@@ -126,10 +124,7 @@
 }
 
 .menu-item:hover {
-  background-color: var(--bg-alt);
   color: var(--active-item);
-  transform: translateX(4px);
-  padding-left: var(--space-xxs);
 }
 
 .menu-item.active {
