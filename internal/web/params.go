@@ -9,15 +9,15 @@ import (
 
 // RequestParams holds the query parameters from the request.
 type RequestParams struct {
-	CurrentDB  string
-	Debug      bool
-	Favorites  bool
-	FilterBy   string
-	Letter     string
-	ReturnURL  string
-	Page       int
-	Query      string
-	Tag        string
+	CurrentDB string
+	Debug     bool
+	Favorites bool
+	FilterBy  string
+	Letter    string
+	ReturnURL string
+	Page      int
+	Query     string
+	Tag       string
 }
 
 func (p *RequestParams) with() *ParamsBuilder {

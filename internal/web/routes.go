@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"io/fs"
 	"net/http"
 	"path/filepath"
@@ -10,16 +11,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/justinas/nosurf"
+	"github.com/mateconpizza/gm/pkg/bookio"
 	"github.com/mateconpizza/gm/pkg/bookmark"
+	"github.com/mateconpizza/gm/pkg/files"
 
-	"github.com/mateconpizza/gmweb/internal/files"
 	"github.com/mateconpizza/gmweb/internal/forms"
 	"github.com/mateconpizza/gmweb/internal/helpers"
 	"github.com/mateconpizza/gmweb/internal/middleware"
 	"github.com/mateconpizza/gmweb/internal/qr"
 	"github.com/mateconpizza/gmweb/internal/responder"
-	"github.com/mateconpizza/gmweb/internal/router"
 	"github.com/mateconpizza/gmweb/ui"
 )
 
@@ -34,22 +34,24 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	r := h.router
 	mux.HandleFunc("GET /not/implemented", h.notImplementedYet)
 	mux.HandleFunc("GET "+r.Web.Index("{$}"), h.indexRedirect)
+
+	// Bookmarks
 	mux.Handle("GET "+r.Web.All(), requireDB(h.index))
-	mux.Handle("GET "+r.Web.New(), requireDB(h.newRecord))
-	mux.Handle("GET "+r.Web.NewFrame(), requireDB(h.newRecordFrame))
-	mux.Handle("GET "+r.Web.Detail("{id}"), requireIDAndDB(h.recordDetail))
-	mux.Handle("GET "+r.Web.Edit("{id}"), requireIDAndDB(h.editRecord))
-	mux.Handle("GET "+r.Web.QRCode("{id}"), requireIDAndDB(h.showQR))
+	mux.Handle("GET "+r.Web.New(), requireDB(h.recordNew))
+	mux.Handle("GET "+r.Web.NewFrame(), requireDB(h.recordNewFrame))
+	mux.Handle("GET "+r.Web.Edit("{id}"), requireIDAndDB(h.recordEdit))
+	mux.Handle("GET "+r.Web.QRCode("{id}"), requireIDAndDB(h.recordQR))
+	mux.Handle("GET "+r.Web.Export(), requireDB(h.recordExport))
 
-	// user related
-	mux.HandleFunc("GET "+r.Web.UserSignup(), h.userSignup)
-	mux.HandleFunc("POST "+r.Web.UserSignup(), h.userSignupPost)
-	mux.HandleFunc("GET "+r.Web.UserLogin(), h.userLogin)
-	mux.HandleFunc("POST "+r.Web.UserLogin(), h.userLoginPost)
-	mux.HandleFunc("POST "+r.Web.UserLogout(), h.userLogoutPost)
+	// Theme related
+	mux.HandleFunc("POST /web/theme/change", h.changeTheme)
 
-	// theme related
-	mux.HandleFunc("/web/theme/change", h.changeTheme)
+	// User related
+	mux.HandleFunc("GET "+r.User.Signup, h.userSignup)
+	mux.HandleFunc("POST "+r.User.Signup, h.userSignupPost)
+	mux.HandleFunc("GET "+r.User.Login, h.userLogin)
+	mux.HandleFunc("POST "+r.User.Login, h.userLoginPost)
+	mux.HandleFunc("POST "+r.User.Logout, h.userLogoutPost)
 
 	// static and cache files
 	staticFS, err := fs.Sub(h.files, "static")
@@ -59,7 +61,7 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 
 	iconsPath := filepath.Join(h.cacheDir, "favicon")
-	mux.Handle(ui.Cache, http.StripPrefix(ui.Cache, http.FileServer(http.Dir(iconsPath))))
+	mux.Handle(ui.CacheFavicon, http.StripPrefix(ui.CacheFavicon, http.FileServer(http.Dir(iconsPath))))
 }
 
 func (h *Handler) indexRedirect(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +72,8 @@ func (h *Handler) indexRedirect(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 	p := parseRequestParams(r)
 	p.CurrentDB = r.PathValue("db")
+
+	h.itemsPerPage = getItemsPerPage(r, h.itemsPerPage)
 
 	repo, err := h.repoLoader(p.CurrentDB)
 	if err != nil {
@@ -99,11 +103,7 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 		responder.ServerErr(w, r, err)
 	}
 
-	go func() {
-		if err := loadFavicons(faviconPath, paginated); err != nil {
-			h.logger.Error("background favicon loading", "error", err)
-		}
-	}()
+	go processFavicons(repo, faviconPath, ui.CacheFavicon, paginated)
 
 	// Context
 	ctx := &TemplateContext{
@@ -118,13 +118,10 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 
 	data := buildIndexTemplateData(ctx)
 	data.Colorschemes = h.colorschemes
-	data.CurrentColorscheme = getThemeFromCookie(r)
-	data.CurrentTheme = getThemeModeFromCookie(r)
-
-	h.renderPage(w, r, http.StatusOK, "pages/index", data)
+	h.renderPage(w, r, http.StatusOK, "index", data)
 }
 
-func (h *Handler) showQR(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) recordQR(w http.ResponseWriter, r *http.Request) {
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
@@ -182,11 +179,9 @@ func (h *Handler) showQR(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) editRecord(w http.ResponseWriter, r *http.Request) {
-	p := parseRequestParams(r)
-	p.CurrentDB = r.PathValue("db")
-
-	repo, err := h.repoLoader(p.CurrentDB)
+func (h *Handler) recordEdit(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
+	repo, err := h.repoLoader(data.Params.CurrentDB)
 	if err != nil {
 		responder.ServerErr(w, r, err)
 		return
@@ -201,71 +196,22 @@ func (h *Handler) editRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := &TemplateData{Params: p, Bookmark: b}
+	data.Bookmark = b
 	data.Colorschemes = h.colorschemes
-	data.CurrentColorscheme = getThemeFromCookie(r)
 	data.PageTitle = "Edit Bookmark"
-	data.CurrentURI = r.RequestURI
-	data.CSRFToken = nosurf.Token(r)
 
 	if err := h.template.ExecuteTemplate(w, "bookmark-edit", data); err != nil {
 		responder.ServerErr(w, r, err)
 	}
 }
 
-func (h *Handler) recordDetail(w http.ResponseWriter, r *http.Request) {
-	p := parseRequestParams(r)
-	p.CurrentDB = r.PathValue("db")
-	repo, err := h.repoLoader(p.CurrentDB)
-	if err != nil {
-		responder.ServerErr(w, r, err)
-	}
-
-	idStr := r.PathValue("id")
-	bID, _ := strconv.Atoi(idStr)
-	b, err := repo.ByID(r.Context(), bID)
-	if err != nil {
-		responder.ServerErr(w, r, err)
-	}
-
-	faviconPath := filepath.Join(h.cacheDir, "favicon")
-	ext := filepath.Ext(b.FaviconURL)
-	hashDomain, _ := helpers.HashDomain(b.URL)
-	if files.Exists(hashDomain + ext) {
-		b.FaviconLocal = hashDomain + ext
-	}
-
-	if b.FaviconLocal == "" {
-		go func() {
-			if err := loadFavicons(faviconPath, []*bookmark.Bookmark{b}); err != nil {
-				h.logger.Error("background favicon loading", "error", err)
-			}
-		}()
-	}
-
-	data := &TemplateData{Params: p, Bookmark: b}
-	data.Colorschemes = h.colorschemes
-	data.CurrentColorscheme = getThemeFromCookie(r)
-	data.PageTitle = "Bookmark Detail"
-	data.CurrentURI = r.RequestURI
-	data.Routes = router.New(p.CurrentDB).Web
-	data.CSRFToken = nosurf.Token(r)
-
-	h.renderPage(w, r, http.StatusOK, "bookmark-detail", data)
-}
-
-func (h *Handler) newRecord(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) recordNew(w http.ResponseWriter, r *http.Request) {
 	// FIX:
 	// maybe, redirect to `view` new record.
-	p := parseRequestParams(r)
-	p.CurrentDB = r.PathValue("db")
-
-	data := &TemplateData{Params: p}
+	data := newTemplateData(r)
 	data.Colorschemes = h.colorschemes
-	data.CurrentColorscheme = getThemeFromCookie(r)
 	data.PageTitle = "New Bookmark"
-	data.CSRFToken = nosurf.Token(r)
-	data.URL = buildURLs(p, r)
+	data.URL = buildURLs(data.Params, r)
 
 	if err := h.template.ExecuteTemplate(w, "bookmark-new", data); err != nil {
 		responder.ServerErr(w, r, err)
@@ -285,23 +231,19 @@ func (h *Handler) changeTheme(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) newRecordFrame(w http.ResponseWriter, r *http.Request) {
-	p := parseRequestParams(r)
-	p.CurrentDB = r.PathValue("db")
+func (h *Handler) recordNewFrame(w http.ResponseWriter, r *http.Request) {
+	data := newTemplateData(r)
 	u := r.URL.Query().Get("url")
 
-	repo, err := h.repoLoader(p.CurrentDB)
+	repo, err := h.repoLoader(data.Params.CurrentDB)
 	if err != nil {
 		responder.ServerErr(w, r, err)
 		return
 	}
 
-	data := &TemplateData{Params: p}
 	data.Colorschemes = h.colorschemes
-	data.CurrentColorscheme = getThemeFromCookie(r)
 	data.PageTitle = "New Bookmark"
-	data.CSRFToken = nosurf.Token(r)
-	data.URL = buildURLs(p, r)
+	data.URL = buildURLs(data.Params, r)
 
 	templateName := "bookmark-new-frame"
 	if b, ok := repo.Has(r.Context(), u); ok {
@@ -316,17 +258,13 @@ func (h *Handler) newRecordFrame(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) userSignup(w http.ResponseWriter, r *http.Request) {
-	p := parseRequestParams(r)
-	p.CurrentDB = r.URL.Query().Get("db")
-
-	data := newTemplateData(p.CurrentDB)
+	// FIX: this is broken, new router constructor.
+	data := newTemplateData(r)
+	data.Params.CurrentDB = r.URL.Query().Get("db")
 	data.Form = forms.UserSignUp{}
 	data.Colorschemes = h.colorschemes
-	data.CurrentColorscheme = getThemeFromCookie(r)
 	data.PageTitle = "New User"
-	data.Params = p
-	data.URL = buildURLs(p, r)
-	data.CSRFToken = nosurf.Token(r)
+	data.URL = buildURLs(data.Params, r)
 
 	h.renderPage(w, r, http.StatusOK, "signup", data)
 }
@@ -350,17 +288,13 @@ func (h *Handler) userSignupPost(w http.ResponseWriter, r *http.Request) {
 			dbName = "main"
 		}
 
-		data := newTemplateData(dbName)
+		data := newTemplateData(r)
 		data.Form = f
+		data.Params.CurrentDB = dbName
 		data.FormHasErrors = true
 		data.Colorschemes = h.colorschemes
-		data.CurrentColorscheme = getThemeFromCookie(r)
 		data.PageTitle = "New User"
-
-		data.Params = parseRequestParams(r)
 		data.URL = buildURLs(data.Params, r)
-		data.Params.CurrentDB = dbName
-		data.CSRFToken = nosurf.Token(r)
 
 		h.renderPage(w, r, http.StatusUnprocessableEntity, "signup", data)
 		return
@@ -370,19 +304,40 @@ func (h *Handler) userSignupPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) userLogin(w http.ResponseWriter, r *http.Request) {
+	td := newTemplateData(r)
+	td.Params.CurrentDB = r.URL.Query().Get("db")
+	td.Form = forms.UserLogin{}
+	td.Colorschemes = h.colorschemes
+	td.PageTitle = "Login User"
+	td.URL = buildURLs(td.Params, r)
+
+	h.renderPage(w, r, http.StatusOK, "login", td)
+}
+
+func (h *Handler) recordExport(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Content-Disposition", `attachment; filename="bookmarks.html"`)
 	p := parseRequestParams(r)
-	p.CurrentDB = r.URL.Query().Get("db")
-	data := newTemplateData(p.CurrentDB)
 
-	data.Form = forms.UserLogin{}
-	data.Colorschemes = h.colorschemes
-	data.CurrentColorscheme = getThemeFromCookie(r)
-	data.PageTitle = "Login User"
-	data.Params = p
-	data.URL = buildURLs(data.Params, r)
-	data.CSRFToken = nosurf.Token(r)
+	dbName := r.PathValue("db")
+	repo, err := h.repoLoader(dbName)
+	if err != nil {
+		h.logger.Error("repo info", "error", err, "repo", dbName)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	h.renderPage(w, r, http.StatusOK, "login", data)
+	records, err := repo.All(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get all the bookmarks", http.StatusInternalServerError)
+		return
+	}
+
+	filtered := helpers.ApplyFiltersAndSorting(p.Tag, p.Query, p.Letter, p.FilterBy, records)
+	if err := bookio.ExportToNetscapeHTML(filtered, w); err != nil {
+		http.Error(w, "failed to export bookmarks", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) userLoginPost(w http.ResponseWriter, r *http.Request) {
@@ -398,24 +353,28 @@ func (h *Handler) notImplementedYet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) renderPage(w http.ResponseWriter, r *http.Request, n int, page string, d *TemplateData) {
-	buf := new(bytes.Buffer)
+	var tmpl *template.Template
+	var err error
 
-	// Write the template to the buffer, instead of straight to the
-	// http.ResponseWriter. If there's an error, call our responder.ServerErr() helper
-	// and then return.
-	err := h.template.ExecuteTemplate(buf, page, d)
+	if devMode {
+		// always reload from disk in dev
+		tmpl, err = template.New("pages/base").Funcs(templateFuncs).ParseGlob("ui/templates/**/*.gohtml")
+	} else {
+		tmpl = h.template
+	}
+
 	if err != nil {
 		responder.ServerErr(w, r, err)
 		return
 	}
 
-	// If the template is written to the buffer without any errors, we are safe
-	// to go ahead and write the HTTP status code to http.ResponseWriter.
-	w.WriteHeader(n)
+	buf := new(bytes.Buffer)
+	if err := tmpl.ExecuteTemplate(buf, page, d); err != nil {
+		responder.ServerErr(w, r, err)
+		return
+	}
 
-	// Write the contents of the buffer to the http.ResponseWriter. Note: this
-	// is another time where we pass our http.ResponseWriter to a function that
-	// takes an io.Writer.
+	w.WriteHeader(n)
 	if _, err := buf.WriteTo(w); err != nil {
 		responder.ServerErr(w, r, err)
 		return

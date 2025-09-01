@@ -21,10 +21,12 @@ func New() *App {
 			MainDB:  mainDB,
 			DataDir: "gomarks",
 			Info: &information{
-				URL:   "https://github.com/mateconpizza/gmweb#readme",
-				Title: "A simple web bookmark manager",
-				Tags:  "golang,awesome,bookmarks,cli,manager",
-				Desc:  "Simple yet powerful bookmark manager for your browser",
+				Author:    "mateconpizza",
+				AuthorURL: "https://github.com/mateconpizza",
+				URL:       "https://github.com/mateconpizza/gmweb#readme",
+				Title:     "A simple web bookmark manager",
+				Tags:      "golang,awesome,bookmarks,cli,manager",
+				Desc:      "Simple yet powerful bookmark manager for your browser",
 			},
 		},
 		Flags: &Flags{

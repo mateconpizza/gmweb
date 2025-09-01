@@ -16,12 +16,17 @@ import (
 	"time"
 
 	"github.com/mateconpizza/gm/pkg/bookmark"
+	"github.com/mateconpizza/gm/pkg/files"
+	"github.com/mateconpizza/gm/pkg/scraper"
 
-	"github.com/mateconpizza/gmweb/internal/files"
 	"github.com/mateconpizza/gmweb/internal/helpers"
+	"github.com/mateconpizza/gmweb/internal/models"
 )
 
-var ErrInvalidURLFormat = errors.New("invalid data URL format")
+var (
+	ErrInvalidURLFormat = errors.New("invalid data URL format")
+	ErrNonOKStatus      = errors.New("non-OK HTTP status")
+)
 
 func setHeaders(r *http.Request) {
 	r.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0")
@@ -89,7 +94,7 @@ func handleDataURL(destPath, hashDomain, dataURL string) (string, error) {
 	savePath := filepath.Join(destPath, filename)
 
 	// Check if file already exists
-	if files.Exists(savePath) {
+	if files.Exists(savePath) && files.SizeBytes(savePath) > 0 {
 		return savePath, nil
 	}
 
@@ -126,11 +131,9 @@ func handleRegularURL(destPath, hashDomain, faviconURL string) (string, error) {
 	if ext == "" || len(ext) > 5 {
 		ext = ".ico"
 	}
-
 	filename := hashDomain + ext
 	savePath := filepath.Join(destPath, filename)
-
-	if files.Exists(savePath) {
+	if files.Exists(savePath) && files.SizeBytes(savePath) > 0 {
 		return savePath, nil
 	}
 
@@ -138,7 +141,6 @@ func handleRegularURL(destPath, hashDomain, faviconURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	setHeaders(req)
 
 	client := &http.Client{Timeout: 5 * time.Second}
@@ -146,68 +148,117 @@ func handleRegularURL(destPath, hashDomain, faviconURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	go func() {
+	defer func() {
 		if err := r.Body.Close(); err != nil {
 			slog.Error("closing request body", "error", err)
 		}
 	}()
+
+	// Check HTTP status code
+	if r.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("HTTP %d: %s: %w", r.StatusCode, r.Status, ErrNonOKStatus)
+	}
 
 	// Create destination file
 	out, err := os.Create(savePath)
 	if err != nil {
 		return "", err
 	}
-	go func() {
+	defer func() {
 		if err := out.Close(); err != nil {
 			slog.Error("closing destination file", "error", err)
 		}
 	}()
 
+	// Copy response body to file
 	_, err = io.Copy(out, r.Body)
 	if err != nil {
+		// Clean up the file if copy failed
+		_ = os.Remove(savePath)
 		return "", err
 	}
 
 	return savePath, nil
 }
 
-func loadFavicons(destPath string, bs []*bookmark.Bookmark) error {
+// processFavicons updates bookmark favicon URLs, downloads favicons,
+// and scrapes missing favicon URLs from a list of bookmarks.
+func processFavicons(r models.Repo, destPath, staticPath string, bs []*bookmark.Bookmark) {
 	var (
-		wg   sync.WaitGroup
-		mu   sync.Mutex
-		errs []string
+		wg       sync.WaitGroup
+		scraped  = make(chan *bookmark.Bookmark)
+		download = make(chan *bookmark.Bookmark)
 	)
 
-	for _, b := range bs {
-		if b.FaviconLocal != "" || b.FaviconURL == "" {
-			continue
+	// Update bookmark's favicon URL
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for b := range scraped {
+			if err := r.UpdateOne(context.Background(), b); err != nil {
+				slog.Error("db update failed", "url", b.URL, "err", err)
+				continue
+			}
+			download <- b // forward to download stage
 		}
+		close(download)
+	}()
 
-		wg.Add(1)
-
-		go func(b *bookmark.Bookmark) {
-			defer wg.Done()
-
+	// Download the favicons
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for b := range download {
+			if b.FaviconURL == "" {
+				continue
+			}
 			localFavicon, err := downloadFavicon(destPath, b.URL, b.FaviconURL)
-
-			mu.Lock()
-			defer mu.Unlock()
-
 			if err != nil {
 				slog.Error("favicon fetch failed", "url", b.URL, "err", err)
-				errs = append(errs, fmt.Sprintf("url %s: %s", b.URL, err.Error()))
-			} else {
-				favicon := filepath.Base(localFavicon)
-				b.FaviconLocal = "/cache/favicon/" + favicon
+				continue
 			}
-		}(b)
-	}
+			favicon := filepath.Base(localFavicon)
+			b.FaviconLocal = staticPath + favicon
+			// could also update DB here if needed
+		}
+	}()
+
+	// Producer: scrape missing FaviconURLs
+	go func() {
+		defer close(scraped)
+		var scrapeWg sync.WaitGroup
+		for _, b := range bs {
+			if b.FaviconLocal != "" {
+				continue
+			}
+
+			// If URL missing → scrape
+			if b.FaviconURL == "" {
+				scrapeWg.Add(1)
+				go func(b *bookmark.Bookmark) {
+					defer scrapeWg.Done()
+					scrapeFaviconURL(b)
+					scraped <- b
+				}(b)
+			} else {
+				// Already has FaviconURL, just forward directly to download stage
+				download <- b
+			}
+		}
+		scrapeWg.Wait()
+	}()
 
 	wg.Wait()
+}
 
-	for _, e := range errs {
-		slog.Error("favicon local", "error", e)
+func scrapeFaviconURL(b *bookmark.Bookmark) {
+	sc := scraper.New(b.URL)
+	if err := sc.Start(); err != nil {
+		return
 	}
-
-	return nil
+	fv, err := sc.Favicon()
+	if err != nil {
+		return
+	}
+	b.FaviconURL = fv
 }

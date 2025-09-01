@@ -12,9 +12,7 @@ import (
 	"time"
 )
 
-var (
-	ErrServerAlreadyRunning = errors.New("server is already running")
-)
+var ErrServerAlreadyRunning = errors.New("server is already running")
 
 type Middleware func(http.Handler) http.Handler
 

@@ -24,6 +24,12 @@ type FetchDataResponse struct {
 	ArchiveURL string   `json:"archive_url"`
 }
 
+type FetchSnapshotResponse struct {
+	URL              string `json:"url"`
+	ArchiveURL       string `json:"archive_url"`
+	ArchiveTimestamp string `json:"archive_timestamp"`
+}
+
 type QRCodeResponse struct {
 	URL     string `json:"url"`
 	Base64  string `json:"base64"`
@@ -41,6 +47,12 @@ type RepoStatsResponse struct {
 	Bookmarks int    `json:"bookmarks"`
 	Tags      int    `json:"tags"`
 	Favorites int    `json:"favorites"`
+}
+
+type ImportResponse struct {
+	Message  string `json:"message"`
+	Imported int    `json:"imported"`
+	Total    int    `json:"total"`
 }
 
 func EncodeErrJSON(w http.ResponseWriter, statusCode int, err string) {

@@ -23,8 +23,8 @@ func (bm *BookmarkModel) InsertOne(ctx context.Context, b *bookmark.Bookmark) (i
 	return bm.store.InsertOne(ctx, b)
 }
 
-func (bm *BookmarkModel) Update(ctx context.Context, newB, oldB *bookmark.Bookmark) error {
-	return bm.store.Update(ctx, newB, oldB)
+func (bm *BookmarkModel) UpdateOne(ctx context.Context, b *bookmark.Bookmark) error {
+	return bm.store.UpdateOne(ctx, b)
 }
 
 func (bm *BookmarkModel) SetFavorite(ctx context.Context, b *bookmark.Bookmark) error {

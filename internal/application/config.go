@@ -5,10 +5,9 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/mateconpizza/gm/pkg/files"
 	gap "github.com/muesli/go-app-paths"
 	flag "github.com/spf13/pflag"
-
-	"github.com/mateconpizza/gmweb/internal/files"
 )
 
 var version string = "0.1.0"
@@ -40,6 +39,7 @@ type (
 	Flags struct {
 		Path    string // Path to store data
 		Addr    string // Address to listen on
+		DevMode bool   // Development mode
 		Verbose int    // Verbosity
 		Version bool   // Version
 		Help    bool   // Help
@@ -47,10 +47,12 @@ type (
 
 	// information holds general application metadata.
 	information struct {
-		URL   string `json:"url"`
-		Title string `json:"title"`
-		Tags  string `json:"tags"`
-		Desc  string `json:"desc"`
+		Author    string `json:"author"`
+		AuthorURL string `json:"author_url"`
+		URL       string `json:"url"`
+		Title     string `json:"title"`
+		Tags      string `json:"tags"`
+		Desc      string `json:"desc"`
 	}
 )
 
@@ -87,6 +89,7 @@ func (a *App) Parse() *App {
 
 	flag.StringVarP(&a.Flags.Path, "path", "p", a.Cfg.DataDir, "")
 	flag.StringVarP(&a.Flags.Addr, "addr", "a", a.Flags.Addr, "")
+	flag.BoolVarP(&a.Flags.DevMode, "dev", "d", false, "")
 	flag.CountVarP(&a.Flags.Verbose, "verbose", "v", "Increase verbosity (-v, -vv, -vvv)")
 	flag.BoolVarP(&a.Flags.Version, "version", "V", false, "")
 	flag.BoolVarP(&a.Flags.Help, "help", "h", false, "")

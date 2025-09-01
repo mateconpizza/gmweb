@@ -33,7 +33,7 @@ type Writer interface {
 	InsertOne(ctx context.Context, b *bookmark.Bookmark) (int64, error)
 
 	// Update updates an existing bookmark.
-	Update(ctx context.Context, newB, oldB *bookmark.Bookmark) error
+	UpdateOne(ctx context.Context, b *bookmark.Bookmark) error
 
 	// SetFavorite sets a bookmark as favorite.
 	SetFavorite(ctx context.Context, b *bookmark.Bookmark) error

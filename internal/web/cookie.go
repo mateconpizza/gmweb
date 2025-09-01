@@ -3,6 +3,7 @@ package web
 import (
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/mateconpizza/gmweb/ui"
 )
@@ -40,4 +41,21 @@ func getThemeFromCookie(r *http.Request) string {
 
 	slog.Debug("theme from cookie:", "theme", cookie.Value)
 	return cookie.Value
+}
+
+func getItemsPerPage(r *http.Request, def int) int {
+	cookie, err := r.Cookie("items_per_page")
+	if err != nil {
+		slog.Warn("items per page cookie:", "items", def)
+		return def
+	}
+
+	slog.Debug("items per page cookie:", "items", cookie.Value)
+
+	n, err := strconv.Atoi(cookie.Value)
+	if err != nil {
+		slog.Error("items per page cookie:", "error", err)
+	}
+
+	return n
 }

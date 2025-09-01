@@ -172,7 +172,7 @@ func TestAllTags(t *testing.T) {
 	req.SetPathValue("db", mock.Name())
 	w := httptest.NewRecorder()
 
-	h.allTags(w, req)
+	h.tagsList(w, req)
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusOK {
@@ -201,7 +201,7 @@ func TestRecordByID_Success(t *testing.T) {
 
 	h := setupHandler(t, mock)
 
-	req := httptest.NewRequest(http.MethodGet, h.router.API.GetByID(wantID), http.NoBody)
+	req := httptest.NewRequest(http.MethodGet, h.router.API.BookmarkByID(wantID), http.NoBody)
 	req.SetPathValue("db", mock.Name())
 	req.SetPathValue("id", wantID)
 

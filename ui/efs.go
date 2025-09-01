@@ -7,7 +7,7 @@ import "embed"
 var Files embed.FS
 
 const (
-	Cache            string = "/cache/favicon/"        // Path to read favicons
+	CacheFavicon     string = "/cache/favicon/"        // Path to read favicons
 	ColorSchemes     string = "static/css/colorshemes" // Path to colorschemes files
 	DefaultColorsCSS string = "default-colors.css"     // Default colors
 	TemplateGlob     string = "templates/**/*.gohtml"  // Template files

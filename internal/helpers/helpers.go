@@ -14,8 +14,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/mateconpizza/gm/pkg/bookmark"
-
-	"github.com/mateconpizza/gmweb/internal/files"
+	"github.com/mateconpizza/gm/pkg/files"
 )
 
 // ShortStr shortens a string to a maximum length.
@@ -74,6 +73,10 @@ func FormatTimestamp(timestamp string) string {
 // RelativeISOTime takes a timestamp string in ISO 8601 format (e.g., "2025-02-27T05:03:28Z")
 // and returns a relative time description.
 func RelativeISOTime(ts string) string {
+	if ts == "" {
+		return ""
+	}
+
 	t, err := time.Parse(time.RFC3339, ts)
 	if err != nil {
 		return "invalid timestamp"
@@ -110,6 +113,8 @@ func RelativeISOTime(ts string) string {
 		return fmt.Sprintf("%d months ago", days/30)
 	case days < 730:
 		return "1 year ago"
+	case days < 365*20: // 20 years
+		return fmt.Sprintf("%d years ago", days/365)
 	default:
 		return "never"
 	}
@@ -216,7 +221,7 @@ func GroupTagsByLetter(tags []string) map[string][]string {
 			continue
 		}
 		first := strings.ToUpper(string(tag[0]))
-		grouped[first] = append(grouped[first], "#"+tag)
+		grouped[first] = append(grouped[first], tag)
 	}
 	return grouped
 }
@@ -249,17 +254,23 @@ func SortBy(s string, bs []*bookmark.Bookmark) []*bookmark.Bookmark {
 		})
 	case "inactive":
 		sort.Slice(bs, func(i, j int) bool {
-			// Si el bookmark i es inactivo (false) y el bookmark j es activo (true),
-			// i va antes que j.
 			if !bs[i].IsActive && bs[j].IsActive {
 				return true
 			}
-			// En cualquier otro caso (ambos activos o ambos inactivos), el orden no cambia.
 			if !bs[i].IsActive == !bs[j].IsActive {
 				return false
 			}
 			return false
 		})
+	case "never_visited":
+		neverVisited := make([]*bookmark.Bookmark, 0, len(bs))
+		for i := range bs {
+			if bs[i].VisitCount != 0 {
+				continue
+			}
+			neverVisited = append(neverVisited, bs[i])
+		}
+		return neverVisited
 	}
 
 	return bs
@@ -309,7 +320,7 @@ func TagsWithPound(s string) string {
 			continue
 		}
 
-		sb.WriteString(fmt.Sprintf("#%s ", t))
+		sb.WriteString(t + " ")
 	}
 
 	return sb.String()

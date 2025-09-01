@@ -7,21 +7,27 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/justinas/nosurf"
 	"github.com/mateconpizza/gm/pkg/bookmark"
+	"github.com/mateconpizza/gm/pkg/files"
 
 	"github.com/mateconpizza/gmweb/internal/application"
-	"github.com/mateconpizza/gmweb/internal/files"
 	"github.com/mateconpizza/gmweb/internal/helpers"
 	"github.com/mateconpizza/gmweb/internal/router"
 	"github.com/mateconpizza/gmweb/ui"
 )
 
-var ErrThemeNotFound = errors.New("theme not found")
+var (
+	ErrThemeNotFound = errors.New("theme not found")
+	ErrWrongHTMLFile = errors.New("file must be an HTML file")
+)
+
+var devMode bool
 
 // TemplateData holds all data needed for template rendering.
 type TemplateData struct {
@@ -38,6 +44,7 @@ type TemplateData struct {
 	Routes        *router.WebRouter
 	TagGroups     map[string][]string
 	CSRFToken     string
+	DevMode       bool
 
 	// Theme
 	Colorschemes           []string
@@ -50,10 +57,19 @@ type TemplateData struct {
 	CurrentPath string
 }
 
-func newTemplateData(dbName string) *TemplateData {
+func newTemplateData(r *http.Request) *TemplateData {
+	p := parseRequestParams(r)
+	p.CurrentDB = r.PathValue("db")
+
 	return &TemplateData{
-		Routes:      router.New(dbName).Web,
-		CurrentYear: time.Now().Year(),
+		Routes:             router.New(p.CurrentDB).Web,
+		Params:             p,
+		CurrentYear:        time.Now().Year(),
+		CurrentURI:         r.RequestURI,
+		CurrentColorscheme: getThemeFromCookie(r),
+		CurrentTheme:       getThemeModeFromCookie(r),
+		CSRFToken:          nosurf.Token(r),
+		DevMode:            devMode,
 	}
 }
 
@@ -146,18 +162,21 @@ func buildIndexTemplateData(ctx *TemplateContext) *TemplateData {
 	p := ctx.Params
 
 	return &TemplateData{
-		App:         ctx.App,
-		Bookmarks:   ctx.Bookmarks,
-		Params:      p,
-		PageTitle:   ctx.App.Name + ": bookmarks",
-		CurrentYear: time.Now().Year(),
-		Pagination:  ctx.Pagination,
-		TagGroups:   helpers.GroupTagsByLetter(ctx.TagsFn()),
-		CSRFToken:   nosurf.Token(r),
-		CurrentPath: r.URL.Path,
-		CurrentURI:  r.RequestURI,
-		Routes:      ctx.Routes.Web.SetDB(p.CurrentDB),
-		URL:         buildURLs(p, r),
+		App:                ctx.App,
+		Bookmarks:          ctx.Bookmarks,
+		Params:             p,
+		PageTitle:          ctx.App.Name + ": Bookmarks",
+		CurrentYear:        time.Now().Year(),
+		Pagination:         ctx.Pagination,
+		TagGroups:          helpers.GroupTagsByLetter(ctx.TagsFn()),
+		CSRFToken:          nosurf.Token(r),
+		CurrentPath:        r.URL.Path,
+		CurrentURI:         r.RequestURI,
+		Routes:             ctx.Routes.SetRepo(p.CurrentDB).Web,
+		URL:                buildURLs(p, r),
+		CurrentColorscheme: getThemeFromCookie(r),
+		CurrentTheme:       getThemeModeFromCookie(r),
+		DevMode:            devMode,
 	}
 }
 
@@ -176,8 +195,13 @@ func buildURLs(p *RequestParams, r *http.Request) *URLs {
 	}
 }
 
-func createMainTemplate(templates *embed.FS) (*template.Template, error) {
-	return template.New("pages/base").Funcs(templateFuncs).ParseFS(templates, ui.TemplateGlob)
+func createMainTemplate(f *embed.FS) (*template.Template, error) {
+	if devMode {
+		// Load templates from disk
+		return template.New("pages/base").Funcs(templateFuncs).ParseGlob("ui/templates/**/*.gohtml")
+	}
+	// Production: use embedded files
+	return template.New("pages/base").Funcs(templateFuncs).ParseFS(f, ui.TemplateGlob)
 }
 
 func getColorschemesNames(staticFiles *embed.FS) ([]string, error) {
@@ -197,10 +221,14 @@ func getColorschemesNames(staticFiles *embed.FS) ([]string, error) {
 }
 
 func getCurrentTheme(content []byte, name string) (*Theme, error) {
-	var themes []Theme
+	var (
+		themes       []Theme
+		defaultTheme = files.StripSuffixes(ui.DefaultColorsCSS)
+	)
 	err := json.Unmarshal(content, &themes)
 	if err != nil {
 		log.Fatal("error unmarshalling JSON: %w", err)
+		return nil, err
 	}
 
 	themeMap := make(map[string]*Theme, len(themes))
@@ -210,27 +238,21 @@ func getCurrentTheme(content []byte, name string) (*Theme, error) {
 
 	theme, ok := themeMap[name]
 	if !ok {
-		return nil, fmt.Errorf("%w: '%s'", ErrThemeNotFound, name)
+		slog.Error("theme not found", "theme", name, "default", defaultTheme)
+		theme = themeMap[defaultTheme]
 	}
 
 	return theme, nil
 }
 
 func isWithinLastWeek(dateString string) bool {
-	// Parsear la cadena de texto a un objeto time.Time.
-	// Se usa time.RFC3339 para manejar el formato "2025-08-10T01:32:58Z".
 	t, err := time.Parse(time.RFC3339, dateString)
 	if err != nil {
 		fmt.Printf("Error al parsear la fecha '%s': %v\n", dateString, err)
 		return false
 	}
-
-	// Obtiene el tiempo actual del sistema.
 	now := time.Now()
-
-	// Calcula el tiempo de hace exactamente 7 días.
 	sevenDaysAgo := now.AddDate(0, 0, -7)
 
-	// Compara la fecha a chequear con la de hace 7 días.
 	return t.After(sevenDaysAgo) || t.Equal(sevenDaysAgo)
 }

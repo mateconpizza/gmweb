@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"net/http"
 	"path/filepath"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -36,8 +37,10 @@ type wrappedWriter struct {
 }
 
 func (w *wrappedWriter) WriteHeader(statusCode int) {
-	w.ResponseWriter.WriteHeader(statusCode)
-	w.statusCode = statusCode
+	if w.statusCode == 0 {
+		w.ResponseWriter.WriteHeader(statusCode)
+		w.statusCode = statusCode
+	}
 }
 
 func Logging(next http.Handler) http.Handler {
@@ -46,7 +49,7 @@ func Logging(next http.Handler) http.Handler {
 
 		wrapped := &wrappedWriter{
 			ResponseWriter: w,
-			statusCode:     http.StatusOK,
+			statusCode:     0,
 		}
 
 		next.ServeHTTP(wrapped, r)
@@ -156,7 +159,7 @@ func PanicRecover(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rec := recover(); rec != nil {
-				log.Printf("panic recovered: %v", rec)
+				log.Printf("panic recovered: %v\n%s", rec, debug.Stack())
 				http.Error(w, "Internal server error", http.StatusInternalServerError)
 			}
 		}()

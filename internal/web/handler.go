@@ -38,6 +38,12 @@ func WithFiles(f *embed.FS) OptFn {
 	}
 }
 
+func WithDevMode(enabled bool) OptFn {
+	return func(o *Opt) {
+		devMode = enabled
+	}
+}
+
 func WithRepoLoader(fn func(string) (models.Repo, error)) OptFn {
 	return func(o *Opt) {
 		o.repoLoader = fn

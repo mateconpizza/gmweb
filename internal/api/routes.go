@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,12 +9,14 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/mateconpizza/gm/pkg/bookio"
 	"github.com/mateconpizza/gm/pkg/bookmark"
+	"github.com/mateconpizza/gm/pkg/files"
 	"github.com/mateconpizza/gm/pkg/scraper"
 
 	"github.com/mateconpizza/gmweb/internal/database"
-	"github.com/mateconpizza/gmweb/internal/files"
 	"github.com/mateconpizza/gmweb/internal/helpers"
 	"github.com/mateconpizza/gmweb/internal/middleware"
 	"github.com/mateconpizza/gmweb/internal/models"
@@ -25,13 +26,6 @@ import (
 
 // Routes registers the routes for the API.
 func (h *Handler) Routes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api", h.index)
-	mux.HandleFunc("POST /api/scrape", h.scrapeData)
-	mux.HandleFunc("POST /api/qr", h.genQR)
-	mux.HandleFunc("POST /api/qr/png", h.genQRPNG)
-	mux.HandleFunc("POST /api/archive", h.snapshotURL)
-	mux.HandleFunc("GET /api/health", h.health)
-
 	// Middleware
 	mustIDAndDBParam := func(fn func(w http.ResponseWriter, r *http.Request)) http.Handler {
 		return middleware.RequireIDAndDBParam(http.HandlerFunc(fn))
@@ -41,15 +35,29 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	}
 
 	r := h.router.API
+
+	// General
+	mux.HandleFunc("GET "+r.Index(), h.index)
+	mux.HandleFunc("POST "+r.Scrape(), h.scrapeData)
+	mux.HandleFunc("GET "+r.Health(), h.health)
+	mux.HandleFunc("POST "+r.InternetArchiveURL(), h.snapshotURL)
+	mux.HandleFunc("POST /api/qr", h.genQR)
+	mux.HandleFunc("POST /api/qr/png", h.genQRPNG)
+
 	// Records
-	mux.Handle("GET "+r.GetByID("{id}"), mustIDAndDBParam(h.recordByID))
-	mux.Handle("GET "+r.Tags(), mustDBParam(h.allTags))
+	mux.Handle("GET "+r.BookmarkByID("{id}"), mustIDAndDBParam(h.recordByID))
+	mux.Handle("GET "+r.Tags(), mustDBParam(h.tagsList))
 	mux.Handle("POST "+r.NewBookmark(), mustDBParam(h.newRecord))
 	mux.Handle("PUT "+r.ToggleFavorite("{id}"), mustIDAndDBParam(h.toggleFavorite))
 	mux.Handle("PUT "+r.AddVisit("{id}"), mustIDAndDBParam(h.addVisit))
 	mux.Handle("PUT "+r.UpdateBookmark("{id}"), mustIDAndDBParam(h.updateRecord))
 	mux.Handle("DELETE "+r.DeleteBookmark("{id}"), mustIDAndDBParam(h.deleteRecord))
 	mux.Handle("GET "+r.CheckStatus("{id}"), mustIDAndDBParam(h.checkStatus))
+
+	// Import|Export
+	mux.Handle("POST "+r.ImportHTML(), mustDBParam(h.importHTML))
+	mux.Handle("POST "+r.ImportRepoJSON(), mustDBParam(h.importJSON))
+	mux.Handle("POST "+r.ImportRepoGPG(), mustDBParam(h.importGPG))
 
 	// Repositories
 	mux.HandleFunc("GET "+r.RepoList(), h.dbList)
@@ -448,18 +456,13 @@ func (h *Handler) updateRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if bytes.Equal(newB.Buffer(), oldB.Buffer()) {
-		w.WriteHeader(http.StatusBadRequest)
-		responder.EncodeErrJSON(w, http.StatusBadRequest, "no changes found")
-		return
-	}
-
+	newB.GenChecksum()
 	newB.CreatedAt = oldB.CreatedAt
 	newB.LastVisit = oldB.LastVisit
 	newB.Favorite = oldB.Favorite
 	newB.VisitCount = oldB.VisitCount
 
-	if err := repo.Update(r.Context(), newB, oldB); err != nil {
+	if err := repo.UpdateOne(r.Context(), newB); err != nil {
 		h.logger.Error("updating bookmark", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -576,10 +579,10 @@ func (h *Handler) toggleFavorite(w http.ResponseWriter, r *http.Request) {
 	responder.WriteJSON(w, http.StatusOK, res)
 }
 
-// allTags return all tags and counts.
+// tagsList return all tags and counts.
 //
 // tagName: n count.
-func (h *Handler) allTags(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) tagsList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	dbName := r.PathValue("db")
@@ -623,13 +626,13 @@ func (h *Handler) snapshotURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u = strings.TrimSuffix(u, "/")
-	b := bookmark.NewJSON()
-	b.URL = u
-	b.ArchiveURL = ws.URL
-	b.ArchiveTimestamp = ws.Timestamp
+	res := responder.FetchSnapshotResponse{
+		URL:              strings.TrimSuffix(u, "/"),
+		ArchiveURL:       ws.URL,
+		ArchiveTimestamp: ws.Timestamp,
+	}
 
-	responder.WriteJSON(w, http.StatusOK, b)
+	responder.WriteJSON(w, http.StatusOK, res)
 }
 
 func (h *Handler) health(w http.ResponseWriter, r *http.Request) {
@@ -650,7 +653,7 @@ func (h *Handler) checkStatus(w http.ResponseWriter, r *http.Request) {
 	dbName := r.PathValue("db")
 	repo, err := h.repoLoader(dbName)
 	if err != nil {
-		h.logger.Error("listing bookmarks", "error", err, "db", dbName)
+		h.logger.Error("bookmark status", "error", err, "db", dbName)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -659,17 +662,177 @@ func (h *Handler) checkStatus(w http.ResponseWriter, r *http.Request) {
 	bID, _ := strconv.Atoi(idStr)
 	b, err := repo.ByID(r.Context(), bID)
 	if err != nil {
-		h.logger.Error("deleting bookmark", "error", err)
+		h.logger.Error("bookmark status", "error", err)
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	_ = b.CheckStatus()
+	if err := b.CheckStatus(r.Context()); err != nil {
+		h.logger.Error("bookmark status", "error", err)
+	}
 
-	if err := repo.Update(r.Context(), b, b); err != nil {
+	if b.FaviconURL == "" {
+		sc := scraper.New(b.URL)
+		_ = sc.Start()
+		b.FaviconURL, _ = sc.Favicon()
+	}
+
+	if err := repo.UpdateOne(r.Context(), b); err != nil {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	responder.WriteJSON(w, http.StatusOK, b)
+}
+
+//nolint:funlen //ignore
+func (h *Handler) importHTML(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(10 << 20) // 10MB limit
+	if err != nil {
+		h.logger.Error("Error parsing form", "error", err)
+		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// parse file
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		h.logger.Error("Error getting file", "error", err)
+		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			h.logger.Error("closing file")
+		}
+	}()
+
+	// Validate that it is an HTML file
+	if header.Header.Get("Content-Type") != "text/html" && !strings.HasSuffix(header.Filename, ".html") {
+		h.logger.Error("File must be an HTML file")
+		responder.EncodeErrJSON(w, http.StatusBadRequest, bookio.ErrNoHTMLFile.Error())
+		return
+	}
+
+	if err := bookio.IsValidNetscapeFile(file); err != nil {
+		h.logger.Error(err.Error())
+		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// parse bookmarks
+	bp := bookio.NewHTMLParser()
+	bns, err := bp.ParseHTML(file)
+	if err != nil {
+		h.logger.Error("Error parsing bookmarks", "error", err)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	dbName := r.PathValue("db")
+	repo, err := h.repoLoader(dbName)
+	if err != nil {
+		h.logger.Error("listing bookmarks", "error", err, "db", dbName)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	bs := make([]*bookmark.Bookmark, 0, len(bns))
+	duplicated := 0
+	for i := range bns {
+		b := bookio.FromNetscape(&bns[i])
+		if _, exists := repo.Has(r.Context(), b.URL); exists {
+			duplicated++
+			continue
+		}
+
+		bs = append(bs, b)
+	}
+
+	if len(bs) == 0 {
+		responder.EncodeErrJSON(
+			w,
+			http.StatusBadRequest,
+			fmt.Sprintf("%d bookmarks found. %d are duplicated. Nothing to import", len(bns), duplicated),
+		)
+		return
+	}
+
+	for i := range bs {
+		if _, err := repo.InsertOne(r.Context(), bs[i]); err != nil {
+			h.logger.Error("importing bookmarks", "error", err, "db", dbName, "url", bs[i].URL)
+			responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+
+	res := responder.ImportResponse{
+		Message:  fmt.Sprintf("Successfully imported %d of %d", len(bs), len(bns)),
+		Imported: len(bs),
+		Total:    len(bns),
+	}
+
+	responder.WriteJSON(w, http.StatusOK, res)
+}
+
+func (h *Handler) importJSON(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(1 << 20) // 1MB limit
+	if err != nil {
+		h.logger.Error("Error parsing form", "error", err)
+		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// parse file
+	repoPath := r.FormValue("repo")
+	if repoPath == "" {
+		responder.EncodeErrJSON(w, http.StatusBadRequest, "repository path not provided")
+		return
+	}
+
+	bj := bookio.NewJSONParser()
+	bs, err := bj.Parse(repoPath)
+	if err != nil {
+		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	res := responder.ResponseData{
+		Message:    fmt.Sprintf("Found %d", len(bs)),
+		StatusCode: http.StatusOK,
+	}
+
+	for i := range bs {
+		if i == 10 {
+			break
+		}
+		fmt.Printf("bs[i].URL: %v\n", bs[i].URL)
+	}
+
+	responder.WriteJSON(w, http.StatusOK, res)
+}
+
+func (h *Handler) importGPG(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(1 << 20) // 1MB limit
+	if err != nil {
+		h.logger.Error("Error parsing form", "error", err)
+		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// parse file
+	repoPath := r.FormValue("repo")
+	if repoPath == "" {
+		responder.EncodeErrJSON(w, http.StatusBadRequest, "repository path not provided")
+		return
+	}
+
+	res := responder.ResponseData{
+		Message:    "Repository GPG::::" + repoPath,
+		StatusCode: http.StatusOK,
+	}
+
+	time.Sleep(2 * time.Second)
+
+	responder.WriteJSON(w, http.StatusOK, res)
 }

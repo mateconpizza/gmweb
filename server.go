@@ -11,10 +11,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mateconpizza/gm/pkg/files"
+
 	"github.com/mateconpizza/gmweb/internal/api"
 	"github.com/mateconpizza/gmweb/internal/application"
 	"github.com/mateconpizza/gmweb/internal/database"
-	"github.com/mateconpizza/gmweb/internal/files"
 	"github.com/mateconpizza/gmweb/internal/graceful"
 	"github.com/mateconpizza/gmweb/internal/middleware"
 	"github.com/mateconpizza/gmweb/internal/models"
@@ -48,6 +49,7 @@ func setupRoutes(app *application.App) *http.ServeMux {
 		web.WithCfg(app.Cfg),
 		web.WithLogger(app.Log),
 		web.WithRoutes(r),
+		web.WithDevMode(app.Flags.DevMode),
 	)
 	webHandler.Routes(mux)
 
@@ -104,17 +106,21 @@ func run(app *application.App) error {
 		return err
 	}
 
+	middle := []server.Middleware{
+		middleware.Logging,
+		middleware.PanicRecover,
+	}
+
+	if !app.Flags.DevMode {
+		middle = append(middle, middleware.CommonHeaders, middleware.NoSurf)
+	}
+
 	mux := setupRoutes(app)
 	srv := server.New(
 		server.WithAddr(app.Flags.Addr),
 		server.WithLogger(app.Log),
 		server.WithMux(mux),
-		server.WithMiddleware(
-			middleware.CommonHeaders,
-			middleware.Logging,
-			middleware.PanicRecover,
-			middleware.NoSurf,
-		),
+		server.WithMiddleware(middle...),
 		server.WithTLS(app.Server.CertFile, app.Server.KeyFile),
 	)
 
