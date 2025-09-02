@@ -44,7 +44,12 @@ type TemplateData struct {
 	Routes        *router.WebRouter
 	TagGroups     map[string][]string
 	CSRFToken     string
-	DevMode       bool
+
+	// settings
+	DevMode     bool
+	CompactMode bool
+	DarkMode    bool // FIX: implement this
+	VimMode     bool
 
 	// Theme
 	Colorschemes           []string
@@ -66,8 +71,8 @@ func newTemplateData(r *http.Request) *TemplateData {
 		Params:             p,
 		CurrentYear:        time.Now().Year(),
 		CurrentURI:         r.RequestURI,
-		CurrentColorscheme: getThemeFromCookie(r),
-		CurrentTheme:       getThemeModeFromCookie(r),
+		CurrentColorscheme: cookie.get(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS),
+		CurrentTheme:       cookie.get(r, cookie.jar.themeMode, "light"),
 		CSRFToken:          nosurf.Token(r),
 		DevMode:            devMode,
 	}
@@ -174,8 +179,10 @@ func buildIndexTemplateData(ctx *TemplateContext) *TemplateData {
 		CurrentURI:         r.RequestURI,
 		Routes:             ctx.Routes.SetRepo(p.CurrentDB).Web,
 		URL:                buildURLs(p, r),
-		CurrentColorscheme: getThemeFromCookie(r),
-		CurrentTheme:       getThemeModeFromCookie(r),
+		CurrentColorscheme: cookie.get(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS),
+		CurrentTheme:       cookie.get(r, cookie.jar.themeMode, "light"),
+		CompactMode:        cookie.getBool(r, cookie.jar.compactMode, false),
+		VimMode:            cookie.getBool(r, cookie.jar.vimMode, false),
 		DevMode:            devMode,
 	}
 }

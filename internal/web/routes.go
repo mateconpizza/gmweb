@@ -73,7 +73,7 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 	p := parseRequestParams(r)
 	p.CurrentDB = r.PathValue("db")
 
-	h.itemsPerPage = getItemsPerPage(r, h.itemsPerPage)
+	h.itemsPerPage = cookie.getInt(r, cookie.jar.itemsPerPage, h.itemsPerPage)
 
 	repo, err := h.repoLoader(p.CurrentDB)
 	if err != nil {
@@ -148,7 +148,9 @@ func (h *Handler) recordQR(w http.ResponseWriter, r *http.Request) {
 		responder.ServerErr(w, r, err)
 	}
 
-	currentTheme := files.StripSuffixes(filepath.Base(getThemeFromCookie(r)))
+	currentTheme := files.StripSuffixes(
+		filepath.Base(cookie.get(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS)),
+	)
 	t, err := getCurrentTheme(f, currentTheme)
 	if err != nil {
 		responder.ServerErr(w, r, err)
@@ -156,7 +158,7 @@ func (h *Handler) recordQR(w http.ResponseWriter, r *http.Request) {
 
 	bg := t.Light.Bg
 	fg := t.Light.Fg
-	mode := getThemeModeFromCookie(r)
+	mode := cookie.get(r, cookie.jar.themeMode, "light")
 	if mode == "dark" {
 		bg = t.Dark.Bg
 		fg = t.Dark.Fg
@@ -227,7 +229,7 @@ func (h *Handler) changeTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	setThemeCookie(w, themeName)
+	cookie.set(w, cookie.jar.themeCurrent, themeName)
 	w.WriteHeader(http.StatusOK)
 }
 

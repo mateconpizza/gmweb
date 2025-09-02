@@ -4,58 +4,70 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-
-	"github.com/mateconpizza/gmweb/ui"
 )
 
-func setThemeCookie(w http.ResponseWriter, themeName string) {
-	cookie := &http.Cookie{
-		Name:     "user_theme",
-		Value:    themeName,
+type jar struct {
+	vimMode      string
+	compactMode  string
+	themeCurrent string
+	themeMode    string
+	itemsPerPage string
+}
+
+type cookieType struct {
+	jar     *jar
+	oneYear int
+}
+
+func (c *cookieType) set(w http.ResponseWriter, key, value string) {
+	ck := &http.Cookie{
+		Name:     key,
+		Value:    value,
 		Path:     "/",
-		MaxAge:   60 * 60 * 24 * 365, // 1 year
-		HttpOnly: false,              // Allow JavaScript access
-		Secure:   false,              // Set to true in production with HTTPS
+		MaxAge:   c.oneYear,
+		HttpOnly: false, // Allow JavaScript access
+		Secure:   false, // Set to true in production with HTTPS
 		SameSite: http.SameSiteLaxMode,
 	}
-	http.SetCookie(w, cookie)
+	http.SetCookie(w, ck)
 }
 
-func getThemeModeFromCookie(r *http.Request) string {
-	cookie, err := r.Cookie("theme_mode")
-	if err == nil && (cookie.Value == "dark" || cookie.Value == "light") {
-		slog.Debug("themeMode from cookie:", "theme", cookie.Value)
-		return cookie.Value
-	}
-
-	slog.Debug("themeMode from cookie:", "fallback", "light")
-	return "light"
-}
-
-func getThemeFromCookie(r *http.Request) string {
-	cookie, err := r.Cookie("user_theme")
+func (c *cookieType) get(r *http.Request, key, def string) string {
+	ck, err := r.Cookie(key)
 	if err != nil {
-		slog.Debug("theme from cookie:", "theme", "default")
-		return ui.DefaultColorsCSS
-	}
-
-	slog.Debug("theme from cookie:", "theme", cookie.Value)
-	return cookie.Value
-}
-
-func getItemsPerPage(r *http.Request, def int) int {
-	cookie, err := r.Cookie("items_per_page")
-	if err != nil {
-		slog.Warn("items per page cookie:", "items", def)
+		slog.Debug("cookies: missing cookie, using default", "key", key, "default", def)
 		return def
 	}
+	return ck.Value
+}
 
-	slog.Debug("items per page cookie:", "items", cookie.Value)
-
-	n, err := strconv.Atoi(cookie.Value)
+func (c *cookieType) getBool(r *http.Request, key string, def bool) bool {
+	val := c.get(r, key, strconv.FormatBool(def))
+	b, err := strconv.ParseBool(val)
 	if err != nil {
-		slog.Error("items per page cookie:", "error", err)
+		slog.Debug("cookies: parse bool failed", "key", key, "val", val, "default", def)
+		return def
 	}
+	return b
+}
 
+func (c *cookieType) getInt(r *http.Request, key string, def int) int {
+	val := c.get(r, key, strconv.Itoa(def))
+	n, err := strconv.Atoi(val)
+	if err != nil {
+		slog.Debug("cookies: parse int failed", "key", key, "val", val, "default", def)
+		return def
+	}
 	return n
+}
+
+var cookie = &cookieType{
+	jar: &jar{
+		vimMode:      "vim_mode",
+		compactMode:  "compact_mode",
+		themeCurrent: "user_theme",
+		themeMode:    "theme_mode",
+		itemsPerPage: "items_per_page",
+	},
+	oneYear: 60 * 60 * 24 * 365,
 }
