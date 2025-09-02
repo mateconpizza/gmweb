@@ -1,0 +1,495 @@
+/* -- Bookmark Card Styles -- */
+.bookmark-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-alt);
+  border-radius: var(--radius-xxs);
+  padding: var(--space-s) var(--space-m);
+  box-shadow: var(--shadow-light);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
+}
+
+/* -- Bookmark card states -- */
+.bookmark-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.bookmark-card.highlighted {
+  background: var(--bg-alt);
+  border: 2px solid var(--link);
+  box-shadow: var(--shadow-strong);
+  transition: all 0.2s ease-in-out;
+}
+
+.bookmark-card kbd {
+  display: none;
+}
+
+.bookmark-card:has(.dropdown-menu.visible) {
+  z-index: 10;
+}
+
+.bookmark-card.selected {
+  color: var(--text-on-accent);
+  background-color: var(--btn-accent-bg-light);
+  border-color: var(--link);
+  font-weight: bold;
+  animation: pulseBlue 0.5s infinite alternate;
+}
+
+@keyframes pulseBlue {
+  from {
+    box-shadow: 0 0 0 0 var(--btn-accent-bg-light);
+  }
+  to {
+    box-shadow: 0 0 0 10px var(--btn-accent-bg-light);
+  }
+}
+
+.bookmark-card.confirm-state {
+  color: var(--text-on-accent);
+  background-color: var(--btn-error-bg-light);
+  border-color: var(--error-dark);
+  font-weight: bold;
+  animation: pulseRed 0.5s infinite alternate;
+}
+
+/* -- Bookmark card deletion animation -- */
+.bookmark-card.deleting {
+  position: relative;
+  pointer-events: none;
+  background: linear-gradient(45deg, var(--btn-error-bg-light), var(--error-dark));
+  border-color: var(--error-dark);
+  animation: deletingPulse 0.8s ease-in-out infinite;
+}
+
+/* Overlay during deletion */
+.bookmark-card.deleting::before {
+  content: "Deleting...";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--btn-error-bg-light);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9em;
+  border-radius: inherit;
+  z-index: 10;
+  animation: fadeInOverlay 0.3s ease-in;
+}
+
+/* Spinner on the card during deletion */
+.bookmark-card.deleting::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--border);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 11;
+}
+
+/* Final removal animation */
+.bookmark-card.deleted {
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transform: translateX(-20px) scale(0.95);
+  border-width: 0;
+  animation: slideAndFade 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeShrink {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    max-height: 200px;
+    margin-bottom: var(--space-xs);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+    max-height: 0;
+    margin-bottom: 0;
+  }
+}
+
+.bookmark-card.removing {
+  animation: fadeShrink 0.35s ease forwards;
+}
+
+/* -- URL -- */
+.bookmark-url {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  overflow: hidden;
+  margin-bottom: var(--space-s);
+}
+
+.bookmark-url img {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--border-xss);
+  flex-shrink: 0;
+}
+
+.bookmark-url a {
+  flex-grow: 1;
+  font-size: var(--h1);
+  font-weight: 600;
+  margin-right: var(--space-xl);
+  color: var(--text);
+  text-decoration: none;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.bookmark-url a:hover {
+  color: var(--link-hover);
+}
+
+/* -- Description -- */
+.bookmark-desc {
+  font-size: var(--h4);
+  color: var(--text-secondary);
+  line-height: var(--lh-s);
+  margin-left: var(--space-xxs);
+  margin-bottom: var(--space-m);
+}
+
+.bookmark-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  cursor: pointer;
+  font-size: var(--fs-s);
+}
+
+/* -- Footer -- */
+.bookmark-card-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-top: var(--space-xxs);
+}
+
+.bookmark-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xxs);
+}
+
+.tag-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-xl);
+  min-height: var(--space-xl);
+  padding: var(--space-xxxs);
+  font-size: var(--fs-xs);
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xxs);
+  background-color: var(--bg-alt);
+}
+
+.views-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.views-text {
+  font-size: var(--fs-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xxs);
+}
+
+/* -- Bookmark card footer favorite -- */
+.bookmark-detail-fav-btn svg {
+  /* Default unfavored state */
+  fill: none;
+  stroke: var(--text-muted);
+  transition:
+    fill 0.4s ease,
+    stroke 0.4s ease,
+    transform 0.2s ease;
+}
+
+.bookmark-detail-fav-btn:hover svg {
+  stroke: var(--favorite);
+  transform: scale(1.1);
+}
+
+.bookmark-detail-fav-btn.favorited svg {
+  fill: var(--favorite);
+  stroke: var(--favorite);
+  transform: scale(1.1);
+}
+
+.bookmark-detail-fav-btn {
+  top: var(--space-xs);
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--bg-hover);
+  transition:
+    color 0.2s,
+    transform 0.2s;
+}
+
+.bookmark-detail-fav-btn:hover {
+  color: var(--error);
+  transform: scale(1.1);
+}
+
+.bookmark-detail-fav-btn.favorited {
+  color: var(--error);
+}
+
+.bookmark-card-footer-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.bookmark-card-footer-actions button {
+  font-size: var(--fs-s);
+}
+
+.bookmark-card-footer-actions svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* -- Bookmark card dropdown menu (3-dots) -- */
+.btn-dots-menu-container {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btn-dots-menu {
+  background: none;
+  fill: var(--link);
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition:
+    color 0.2s,
+    transform 0.2s;
+}
+
+.btn-dots-menu:hover {
+  transform: scale(1.1);
+}
+
+.btn-dots-menu svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* -- Bookmark card menu -- */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-s);
+  box-shadow: var(--shadow-medium);
+  z-index: 100;
+  gap: var(--space-xxxs);
+  width: 120px;
+  padding: var(--space-xxxs);
+}
+
+.dropdown-option {
+  padding: var(--space-xs) var(--space-s);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dropdown-option:hover {
+  background-color: var(--bg-hover);
+  border-radius: var(--radius-s);
+}
+
+.dropdown-option svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dropdown-menu.visible {
+  display: block;
+}
+
+/* -- Compact Mode -- */
+.compact .bookmark-card {
+  padding: var(--space-xs) var(--space-s);
+  margin-bottom: var(--space-xxs);
+  gap: var(--space-xxs);
+}
+
+/* Compact URL section */
+.compact .bookmark-url {
+  margin-bottom: var(--space-xs);
+  gap: var(--space-xxs);
+}
+
+.compact .bookmark-url img {
+  width: 14px;
+  height: 14px;
+}
+
+.compact .bookmark-url a {
+  font-size: var(--h3); /* Smaller than original var(--h1) */
+  font-weight: 500; /* Less bold */
+  margin-right: var(--space-m); /* Less margin */
+}
+
+/* Compact description */
+.compact .bookmark-desc {
+  font-size: var(--fs-s); /* Smaller than original var(--h4) */
+  line-height: var(--lh-xs); /* Tighter line height */
+  margin-left: 0; /* Remove left margin */
+  margin-bottom: var(--space-xs); /* Less bottom margin */
+}
+
+/* Compact tags */
+.compact .bookmark-tags {
+  margin-bottom: var(--space-xxs);
+}
+
+.compact .tag-side {
+  font-size: var(--fs-xs);
+  padding: var(--space-xxxs) var(--space-xxs);
+  margin-right: var(--space-xxs);
+}
+
+/* Compact footer */
+.compact .bookmark-card-footer {
+  margin-top: 0;
+  font-size: var(--fs-xxs);
+}
+
+.compact .bookmark-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xxxs);
+  font-size: var(--fs-xxs);
+}
+
+.compact .tag-toggle {
+  border-radius: var(--radius-xxs);
+  background-color: var(--bg-hover);
+  font-weight: 600;
+}
+
+.compact .tag-toggle:hover {
+  background-color: var(--accent-hover);
+  color: var(--text-on-accent);
+}
+
+.compact .views-count {
+  display: none;
+}
+
+.compact .views-text {
+  display: none;
+}
+
+/* Compact footer actions */
+.compact .bookmark-card-footer-actions {
+  gap: var(--space-xxs);
+}
+
+.compact .bookmark-card-footer-actions svg {
+  width: 14px;
+  height: 14px;
+}
+
+.compact .bookmark-detail-fav-btn {
+  top: var(--space-xxs);
+}
+
+.compact .bookmark-detail-fav-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Compact dropdown menu positioning */
+.compact .btn-dots-menu-container {
+  top: var(--space-xxs);
+  right: var(--space-xxs);
+}
+
+.compact .btn-dots-menu svg {
+  width: 14px;
+  height: 14px;
+}
+
+.compact .bookmark-card:hover {
+  transform: translateY(-1px);
+}
+
+/* -- Responsive Styles -- */
+@media (max-width: 768px) {
+  .compact .bookmark-url a {
+    margin-right: var(--space-s);
+  }
+
+  .compact .bookmark-card-footer {
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 768px) {
+  .btn-dots-menu-container {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  .bookmark-card:hover .btn-dots-menu-container {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

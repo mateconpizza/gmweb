@@ -120,7 +120,6 @@
   color: var(--text);
   border-radius: var(--radius-xs);
   transition: all 0.2s ease;
-  font-weight: 500;
 }
 
 .menu-item:hover {
@@ -165,4 +164,15 @@
   border-color: var(--bg-alt);
   outline: none;
   background-color: var(--bg-hover);
+}
+
+@media (max-width: 767px) {
+  .hamburger-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .menu-item {
+    font-size: var(--fs-m);
+  }
 }

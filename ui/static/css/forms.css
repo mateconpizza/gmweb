@@ -99,29 +99,6 @@ body.reloading {
   font-size: var(--fs-s);
 }
 
-.back-button {
-  position: absolute;
-  left: 10px;
-  top: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  color: var(--text);
-  transition:
-    background-color 0.2s ease,
-    transform 0.15s ease,
-    color 0.2s ease;
-}
-
-.back-button:hover {
-  background-color: var(--bg-alt, rgba(0, 0, 0, 0.08));
-  color: var(--text);
-  transform: scale(1.05);
-}
-
 .form {
   padding: var(--space-xxl);
 }
@@ -351,7 +328,7 @@ body.reloading {
   height: 12px;
   border: 2px solid var(--header-bg);
   border-radius: 50%;
-  border-top-color: white;
+  border-top-color: var(--bg-card);
   animation: spin 1s ease-in-out infinite;
   margin-right: var(--space-xs);
 }
