@@ -17,7 +17,7 @@
 }
 
 .hamburger-btn:hover {
-  background-color: var(--bg-alt, rgba(0, 0, 0, 0.08));
+  background-color: var(--bg-alt, var(--modal-overlay));
   color: var(--text);
   transform: scale(1.05);
 }
@@ -25,7 +25,7 @@
 .hamburger-line {
   width: 24px;
   height: 2px;
-  background-color: var(--link);
+  background-color: var(--accent);
   border-radius: 2px;
   transition: all 0.3s ease;
   transform-origin: center;
@@ -39,34 +39,31 @@
   transform: translateY(6px);
 }
 
-/* Hamburger Animation when Active */
-.hamburger-btn.active .hamburger-line:nth-child(1) {
+/* -- Hamburger Animation when show -- */
+.hamburger-btn.show .hamburger-line:nth-child(1) {
   transform: rotate(45deg) translateY(0);
 }
 
-.hamburger-btn.active .hamburger-line:nth-child(2) {
+.hamburger-btn.show .hamburger-line:nth-child(2) {
   opacity: 0;
 }
 
-.hamburger-btn.active .hamburger-line:nth-child(3) {
+.hamburger-btn.show .hamburger-line:nth-child(3) {
   transform: rotate(-45deg) translateY(0);
 }
 
 /* Menu Overlay */
 .menu-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background-color: var(--modal-overlay);
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
   z-index: 999;
 }
 
-.menu-overlay.active {
+.menu-overlay.show {
   opacity: 1;
   visibility: visible;
 }
@@ -79,7 +76,7 @@
   width: 300px;
   height: 100vh;
   background: var(--bg);
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-medium);
   transition: right 0.3s ease;
   z-index: 1000;
   padding: 0 0 var(--space-xxxl) 0;
@@ -88,7 +85,7 @@
   overflow-y: auto;
 }
 
-.slide-menu.active {
+.slide-menu.show {
   right: 0;
 }
 
@@ -126,14 +123,14 @@
   color: var(--active-item);
 }
 
-.menu-item.active {
+.menu-item.show {
   color: var(--active-item);
 }
 
 .menu-item svg {
   width: 20px;
   height: 20px;
-  stroke: currentColor;
+  stroke: currentcolor;
   stroke-width: 2;
   fill: none;
 }
@@ -166,7 +163,7 @@
   background-color: var(--bg-hover);
 }
 
-@media (max-width: 767px) {
+@media (width <= 767px) {
   .hamburger-btn {
     width: 32px;
     height: 32px;
@@ -174,5 +171,11 @@
 
   .menu-item {
     font-size: var(--fs-m);
+  }
+}
+
+@media (width >= 768px) {
+  #tags-menu-item {
+    display: none;
   }
 }

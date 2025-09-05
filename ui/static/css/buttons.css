@@ -28,6 +28,16 @@
   opacity: 0.8;
 }
 
+.btn-sm {
+  padding: var(--space-xxxs) var(--space-xs);
+  font-size: var(--fs-xxs) !important;
+}
+
+.btn-sm svg {
+  width: 12px;
+  height: 12px;
+}
+
 /* -- Primary Button -- */
 .btn-primary {
   background: var(--accent);
@@ -57,6 +67,10 @@
   background: var(--bg-hover);
   border-color: var(--border);
   color: var(--text);
+}
+
+.btn-secondary.disabled {
+  color: var(--text-muted);
 }
 
 /* -- Special Button Styles -- */
@@ -101,13 +115,14 @@
   color: var(--error-dark-confirm);
   border-color: var(--error-dark);
   font-weight: bold;
-  animation: pulseRed 0.5s infinite alternate;
+  animation: pulse-red 0.5s infinite alternate;
 }
 
-@keyframes pulseRed {
+@keyframes pulse-red {
   from {
     box-shadow: 0 0 0 0 var(--gradient-start);
   }
+
   to {
     box-shadow: 0 0 0 10px var(--gradient-end);
   }
@@ -197,7 +212,7 @@
   background-color: var(--error-dark);
   color: var(--error-dark-confirm);
   font-weight: bold;
-  animation: pulseRed 0.5s infinite alternate;
+  animation: pulse-red 0.5s infinite alternate;
 }
 
 .btn-repo-remove.confirm-state:hover {
@@ -291,6 +306,40 @@
   transition: transform 0.2s ease;
 }
 
+.refresh-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.add-button-large svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: var(--space-xs);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  z-index: 1;
+  position: relative;
+}
+
+.clear-btn svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.close-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+.sort-main-btn svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+  stroke-width: 1;
+}
+
 .btn-new-bookmark:hover svg {
   transform: rotate(90deg);
 }
@@ -318,10 +367,7 @@
 .add-button-large::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: linear-gradient(135deg, var(--accent), #2980b9);
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -332,24 +378,11 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow-medium);
   border-color: var(--link-hover);
+  color: var(--text);
 }
 
 .add-button-large:hover::before {
   opacity: 0.05;
-}
-
-.add-button-large:hover {
-  color: var(--text);
-}
-
-.add-button-large svg {
-  width: 24px;
-  height: 24px;
-  margin-bottom: var(--space-xs);
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-  z-index: 1;
-  position: relative;
 }
 
 .add-button-large:hover svg {
@@ -387,44 +420,11 @@
   color: var(--text);
 }
 
-.refresh-btn svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* -- Back Button -- */
-.back-button {
+/* -- Modal Control Buttons Base -- */
+.modal-control-btn {
   position: absolute;
-  left: 10px;
-  top: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  color: var(--text);
-  transition:
-    background-color 0.2s ease,
-    transform 0.15s ease,
-    color 0.2s ease;
-}
-
-.back-button:hover {
-  background-color: var(--bg-alt, rgba(0, 0, 0, 0.08));
-  color: var(--text);
-  transform: scale(1.05);
-}
-
-/* -- Close Button -- */
-.close-btn {
-  position: absolute;
-  top: var(--space-xxs);
-  right: var(--space-xxs);
   background: none;
   border: none;
-  font-size: var(--fs-xxl);
-  color: var(--text-muted);
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -432,19 +432,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-muted);
   transition: all 0.2s ease;
   z-index: 10;
 }
 
-.close-btn:hover {
+.modal-control-btn:hover {
   background-color: var(--bg-hover, rgba(0, 0, 0, 0.08));
   color: var(--text);
-  font-weight: 600;
   transform: scale(1.05);
 }
 
-.close-btn:active {
+.modal-control-btn:active {
   transform: scale(0.98);
+}
+
+/* -- Back Button -- */
+.back-btn {
+  top: var(--space-xs);
+  left: var(--space-xs);
+}
+
+/* -- Close Button -- */
+.close-btn {
+  top: var(--space-xs);
+  right: var(--space-xs);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.close-btn:hover svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 3;
 }
 
 /* -- Clear search bar -- */
@@ -458,7 +478,6 @@
   text-decoration: none;
   line-height: var(--lh-xxs);
   padding: 0;
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -466,14 +485,31 @@
   height: 14px;
 }
 
-.clear-btn svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
 .clear-btn:hover {
   color: var(--error);
+}
+
+.sort-main-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--space-xxs) var(--space-xs);
+  border-radius: var(--radius-xxs);
+  font-size: var(--fs-s);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xxs);
+  transition: all 0.2s ease;
+}
+
+.sort-main-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.sort-main-btn.active svg {
+  transform: rotate(180deg);
 }
 
 /* -- Theme Mode Button -- */
@@ -543,19 +579,29 @@
   padding: var(--space-xs);
 }
 
-#newSubmitBtn {
+.btn-note-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-s);
+  padding-bottom: var(--space-xxs);
+  padding-right: var(--space-xxs);
+}
+
+#new-submit-btn {
   font: inherit;
   padding: var(--space-xs) var(--space-m);
   border-radius: var(--radius-xs);
 }
 
 /* -- Media Queries -- */
-@media (max-width: 767px) {
+@media (width <= 767px) {
   /* -- Repo info modal -- */
   .btn-modal-repo {
     padding: var(--space-xs) var(--space-s);
     font-size: var(--radius-m);
   }
+
   .btn-modal-repo svg {
     width: var(--space-m);
     height: var(--space-m);

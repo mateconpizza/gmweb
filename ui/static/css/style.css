@@ -52,10 +52,15 @@ header {
   gap: var(--space-m);
 }
 
+.search-container {
+  flex-grow: 1;
+  position: relative;
+}
+
 .header-top-row .search-container {
   margin-left: auto;
   margin-right: auto;
-  max-width: 600px; /* Adjust this value as needed */
+  max-width: 600px;
 }
 
 .logo {
@@ -79,16 +84,11 @@ header {
 }
 
 /* --- Search Bar --- */
-.search-container {
-  flex-grow: 1;
-  position: relative;
-}
-
 .search-bar {
   width: 100%;
   position: relative;
-  display: flex; /* Make the form a flex container */
-  align-items: center; /* Vertically align items */
+  display: flex;
+  align-items: center;
   gap: var(--space-xs);
 }
 
@@ -135,14 +135,14 @@ header {
   width: 100%;
   padding: var(--space-m) var(--space-xl);
   padding-right: var(--space-xxxxl);
-  font-size: var(--h2);
+  font-size: var(--fs-m);
   border: 2px solid var(--bg-alt);
   border-radius: var(--radius-xs);
   background: var(--input-bg);
   box-shadow: var(--shadow-input);
   outline: none;
   transition: all 0.3s ease;
-  color: var(--text);
+  color: var(--text-muted);
 }
 
 .search-bar input:focus {
@@ -153,8 +153,12 @@ header {
 /* -- Main Content Layout -- */
 .main-content-wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   padding: var(--space-m);
+}
+
+.compact .main-content-wrapper {
+  padding: var(--space-xxs) var(--space-xxs);
 }
 
 /* Bookmark List (main content) */
@@ -207,6 +211,7 @@ footer a {
   font-size: var(--fs-s);
   color: var(--text-secondary);
   align-items: center;
+  font-weight: 600;
 }
 
 .pagination a {
@@ -230,11 +235,6 @@ footer a {
   pointer-events: none;
 }
 
-.pagination {
-  font-weight: 600;
-  color: var(--text);
-}
-
 .page-counter {
   font-size: var(--fs-xs);
   color: var(--text-muted);
@@ -250,7 +250,7 @@ sup.new {
   font-weight: 700;
   line-height: var(--lh-m);
   padding: 0 var(--space-xxs);
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizelegibility;
   text-transform: uppercase;
 }
 
@@ -312,6 +312,26 @@ sup.new {
   margin-bottom: var(--space-xxxl);
 }
 
+.main-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-xs) var(--space-s);
+}
+
+/* -- Sort menu -- */
+.bookmark-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-xxxs);
+}
+
+.sort-menu-container {
+  position: relative;
+  margin-left: auto;
+}
+
 .bookmark-count {
   opacity: 0.7;
   text-align: center;
@@ -319,7 +339,7 @@ sup.new {
   color: var(--text-secondary);
   font-weight: 500;
   letter-spacing: 0.1em;
-  padding-top: var(--space-m);
+  padding-top: var(--space-xxs);
 }
 
 .bookmark-count:hover {
@@ -340,6 +360,10 @@ sup.new {
 }
 
 /* -- Messages Success|Error -- */
+.message-container {
+  margin: var(--space-s);
+}
+
 .message {
   padding: var(--space-s) var(--space-m);
   border-radius: var(--radius-xs);
@@ -373,63 +397,11 @@ sup.new {
 }
 
 /* -- Responsive Styles -- */
-@media (min-width: 768px) {
-  .header {
-    justify-content: flex-start;
+@media (width <= 767px) {
+  header {
+    padding: var(--space-xxs) var(--space-xxxs);
   }
 
-  .search-bar {
-    flex-grow: 1;
-    max-width: none;
-  }
-
-  .input-wrapper {
-    max-width: none;
-  }
-
-  .mobile-only,
-  .action-buttons-mobile {
-    display: none;
-  }
-
-  .search-bar input {
-    width: 100%;
-    padding: var(--space-s) var(--space-m);
-    padding-right: var(--space-xxxxl);
-    font-size: var(--fs-m);
-    border-radius: var(--radius-s);
-  }
-
-  .clear-search-btn {
-    right: 10px;
-  }
-
-  .main-content-wrapper {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 1.5em;
-    max-width: 1200px;
-    margin: var(--space-xl) auto;
-    padding: 0 var(--space-xl);
-  }
-
-  .bookmark-list {
-    width: auto;
-    max-width: 800px;
-  }
-
-  .login-btns {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: var(--space-s);
-    gap: var(--space-s);
-    margin-top: 0;
-    flex-shrink: 0;
-  }
-}
-
-@media (max-width: 767px) {
   .header {
     flex-direction: column;
     align-items: stretch;
@@ -437,7 +409,6 @@ sup.new {
 
   .header-top-row {
     justify-content: space-between;
-    margin-bottom: var(--space-xs);
   }
 
   .search-bar input {
@@ -445,6 +416,12 @@ sup.new {
     max-width: none;
     padding: var(--space-s) var(--space-m);
     border-radius: var(--radius-s);
+    font-size: var(--fs-s);
+  }
+
+  .compact .search-bar input {
+    padding: var(--space-xs) var(--space-s);
+    font-size: var(--fs-s);
   }
 
   .filter-and-active-display-container {
@@ -525,6 +502,62 @@ sup.new {
 
   .keybind-tip {
     display: none;
+  }
+}
+
+@media (width >= 768px) {
+  .header {
+    justify-content: flex-start;
+  }
+
+  .search-bar {
+    flex-grow: 1;
+    max-width: none;
+  }
+
+  .input-wrapper {
+    max-width: none;
+  }
+
+  .mobile-only,
+  .action-buttons-mobile {
+    display: none;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: var(--space-s) var(--space-m);
+    padding-right: var(--space-xxxxl);
+    font-size: var(--fs-m);
+    border-radius: var(--radius-s);
+  }
+
+  .clear-search-btn {
+    right: 10px;
+  }
+
+  .main-content-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5em;
+    max-width: 1200px;
+    margin: var(--space-xl) auto;
+    padding: 0 var(--space-xl);
+  }
+
+  .bookmark-list {
+    width: auto;
+    max-width: 800px;
+  }
+
+  .login-btns {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: var(--space-s);
+    gap: var(--space-s);
+    margin-top: 0;
+    flex-shrink: 0;
   }
 }
 
@@ -624,7 +657,7 @@ sup.new {
   .autocomplete-item:hover:not([data-theme]),
   .autocomplete-item.highlighted:not([data-theme]),
   .autocomplete-item.selected:not([data-theme]) {
-    background-color: var(--bg-alt);
+    background-color: var(--bg-hover);
   }
 
   .tag-text:not([data-theme]) {
@@ -642,7 +675,7 @@ sup.new {
 
   .letter:not([data-theme]) {
     background-color: var(--bg-alt);
-    color: var(--text-secondary); /* Same as tag-side-color for consistency */
+    color: var(--text-secondary);
   }
 
   .letter:hover:not([data-theme]) {
@@ -657,7 +690,7 @@ sup.new {
   /* -- Pagination -- */
   .pagination a:not([data-theme]) {
     background-color: var(--bg-alt);
-    color: var(--text); /* General link color */
+    color: var(--text);
   }
 
   .pagination a:hover:not([data-theme]) {

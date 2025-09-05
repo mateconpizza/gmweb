@@ -41,13 +41,14 @@
   background-color: var(--btn-accent-bg-light);
   border-color: var(--link);
   font-weight: bold;
-  animation: pulseBlue 0.5s infinite alternate;
+  animation: pulse-blue 0.5s infinite alternate;
 }
 
-@keyframes pulseBlue {
+@keyframes pulse-blue {
   from {
     box-shadow: 0 0 0 0 var(--btn-accent-bg-light);
   }
+
   to {
     box-shadow: 0 0 0 10px var(--btn-accent-bg-light);
   }
@@ -58,7 +59,7 @@
   background-color: var(--btn-error-bg-light);
   border-color: var(--error-dark);
   font-weight: bold;
-  animation: pulseRed 0.5s infinite alternate;
+  animation: pulse-red 0.5s infinite alternate;
 }
 
 /* -- Bookmark card deletion animation -- */
@@ -74,10 +75,7 @@
 .bookmark-card.deleting::before {
   content: "Deleting...";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: var(--btn-error-bg-light);
   color: white;
   display: flex;
@@ -118,13 +116,14 @@
   animation: slideAndFade 0.5s ease-in-out forwards;
 }
 
-@keyframes fadeShrink {
+@keyframes fade-shrink {
   0% {
     opacity: 1;
     transform: scale(1);
     max-height: 200px;
     margin-bottom: var(--space-xs);
   }
+
   100% {
     opacity: 0;
     transform: scale(0.95);
@@ -134,7 +133,7 @@
 }
 
 .bookmark-card.removing {
-  animation: fadeShrink 0.35s ease forwards;
+  animation: fade-shrink 0.35s ease forwards;
 }
 
 /* -- URL -- */
@@ -165,6 +164,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   transition: color 0.2s;
+}
+
+.dropdown-option a {
+  padding: var(--space-xs) var(--space-s);
+  text-decoration: none;
+  display: block;
+  color: var(--text);
 }
 
 .bookmark-url a:hover {
@@ -201,7 +207,7 @@
 .bookmark-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xxs);
+  gap: var(--space-xxxs);
 }
 
 .tag-toggle {
@@ -225,6 +231,10 @@
   gap: 4px;
 }
 
+.views-count svg {
+  stroke: var(--text-secondary);
+}
+
 .views-text {
   font-size: var(--fs-xs);
   display: flex;
@@ -241,6 +251,23 @@
     fill 0.4s ease,
     stroke 0.4s ease,
     transform 0.2s ease;
+}
+
+.bookmark-card-footer-actions svg {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-dots-menu svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.dropdown-option svg,
+.dropdown-card-opt svg {
+  width: 16px;
+  height: 16px;
 }
 
 .bookmark-detail-fav-btn:hover svg {
@@ -287,11 +314,6 @@
   font-size: var(--fs-s);
 }
 
-.bookmark-card-footer-actions svg {
-  width: 18px;
-  height: 18px;
-}
-
 /* -- Bookmark card dropdown menu (3-dots) -- */
 .btn-dots-menu-container {
   position: absolute;
@@ -318,46 +340,59 @@
   transform: scale(1.1);
 }
 
-.btn-dots-menu svg {
-  width: 16px;
-  height: 16px;
-  display: block;
-}
-
 /* -- Bookmark card menu -- */
 .dropdown-menu {
   display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + var(--space-xxs));
   right: 0;
   background-color: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-s);
+  border-radius: var(--radius-xxs);
   box-shadow: var(--shadow-medium);
   z-index: 100;
-  gap: var(--space-xxxs);
-  width: 120px;
+  min-width: 140px;
   padding: var(--space-xxxs);
-}
-
-.dropdown-option {
-  padding: var(--space-xs) var(--space-s);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.dropdown-option:hover {
-  background-color: var(--bg-hover);
-  border-radius: var(--radius-s);
-}
-
-.dropdown-option svg {
-  width: 16px;
-  height: 16px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.2s ease;
 }
 
 .dropdown-menu.visible {
   display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-card-opt {
+  padding: var(--space-xs) var(--space-s);
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: var(--radius-xxs);
+  font-size: var(--fs-s);
+  color: var(--text);
+  transition: background-color 0.15s ease;
+}
+
+.dropdown-option {
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: var(--radius-xxs);
+  font-size: var(--fs-s);
+  color: var(--text);
+  transition: background-color 0.15s ease;
+}
+
+.dropdown-option:hover,
+.dropdown-card-opt:hover {
+  background-color: var(--bg-hover);
+}
+
+.dropdown-option.selected a {
+  background-color: var(--btn-accent-bg-light);
+  color: var(--accent);
+  font-weight: 500;
+  border-radius: var(--space-xxs);
 }
 
 /* -- Compact Mode -- */
@@ -470,7 +505,7 @@
 }
 
 /* -- Responsive Styles -- */
-@media (max-width: 768px) {
+@media (width <= 767px) {
   .compact .bookmark-url a {
     margin-right: var(--space-s);
   }
@@ -479,9 +514,14 @@
     flex-wrap: nowrap;
     overflow: hidden;
   }
+
+  .compact .btn-dots-menu svg {
+    width: 18px;
+    height: 18px;
+  }
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .btn-dots-menu-container {
     opacity: 0;
     pointer-events: none;

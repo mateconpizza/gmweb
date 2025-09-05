@@ -199,7 +199,7 @@ body.reloading {
   left: 0;
   width: 0;
   height: 1px;
-  background: currentColor;
+  background: currentcolor;
   transition: width 0.3s ease;
 }
 
@@ -491,8 +491,8 @@ body.reloading {
 }
 
 /* --- Messages --- */
-#formErrorMesg,
-#formSuccessMesg {
+#form-error-message,
+#form-success-message {
   display: none;
 }
 
