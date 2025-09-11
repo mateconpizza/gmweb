@@ -7,9 +7,7 @@ import (
 	"io/fs"
 	"net/http"
 	"path/filepath"
-	"slices"
 	"strconv"
-	"strings"
 
 	"github.com/mateconpizza/gm/pkg/bookio"
 	"github.com/mateconpizza/gm/pkg/bookmark"
@@ -43,9 +41,6 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.Handle("GET "+r.Web.QRCode("{id}"), requireIDAndDB(h.recordQR))
 	mux.Handle("GET "+r.Web.Export(), requireDB(h.recordExport))
 
-	// Theme related
-	mux.HandleFunc("POST /web/theme/change", h.changeTheme)
-
 	// User related
 	mux.HandleFunc("GET "+r.User.Signup, h.userSignup)
 	mux.HandleFunc("POST "+r.User.Signup, h.userSignupPost)
@@ -65,7 +60,8 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 }
 
 func (h *Handler) indexRedirect(w http.ResponseWriter, r *http.Request) {
-	h.router.SetRepo("main")
+	dbName := cookie.get(r, cookie.jar.defaultRepoName, h.appCfg.MainDB)
+	h.router.SetRepo(dbName)
 	http.Redirect(w, r, h.router.Web.All(), http.StatusSeeOther)
 }
 
@@ -103,7 +99,8 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 		responder.ServerErr(w, r, err)
 	}
 
-	go processFavicons(repo, faviconPath, ui.CacheFavicon, paginated)
+	favicons := NewFaviconProcessor(repo, faviconPath, ui.CacheFavicon)
+	go favicons.Process(paginated)
 
 	// Context
 	ctx := &TemplateContext{
@@ -143,7 +140,7 @@ func (h *Handler) recordQR(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, err := h.files.ReadFile("static/json/colorschemes.json")
+	f, err := h.files.ReadFile(ui.ColorSchemesJSON)
 	if err != nil {
 		responder.ServerErr(w, r, err)
 	}
@@ -208,8 +205,7 @@ func (h *Handler) recordEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) recordNew(w http.ResponseWriter, r *http.Request) {
-	// FIX:
-	// maybe, redirect to `view` new record.
+	// FIX: maybe, redirect to `view` new record.
 	data := newTemplateData(r)
 	data.Colorschemes = h.colorschemes
 	data.PageTitle = "New Bookmark"
@@ -218,19 +214,6 @@ func (h *Handler) recordNew(w http.ResponseWriter, r *http.Request) {
 	if err := h.template.ExecuteTemplate(w, "bookmark-new", data); err != nil {
 		responder.ServerErr(w, r, err)
 	}
-}
-
-func (h *Handler) changeTheme(w http.ResponseWriter, r *http.Request) {
-	themeName := r.FormValue("theme")
-	isValid := slices.Contains(h.colorschemes, filepath.Base(themeName))
-
-	if !isValid {
-		http.Error(w, "Invalid theme: "+strings.Join(h.colorschemes, ", "), http.StatusBadRequest)
-		return
-	}
-
-	cookie.set(w, cookie.jar.themeCurrent, themeName)
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) recordNewFrame(w http.ResponseWriter, r *http.Request) {

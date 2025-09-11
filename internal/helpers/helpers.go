@@ -419,3 +419,15 @@ func HashDomain(u string) (string, error) {
 
 	return fmt.Sprintf("%x", HashString(parsedURL.Host, 12)), nil
 }
+
+func IsWithinLastWeek(dateString string) bool {
+	t, err := time.Parse(time.RFC3339, dateString)
+	if err != nil {
+		fmt.Printf("Error parsing date '%s': %v\n", dateString, err)
+		return false
+	}
+	now := time.Now()
+	sevenDaysAgo := now.AddDate(0, 0, -7)
+
+	return t.After(sevenDaysAgo) || t.Equal(sevenDaysAgo)
+}

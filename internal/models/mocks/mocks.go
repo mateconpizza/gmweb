@@ -83,6 +83,10 @@ func (m *Mock) Init(ctx context.Context) error { return nil }
 
 func (m *Mock) InsertOne(ctx context.Context, b *bookmark.Bookmark) (int64, error) { return 0, nil }
 
+func (m *Mock) InsertMany(ctx context.Context, bs []*bookmark.Bookmark) error { return nil }
+
+func (m *Mock) UpdateNotes(ctx context.Context, bID int, notes string) error { return nil }
+
 func (m *Mock) UpdateOne(ctx context.Context, b *bookmark.Bookmark) error { return nil }
 
 func (m *Mock) SetFavorite(ctx context.Context, b *bookmark.Bookmark) error { return nil }

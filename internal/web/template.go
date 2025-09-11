@@ -2,12 +2,8 @@ package web
 
 import (
 	"embed"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"html/template"
-	"log"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -53,9 +49,8 @@ type TemplateData struct {
 
 	// Theme
 	Colorschemes           []string
-	CurrentTheme           string
-	CurrentColorscheme     string
 	CurrentColorschemeMode string
+	CurrentColorscheme     string
 
 	// URLs
 	URL         *URLs
@@ -66,15 +61,18 @@ func newTemplateData(r *http.Request) *TemplateData {
 	p := parseRequestParams(r)
 	p.CurrentDB = r.PathValue("db")
 
+	t := cookie.getWithValidation(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS, ui.IsValidColorscheme)
+	m := cookie.getWithValidation(r, cookie.jar.themeMode, "light", ui.IsValidColorschemeMode)
+
 	return &TemplateData{
-		Routes:             router.New(p.CurrentDB).Web,
-		Params:             p,
-		CurrentYear:        time.Now().Year(),
-		CurrentURI:         r.RequestURI,
-		CurrentColorscheme: cookie.get(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS),
-		CurrentTheme:       cookie.get(r, cookie.jar.themeMode, "light"),
-		CSRFToken:          nosurf.Token(r),
-		DevMode:            devMode,
+		Routes:                 router.New(p.CurrentDB).Web,
+		Params:                 p,
+		CurrentYear:            time.Now().Year(),
+		CurrentURI:             r.RequestURI,
+		CurrentColorscheme:     t,
+		CurrentColorschemeMode: m,
+		CSRFToken:              nosurf.Token(r),
+		DevMode:                devMode,
 	}
 }
 
@@ -85,6 +83,8 @@ type URLs struct {
 	LastVisited    string
 	Favorites      string
 	MoreVisits     string
+	Inactive       string
+	NeverVisited   string
 	ClearTag       string
 	ClearQuery     string
 	ExtensionFrame string
@@ -100,7 +100,7 @@ var templateFuncs = template.FuncMap{
 	"RelativeISOTime":   helpers.RelativeISOTime,
 	"sortCurrentDB":     helpers.SortCurrentDB,
 	"shortStr":          func(s string) string { return helpers.ShortStr(s, 80) },
-	"isNew":             isWithinLastWeek,
+	"isNew":             helpers.IsWithinLastWeek,
 	"stripSuffix":       files.StripSuffixes,
 	"now":               func() int64 { return time.Now().UnixNano() },
 	"add":               func(a, b int) int { return a + b },
@@ -124,19 +124,6 @@ var templateFuncs = template.FuncMap{
 		}
 		return s
 	},
-}
-
-// Theme represents a single theme with its name and color schemes.
-type Theme struct {
-	Name  string      `json:"name"`
-	Dark  ColorScheme `json:"dark"`
-	Light ColorScheme `json:"light"`
-}
-
-// ColorScheme represents the color settings for a theme.
-type ColorScheme struct {
-	Bg string `json:"bg"`
-	Fg string `json:"fg"`
 }
 
 // TemplateContext holds the context for template rendering.
@@ -166,24 +153,27 @@ func buildIndexTemplateData(ctx *TemplateContext) *TemplateData {
 	r := ctx.Request
 	p := ctx.Params
 
+	t := cookie.getWithValidation(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS, ui.IsValidColorscheme)
+	m := cookie.getWithValidation(r, cookie.jar.themeMode, "light", ui.IsValidColorschemeMode)
+
 	return &TemplateData{
-		App:                ctx.App,
-		Bookmarks:          ctx.Bookmarks,
-		Params:             p,
-		PageTitle:          ctx.App.Name + ": Bookmarks",
-		CurrentYear:        time.Now().Year(),
-		Pagination:         ctx.Pagination,
-		TagGroups:          helpers.GroupTagsByLetter(ctx.TagsFn()),
-		CSRFToken:          nosurf.Token(r),
-		CurrentPath:        r.URL.Path,
-		CurrentURI:         r.RequestURI,
-		Routes:             ctx.Routes.SetRepo(p.CurrentDB).Web,
-		URL:                buildURLs(p, r),
-		CurrentColorscheme: cookie.get(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS),
-		CurrentTheme:       cookie.get(r, cookie.jar.themeMode, "light"),
-		CompactMode:        cookie.getBool(r, cookie.jar.compactMode, false),
-		VimMode:            cookie.getBool(r, cookie.jar.vimMode, false),
-		DevMode:            devMode,
+		App:                    ctx.App,
+		Bookmarks:              ctx.Bookmarks,
+		Params:                 p,
+		PageTitle:              ctx.App.Name + ": Bookmarks",
+		CurrentYear:            time.Now().Year(),
+		Pagination:             ctx.Pagination,
+		TagGroups:              helpers.GroupTagsByLetter(ctx.TagsFn()),
+		CSRFToken:              nosurf.Token(r),
+		CurrentPath:            r.URL.Path,
+		CurrentURI:             r.RequestURI,
+		Routes:                 ctx.Routes.SetRepo(p.CurrentDB).Web,
+		URL:                    buildURLs(p, r),
+		CurrentColorscheme:     t,
+		CurrentColorschemeMode: m,
+		CompactMode:            cookie.getBool(r, cookie.jar.compactMode, false),
+		VimMode:                cookie.getBool(r, cookie.jar.vimMode, false),
+		DevMode:                devMode,
 	}
 }
 
@@ -196,6 +186,8 @@ func buildURLs(p *RequestParams, r *http.Request) *URLs {
 		Oldest:         filterToggleURL(p, "oldest", path),
 		Favorites:      filterToggleURL(p, "favorites", path),
 		MoreVisits:     filterToggleURL(p, "more_visits", path),
+		Inactive:       filterToggleURL(p, "inactive", path),
+		NeverVisited:   filterToggleURL(p, "never_visited", path),
 		ClearTag:       p.with().Tag("").Build(path),
 		ClearQuery:     p.with().Query("").Page(1).Build(path),
 		ExtensionFrame: r.URL.Query().Get("url"),
@@ -209,57 +201,4 @@ func createMainTemplate(f *embed.FS) (*template.Template, error) {
 	}
 	// Production: use embedded files
 	return template.New("pages/base").Funcs(templateFuncs).ParseFS(f, ui.TemplateGlob)
-}
-
-func getColorschemesNames(staticFiles *embed.FS) ([]string, error) {
-	entries, err := staticFiles.ReadDir(ui.ColorSchemes)
-	if err != nil {
-		return nil, err
-	}
-
-	var themes []string
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			themes = append(themes, entry.Name())
-		}
-	}
-
-	return themes, nil
-}
-
-func getCurrentTheme(content []byte, name string) (*Theme, error) {
-	var (
-		themes       []Theme
-		defaultTheme = files.StripSuffixes(ui.DefaultColorsCSS)
-	)
-	err := json.Unmarshal(content, &themes)
-	if err != nil {
-		log.Fatal("error unmarshalling JSON: %w", err)
-		return nil, err
-	}
-
-	themeMap := make(map[string]*Theme, len(themes))
-	for _, theme := range themes {
-		themeMap[theme.Name] = &theme
-	}
-
-	theme, ok := themeMap[name]
-	if !ok {
-		slog.Error("theme not found", "theme", name, "default", defaultTheme)
-		theme = themeMap[defaultTheme]
-	}
-
-	return theme, nil
-}
-
-func isWithinLastWeek(dateString string) bool {
-	t, err := time.Parse(time.RFC3339, dateString)
-	if err != nil {
-		fmt.Printf("Error al parsear la fecha '%s': %v\n", dateString, err)
-		return false
-	}
-	now := time.Now()
-	sevenDaysAgo := now.AddDate(0, 0, -7)
-
-	return t.After(sevenDaysAgo) || t.Equal(sevenDaysAgo)
 }

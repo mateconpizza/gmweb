@@ -53,6 +53,7 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.Handle("PUT "+r.UpdateBookmark("{id}"), mustIDAndDBParam(h.updateRecord))
 	mux.Handle("DELETE "+r.DeleteBookmark("{id}"), mustIDAndDBParam(h.deleteRecord))
 	mux.Handle("GET "+r.CheckStatus("{id}"), mustIDAndDBParam(h.checkStatus))
+	mux.Handle("PUT "+r.Notes("{id}"), mustIDAndDBParam(h.updateNotes))
 
 	// Import|Export
 	mux.Handle("POST "+r.ImportHTML(), mustDBParam(h.importHTML))
@@ -476,6 +477,47 @@ func (h *Handler) updateRecord(w http.ResponseWriter, r *http.Request) {
 	responder.WriteJSON(w, http.StatusOK, res)
 }
 
+func (h *Handler) updateNotes(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	dbName := r.PathValue("db")
+	repo, err := h.repoLoader(dbName)
+	if err != nil {
+		h.logger.Error("listing bookmarks", "error", err, "db", dbName)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	type notes struct {
+		Notes string `json:"notes"`
+	}
+
+	n := &notes{}
+	if err := json.NewDecoder(r.Body).Decode(n); err != nil {
+		h.logger.Error("updating bookmark", "error", err)
+		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			h.logger.Error("updating bookmark: closing request body", "error", err)
+		}
+	}()
+
+	idStr := r.PathValue("id")
+	bID, _ := strconv.Atoi(idStr)
+	if err := repo.UpdateNotes(r.Context(), bID, n.Notes); err != nil {
+		h.logger.Error("updating notes", "error", err)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responder.WriteJSON(w, http.StatusOK, &responder.ResponseData{
+		Message:    "Bookmark notes updated successfully!",
+		StatusCode: http.StatusOK,
+	})
+}
+
 // deleteRecord deletes the given record id.
 func (h *Handler) deleteRecord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -753,17 +795,15 @@ func (h *Handler) importHTML(w http.ResponseWriter, r *http.Request) {
 		responder.EncodeErrJSON(
 			w,
 			http.StatusBadRequest,
-			fmt.Sprintf("%d bookmarks found. %d are duplicated. Nothing to import", len(bns), duplicated),
+			fmt.Sprintf("%d bookmarks found, %d are duplicated.", len(bns), duplicated),
 		)
 		return
 	}
 
-	for i := range bs {
-		if _, err := repo.InsertOne(r.Context(), bs[i]); err != nil {
-			h.logger.Error("importing bookmarks", "error", err, "db", dbName, "url", bs[i].URL)
-			responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-			return
-		}
+	if err := repo.InsertMany(r.Context(), bs); err != nil {
+		h.logger.Error("importing bookmarks", "error", err, "db", dbName)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	res := responder.ImportResponse{

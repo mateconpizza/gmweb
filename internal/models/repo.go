@@ -32,8 +32,14 @@ type Writer interface {
 	// InsertOne inserts a bookmark.
 	InsertOne(ctx context.Context, b *bookmark.Bookmark) (int64, error)
 
+	// InsertMany inserts multiple bookmarks.
+	InsertMany(ctx context.Context, bs []*bookmark.Bookmark) error
+
 	// Update updates an existing bookmark.
 	UpdateOne(ctx context.Context, b *bookmark.Bookmark) error
+
+	// UpdateNotes updates the bookmak's notes.
+	UpdateNotes(ctx context.Context, bID int, notes string) error
 
 	// SetFavorite sets a bookmark as favorite.
 	SetFavorite(ctx context.Context, b *bookmark.Bookmark) error

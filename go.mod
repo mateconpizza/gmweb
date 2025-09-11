@@ -5,7 +5,7 @@ go 1.24.5
 require (
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/justinas/nosurf v1.2.0
-	github.com/mateconpizza/gm v0.1.25
+	github.com/mateconpizza/gm v0.1.27
 	github.com/muesli/go-app-paths v0.2.2
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/pflag v1.0.6

@@ -6,12 +6,15 @@ import (
 	"strconv"
 )
 
+const expiryOneYear = 60 * 60 * 24 * 365
+
 type jar struct {
-	vimMode      string
-	compactMode  string
-	themeCurrent string
-	themeMode    string
-	itemsPerPage string
+	vimMode         string
+	compactMode     string
+	themeCurrent    string
+	themeMode       string
+	itemsPerPage    string
+	defaultRepoName string
 }
 
 type cookieType struct {
@@ -61,13 +64,37 @@ func (c *cookieType) getInt(r *http.Request, key string, def int) int {
 	return n
 }
 
+func (c *cookieType) getWithValidation(r *http.Request, key, def string, validator func(string) bool) string {
+	ck, err := r.Cookie(key)
+	if err != nil {
+		slog.Debug("cookies: missing cookie, using default", "key", key, "default", def)
+		return def
+	}
+
+	if validator != nil && !validator(ck.Value) {
+		slog.Debug(
+			"cookies: invalid cookie value, using default",
+			"key",
+			key,
+			"value",
+			ck.Value,
+			"default",
+			def,
+		)
+		return def
+	}
+
+	return ck.Value
+}
+
 var cookie = &cookieType{
 	jar: &jar{
-		vimMode:      "vim_mode",
-		compactMode:  "compact_mode",
-		themeCurrent: "user_theme",
-		themeMode:    "theme_mode",
-		itemsPerPage: "items_per_page",
+		vimMode:         "vim_mode",
+		compactMode:     "compact_mode",
+		themeCurrent:    "user_theme",
+		themeMode:       "theme_mode",
+		itemsPerPage:    "items_per_page",
+		defaultRepoName: "default_repo",
 	},
-	oneYear: 60 * 60 * 24 * 365,
+	oneYear: expiryOneYear,
 }

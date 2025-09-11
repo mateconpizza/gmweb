@@ -33,6 +33,7 @@ type API struct {
 	UpdateBookmark     func(id string) string
 	DeleteBookmark     func(id string) string
 	CheckStatus        func(id string) string
+	Notes              func(id string) string
 }
 
 // NewAPIRoutes creates type-safe route functions for a given database.
@@ -79,5 +80,6 @@ func NewAPIRoutes(db string) *API {
 		UpdateBookmark:     func(id string) string { return bookmarksPath("/" + id + "/update") },
 		DeleteBookmark:     func(id string) string { return bookmarksPath("/" + id + "/delete") },
 		CheckStatus:        func(id string) string { return bookmarksPath("/" + id + "/status") },
+		Notes:              func(id string) string { return bookmarksPath("/" + id + "/notes") },
 	}
 }
