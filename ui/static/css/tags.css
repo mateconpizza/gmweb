@@ -145,7 +145,7 @@
 }
 
 /* -- Autocomplete Dropdown Styles -- */
-.autocomplete-dropdown {
+.tag-autocmp-dropdown {
   position: absolute;
   top: 100%;
   width: 100%;
@@ -164,11 +164,12 @@
   -ms-overflow-style: none; /* IE/Edge */
 }
 
-.autocomplete-dropdown::-webkit-scrollbar {
+.tag-autocmp-dropdown::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
 
-.autocomplete-item {
+.tag-autocmp-item,
+.bookmark-autocmp-item {
   padding: var(--space-s) var(--space-m);
   cursor: pointer;
   border-bottom: 1px solid var(--bg-alt);
@@ -177,16 +178,20 @@
   align-items: center;
 }
 
-.autocomplete-item:last-child {
+.tag-autocmp-item:last-child,
+.bookmark-autocmp-item:last-child {
   border-bottom: none;
 }
 
-.autocomplete-item:hover,
-.autocomplete-item.highlighted {
+.tag-autocmp-item:hover,
+.tag-autocmp-item.highlighted,
+.bookmark-autocmp-item:hover,
+.bookmark-autocmp-item.highlighted {
   background-color: var(--bg-hover);
 }
 
-.autocomplete-item.selected {
+.tag-autocmp-item.selected,
+.bookmark-autocmp-item.selected {
   background-color: var(--bg-alt);
 }
 
@@ -223,12 +228,6 @@
   margin-left: var(--space-xxs);
 }
 
-.no-results {
-  padding: var(--space-s) var(--space-m);
-  color: var(--text-muted);
-  font-style: italic;
-}
-
 /* -- Responsive Styles -- */
 @media (width >= 768px) {
   .tag-sidebar {
@@ -245,5 +244,91 @@
 @media (width <= 767px) {
   .tag-sidebar {
     display: none;
+  }
+}
+
+
+/* -- Bookmark Item Styles -- */
+.bookmark-autocmp-item {
+  align-items: flex-start;
+  padding: var(--space-s) var(--space-m);
+  gap: var(--space-s);
+}
+
+.bookmark-cmp-icon {
+  flex-shrink: 0;
+  margin-top: 2px; /* Slight offset to align with text */
+}
+
+.bookmark-cmp-icon svg {
+  width: 16px;
+  height: 16px;
+  color: var(--primary);
+  stroke-width: 1.5;
+}
+
+.bookmark-cmp-content {
+  flex: 1;
+  min-width: 0; /* Allows text truncation */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bookmark-cmp-title {
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.bookmark-cmp-url {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono, 'Monaco', 'Menlo', monospace);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.bookmark-cmp-desc {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+/* -- No Results Styles -- */
+.no-results {
+  padding: var(--space-m);
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: var(--fs-s);
+}
+
+/* -- Responsive adjustments -- */
+@media (max-width: 768px) {
+  .bookmark-autocmp-item {
+    padding: var(--space-xs) var(--space-s);
+    gap: var(--space-xs);
+  }
+
+  .bookmark-title,
+  .bookmark-url,
+  .bookmark-desc {
+    font-size: var(--fs-xs);
+  }
+
+  .bookmark-icon svg {
+    width: 14px;
+    height: 14px;
   }
 }

@@ -278,6 +278,9 @@ sup.new {
 }
 
 .keybind-tip {
+  position: absolute;
+  right: var(--space-l);
+  top: 50%;
   color: var(--text-secondary);
   box-sizing: border-box;
   font-size: var(--fs-xs);
@@ -285,11 +288,8 @@ sup.new {
   font-weight: 700;
   text-transform: uppercase;
   background: var(--bg-hover);
-  padding: 4px 10px 2px;
+  padding: var(--space-xxs) var(--space-m) var(--space-xxxs);
   border-radius: var(--radius-s);
-  position: absolute;
-  right: 20px;
-  top: 50%;
   transform: translateY(-50%);
 }
 
@@ -361,7 +361,7 @@ sup.new {
 
 /* -- Messages Success|Error -- */
 .message-container {
-  margin: var(--space-s);
+  margin: var(--space-xl);
 }
 
 .message {
@@ -575,7 +575,7 @@ sup.new {
 
   .tag-sidebar:not([data-theme]),
   .bookmark-card:not([data-theme]),
-  .autocomplete-dropdown:not([data-theme]),
+  .tag-autocmp-dropdown:not([data-theme]),
   .db-dropdown:not([data-theme]) {
     background-color: var(--bg-alt);
   }
@@ -650,13 +650,13 @@ sup.new {
     color: var(--text);
   }
 
-  .autocomplete-item:not([data-theme]) {
+  .tag-autocmp-item:not([data-theme]) {
     border-bottom: 1px solid var(--bg-alt);
   }
 
-  .autocomplete-item:hover:not([data-theme]),
-  .autocomplete-item.highlighted:not([data-theme]),
-  .autocomplete-item.selected:not([data-theme]) {
+  .tag-autocmp-item:hover:not([data-theme]),
+  .tag-autocmp-item.highlighted:not([data-theme]),
+  .tag-autocmp-item.selected:not([data-theme]) {
     background-color: var(--bg-hover);
   }
 

@@ -18,14 +18,17 @@
 }
 
 .btn svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
 }
 
 .btn.is-loading {
   pointer-events: none;
   opacity: 0.8;
+}
+
+.refresh-btn.is-loading {
+  justify-content: center;
 }
 
 .btn-sm {
@@ -94,6 +97,21 @@
 
 .btn-edition:hover {
   color: var(--text-on-accent);
+}
+
+.btn-save {
+  color: var(--text-on-accent);
+  border-color: var(--accent-hover);
+  background-color: var(--accent-hover);
+  font-size: var(--fs-m);
+  padding: var(--space-xs) var(--space-l);
+  opacity: 0.8;
+}
+
+.btn-save:hover {
+  font-weight: 600;
+  color: var(--text-on-accent);
+  opacity: 1;
 }
 
 .btn-remove {
@@ -413,6 +431,7 @@
   align-items: center;
   gap: var(--space-xxs);
   transition: all 0.2s ease;
+  margin-left: auto;
 }
 
 .refresh-btn:hover {
@@ -572,11 +591,16 @@
 /* -- Others -- */
 .btn-container {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--space-s);
   margin-top: var(--space-m);
   padding: var(--space-xs);
+}
+
+.btn-container-about {
+  justify-content: center;
+  align-items: center;
 }
 
 .btn-note-container {

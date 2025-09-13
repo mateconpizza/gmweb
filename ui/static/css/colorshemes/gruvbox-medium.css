@@ -32,6 +32,7 @@
   --edit: #a89984;
   --current-db: #8f3f71;
   --active-item: #8ec07c;
+  --error-dark-confirm: #fbf1c7;
 
   /* Shadows */
   --shadow-light: 0 2px 4px rgb(0 0 0 / 5%);
@@ -97,6 +98,7 @@
   --edit: #a89984;
   --current-db: #d3869b;
   --active-item: #8ec07c;
+  --error-dark-confirm: #1d2021;
 
   /* Shadows */
   --shadow-light: 0 2px 4px rgb(0 0 0 / 20%);

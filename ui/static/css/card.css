@@ -3,7 +3,7 @@
   position: relative;
   background: var(--bg-card);
   border: 1px solid var(--bg-alt);
-  border-radius: var(--radius-xxs);
+  border-radius: var(--radius-xs);
   padding: var(--space-s) var(--space-m);
   box-shadow: var(--shadow-light);
   transition:
@@ -207,7 +207,6 @@
 .bookmark-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xxxs);
 }
 
 .tag-toggle {
@@ -223,6 +222,14 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-xxs);
   background-color: var(--bg-alt);
+}
+
+#tag-toggle kbd {
+  font-size: var(--fs-xs);
+}
+
+#tag-toggle kbd:hover {
+  font-weight: 600;
 }
 
 .views-count {
@@ -414,24 +421,20 @@
 }
 
 .compact .bookmark-url a {
-  font-size: var(--h3); /* Smaller than original var(--h1) */
-  font-weight: 500; /* Less bold */
-  margin-right: var(--space-m); /* Less margin */
+  font-size: var(--h3);
+  font-weight: 500;
+  margin-right: var(--space-m);
 }
 
 /* Compact description */
 .compact .bookmark-desc {
-  font-size: var(--fs-s); /* Smaller than original var(--h4) */
-  line-height: var(--lh-xs); /* Tighter line height */
-  margin-left: 0; /* Remove left margin */
-  margin-bottom: var(--space-xs); /* Less bottom margin */
+  font-size: var(--fs-s);
+  line-height: var(--lh-xs);
+  margin-left: 0;
+  margin-bottom: var(--space-xs);
 }
 
 /* Compact tags */
-.compact .bookmark-tags {
-  margin-bottom: var(--space-xxs);
-}
-
 .compact .tag-side {
   font-size: var(--fs-xs);
   padding: var(--space-xxxs) var(--space-xxs);
@@ -447,8 +450,8 @@
 .compact .bookmark-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xxxs);
   font-size: var(--fs-xxs);
+  margin-bottom: var(--space-xxs);
 }
 
 .compact .tag-toggle {
