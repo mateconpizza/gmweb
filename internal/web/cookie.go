@@ -4,9 +4,18 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+
+	"github.com/mateconpizza/gmweb/ui"
 )
 
 const expiryOneYear = 60 * 60 * 24 * 365
+
+type CookieState struct {
+	ActiveTheme *ActiveTheme
+	CompactMode bool
+	VimMode     bool
+	DevMode     bool
+}
 
 type jar struct {
 	vimMode         string
@@ -85,6 +94,30 @@ func (c *cookieType) getWithValidation(r *http.Request, key, def string, validat
 	}
 
 	return ck.Value
+}
+
+func (c *cookieType) userPref(r *http.Request) *CookieState {
+	t := &ActiveTheme{
+		Name: cookie.getWithValidation(
+			r,
+			cookie.jar.themeCurrent,
+			ui.DefaultColorsCSS,
+			ui.IsValidColorscheme,
+		),
+		Mode: cookie.getWithValidation(
+			r,
+			cookie.jar.themeMode,
+			"light",
+			ui.IsValidColorschemeMode,
+		),
+	}
+
+	return &CookieState{
+		ActiveTheme: t,
+		CompactMode: cookie.getBool(r, cookie.jar.compactMode, false),
+		VimMode:     cookie.getBool(r, cookie.jar.vimMode, false),
+		DevMode:     devMode,
+	}
 }
 
 var cookie = &cookieType{

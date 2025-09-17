@@ -10,28 +10,33 @@ import (
 	"github.com/mateconpizza/gmweb/ui"
 )
 
-// Theme represents a single theme with its name and color schemes.
-type Theme struct {
-	Name  string          `json:"name"`
-	Dark  ColorSchemeJSON `json:"dark"`
-	Light ColorSchemeJSON `json:"light"`
+type ActiveTheme struct {
+	Name string `json:"name"`
+	Mode string `json:"mode"`
 }
 
-// ColorSchemeJSON represents the color settings for a theme.
-type ColorSchemeJSON struct {
+// ThemeConfig represents a single theme with its name and color schemes.
+type ThemeConfig struct {
+	Name  string      `json:"name"`
+	Dark  ColorScheme `json:"dark"`
+	Light ColorScheme `json:"light"`
+}
+
+// ColorScheme represents the color settings for a theme.
+type ColorScheme struct {
 	Bg string `json:"bg"`
 	Fg string `json:"fg"`
 }
 
-func getCurrentTheme(content []byte, name string) (*Theme, error) {
-	var themes []Theme
+func getCurrentTheme(content []byte, name string) (*ThemeConfig, error) {
+	var themes []ThemeConfig
 	err := json.Unmarshal(content, &themes)
 	if err != nil {
 		slog.Error("error unmarshalling JSON:", "error", err)
 		return nil, err
 	}
 
-	themeMap := make(map[string]*Theme, len(themes))
+	themeMap := make(map[string]*ThemeConfig, len(themes))
 	for _, theme := range themes {
 		themeMap[theme.Name] = &theme
 	}

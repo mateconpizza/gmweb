@@ -27,30 +27,30 @@ var devMode bool
 
 // TemplateData holds all data needed for template rendering.
 type TemplateData struct {
-	App           *application.Config
-	Bookmark      *bookmark.Bookmark
-	Bookmarks     []*bookmark.Bookmark
-	CurrentYear   int
+	App        *application.Config
+	Bookmark   *bookmark.Bookmark
+	Bookmarks  []*bookmark.Bookmark
+	PageTitle  string
+	CurrentURI string
+	Pagination PaginationInfo
+	Params     *RequestParams
+	Routes     *router.WebRouter
+	TagGroups  map[string][]string
+	CSRFToken  string
+
+	// Forms
 	Form          any
 	FormHasErrors bool
-	PageTitle     string
-	CurrentURI    string
-	Pagination    PaginationInfo
-	Params        *RequestParams
-	Routes        *router.WebRouter
-	TagGroups     map[string][]string
-	CSRFToken     string
 
-	// settings
-	DevMode     bool
-	CompactMode bool
-	DarkMode    bool // FIX: implement this
-	VimMode     bool
+	// Settings
+	KeybindTip  string
+	CurrentYear int
 
 	// Theme
-	Colorschemes           []string
-	CurrentColorschemeMode string
-	CurrentColorscheme     string
+	Colorschemes []string
+
+	// Cookies
+	Cookie *CookieState
 
 	// URLs
 	URL         *URLs
@@ -61,18 +61,13 @@ func newTemplateData(r *http.Request) *TemplateData {
 	p := parseRequestParams(r)
 	p.CurrentDB = r.PathValue("db")
 
-	t := cookie.getWithValidation(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS, ui.IsValidColorscheme)
-	m := cookie.getWithValidation(r, cookie.jar.themeMode, "light", ui.IsValidColorschemeMode)
-
 	return &TemplateData{
-		Routes:                 router.New(p.CurrentDB).Web,
-		Params:                 p,
-		CurrentYear:            time.Now().Year(),
-		CurrentURI:             r.RequestURI,
-		CurrentColorscheme:     t,
-		CurrentColorschemeMode: m,
-		CSRFToken:              nosurf.Token(r),
-		DevMode:                devMode,
+		Routes:      router.New(p.CurrentDB).Web,
+		Params:      p,
+		CurrentYear: time.Now().Year(),
+		CurrentURI:  r.RequestURI,
+		Cookie:      cookie.userPref(r),
+		CSRFToken:   nosurf.Token(r),
 	}
 }
 
@@ -153,27 +148,27 @@ func buildIndexTemplateData(ctx *TemplateContext) *TemplateData {
 	r := ctx.Request
 	p := ctx.Params
 
-	t := cookie.getWithValidation(r, cookie.jar.themeCurrent, ui.DefaultColorsCSS, ui.IsValidColorscheme)
-	m := cookie.getWithValidation(r, cookie.jar.themeMode, "light", ui.IsValidColorschemeMode)
+	vimMode := cookie.getBool(r, cookie.jar.vimMode, false)
+	keybind := "Ctlr-k"
+	if vimMode {
+		keybind = "/"
+	}
 
 	return &TemplateData{
-		App:                    ctx.App,
-		Bookmarks:              ctx.Bookmarks,
-		Params:                 p,
-		PageTitle:              ctx.App.Name + ": Bookmarks",
-		CurrentYear:            time.Now().Year(),
-		Pagination:             ctx.Pagination,
-		TagGroups:              helpers.GroupTagsByLetter(ctx.TagsFn()),
-		CSRFToken:              nosurf.Token(r),
-		CurrentPath:            r.URL.Path,
-		CurrentURI:             r.RequestURI,
-		Routes:                 ctx.Routes.SetRepo(p.CurrentDB).Web,
-		URL:                    buildURLs(p, r),
-		CurrentColorscheme:     t,
-		CurrentColorschemeMode: m,
-		CompactMode:            cookie.getBool(r, cookie.jar.compactMode, false),
-		VimMode:                cookie.getBool(r, cookie.jar.vimMode, false),
-		DevMode:                devMode,
+		App:         ctx.App,
+		Bookmarks:   ctx.Bookmarks,
+		Params:      p,
+		PageTitle:   ctx.App.Name + ": Bookmarks",
+		CurrentYear: time.Now().Year(),
+		Pagination:  ctx.Pagination,
+		TagGroups:   helpers.GroupTagsByLetter(ctx.TagsFn()),
+		CSRFToken:   nosurf.Token(r),
+		CurrentPath: r.URL.Path,
+		CurrentURI:  r.RequestURI,
+		Routes:      ctx.Routes.SetRepo(p.CurrentDB).Web,
+		URL:         buildURLs(p, r),
+		Cookie:      cookie.userPref(r),
+		KeybindTip:  keybind,
 	}
 }
 
