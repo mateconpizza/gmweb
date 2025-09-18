@@ -45,6 +45,7 @@ const App = {
       Modal.Repository,
       Modal.SettingsApp,
       Modal.SideMenu,
+      Modal.Nav,
     ];
 
     // VIM Mode

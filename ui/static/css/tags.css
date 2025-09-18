@@ -314,6 +314,39 @@
   font-size: var(--fs-s);
 }
 
+/* -- Mobile Tags modal -- */
+.modal-tags-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px; /* Spacing between elements within the same group. */
+  margin-bottom: 12px; /* Spacing between different tag groups. */
+}
+
+.modal-tags-letter {
+  font-size: var(--fs-m);
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+  padding: var(--space-xxs) var(--space-xxs);
+  border-radius: var(--radius-xxs);
+  font-weight: bold;
+  margin-right: var(--space-xxs);
+  display: inline-block;
+  min-width: 1.2em;
+  text-decoration: none;
+  vertical-align: baseline;
+}
+
+.modal-tags-letter:hover {
+  background-color: var(--accent-hover);
+  color: var(--text-on-accent);
+}
+
+.modal-tags-letter-active {
+  background-color: var(--active-item);
+  color: var(--text);
+}
+
 /* -- Responsive adjustments -- */
 @media (max-width: 768px) {
   .bookmark-autocmp-item {

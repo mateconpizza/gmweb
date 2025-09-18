@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="/static/css/buttons.css?ts={{ now }}"/>
     <link rel="stylesheet" href="/static/css/tags.css?ts={{ now }}"/>
     <link rel="stylesheet" href="/static/css/card.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/nav.css?ts={{ now }}"/>
   </head>
   <body>
     <script type="module" src="/static/js/init.js" type="text/javascript" defer></script>
@@ -37,9 +38,9 @@
     {{ template "help-keybinds" }}
     {{ template "settings" . }}
     {{ template "tags-mobile" . }}
-
-    {{/* {{ template "edit" }} */}}
-    {{/* {{ template "tags" . }} */}}
+    <div class="mobile-only">
+      {{ template "nav" . }}
+    </div>
 
     <div class="container {{ if .Cookie.CompactMode }}compact{{end}}">
 

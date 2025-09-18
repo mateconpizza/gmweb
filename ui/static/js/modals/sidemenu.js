@@ -25,7 +25,7 @@ const SideMenu = {
     const { target } = e;
 
     // Handle `Hamburger` button (toggle menu)
-    if (target.closest("#btn-hamburger")) this.openSideMenu();
+    if (target.closest("#btn-hamburger, #btn-hamburger-mobile")) this.openSideMenu();
     // Handle `click` outside menu
     if (target.closest("#menu-overlay") || target.closest(".menu-item")) this.closeSideMenu();
     // Handle `new bookmark` button

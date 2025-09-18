@@ -2,7 +2,6 @@
 
 import App from "./app.js";
 import BookmarkMgr from "./bookmark/bookmark.js";
-import Modal from "./modals/modals.js";
 
 /**
  * Sets up event delegation on the main document.
@@ -18,8 +17,6 @@ const GlobalEvents = {
 
     // Handle `New bookmark` button
     if (target.closest("#btn-new-bookmark")) return BookmarkMgr.New.open();
-    // Handle `Tags` sidemenu button
-    if (target.closest("#tags-menu-item")) return Modal.open("modal-tags");
     // Handle `Sort` bookmarks menu
     if (target.closest("#btn-sort-bookmark")) return this.showSortMenu(target);
   },

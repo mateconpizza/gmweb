@@ -6,6 +6,7 @@ import BookmarkDetail from "./detail.js";
 import HelpApp from "./help.js";
 import ImportManager from "./import.js";
 import Manager from "./manager.js";
+import Nav from "./nav.js";
 import QRCode from "./qrcode.js";
 import Repository from "./repo.js";
 import SettingsApp from "./settings.js";
@@ -25,6 +26,7 @@ const Modal = {
       console.error(`ModalShow selector: '${id}' not found`);
       return;
     }
+
     Manager.register(modal).open();
   },
 
@@ -34,6 +36,7 @@ const Modal = {
   HelpApp,
   ImportManager,
   Manager,
+  Nav,
   QRCode,
   Repository,
   SettingsApp,

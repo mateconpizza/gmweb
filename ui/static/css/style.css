@@ -503,6 +503,10 @@ sup.new {
   .keybind-tip {
     display: none;
   }
+
+  .btn-hamburger {
+    display: none;
+  }
 }
 
 @media (width >= 768px) {
