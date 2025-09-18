@@ -1,0 +1,146 @@
+{{ define "new" }}
+<div class="modal" id="modal-new-bookmark">
+  <div class="modal-base modal-detail-content">
+
+    <div class="bookmark-header">
+      {{ template "btn-close" }}
+      <img
+        id="img-bookmark-favicon"
+        class="label-url-favicon"
+        src="/static/img/favicon-star.png"
+        alt="favicon"
+      />
+      <div>
+        <span class="bookmark-detail-title">New Bookmark</span>
+        <span class="bookmark-detail-url">Save a new bookmark to your repository</span>
+      </div>
+    </div>
+
+    <form id="form-new-bookmark" class="form">
+      <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input
+            type="text"
+            inputmode="url"
+            id="input-bookmark-url"
+            name="url"
+            class="input-alt"
+            placeholder="https://example.com"
+            autocomplete="off">
+          <label class="floating-label-with-icon">
+            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            URL
+          </label>
+        </div>
+
+        <div class="accordion hidden" id="accordion-url-params">
+          <div class="accordion-header accordion-header-url-params">
+            <span class="accordion-title">URL Params</span>
+            <button class="accordion-toggle" type="button" aria-expanded="false">
+              +
+            </button>
+          </div>
+
+          <div class="accordion-content">
+            <div class="url-params-actions sticky-actions">
+              <button type="button" id="toggle-all-params" class="btn btn-sm btn-secondary">
+                Uncheck All
+              </button>
+            </div>
+            <ul class="url-params-unsorted-list" id="url-useless-params"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden Favicon input -->
+      <input type="hidden" id="input-bookmark-favicon" name="favicon" value="" />
+
+      <!-- Tags with suggestions -->
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input
+            id="input-bookmark-tags"
+            name="tags"
+            class="input-alt"
+            placeholder="tag1, tag2, tag3"
+            required
+            autocomplete="off"
+          />
+          <label class="floating-label-with-icon" for="input-bookmark-tags">
+            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+              <line x1="7" y1="7" x2="7.01" y2="7"/>
+            </svg>
+            Tags<div class="tags-help-input">comma or space separated</div>
+          </label>
+          <div class="tag-autocmp-dropdown" id="dropdown-tags-cmp"></div>
+        </div>
+      </div>
+
+      <!-- Title  -->
+      <div class="form-group">
+        <div class="input-wrapper">
+          <textarea
+            id="input-bookmark-title"
+            name="title"
+            class="input-alt textarea textarea-auto"
+            placeholder="Bookmark title"
+            rows="1"
+          ></textarea>
+          <div class="floating-label-with-icon">
+            <label class="label" for="input-bookmark-title">
+              <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+              </svg>
+              Title
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <div class="input-wrapper">
+          <textarea
+            id="input-bookmark-desc"
+            name="description"
+            class="input-alt textarea textarea-auto"
+            placeholder="Optional description"
+            rows="1"
+          ></textarea>
+          <div class="floating-label-with-icon">
+            <label class="label" for="input-bookmark-desc">
+              <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+              </svg>
+              Description
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div id="form-error-message" class="message error"></div>
+      <div id="form-success-message" class="message success"></div>
+
+      <div class="btn-container" id="form-actions">
+        <a class="btn btn-cancel" id="btn-cancel">{{ template "svg-x" }} Cancel</a>
+        <button type="submit" class="btn btn-primary btn-remove" id="new-submit-btn">{{ template "svg-save" }} Create</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+{{ end }}

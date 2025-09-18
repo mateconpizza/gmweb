@@ -1,0 +1,54 @@
+{{ define "tags-deprecated" }}
+<div class="modal" id="modal-tags">
+  <div class="modal-base">
+    <button class="close-btn">&times;</button>
+    <div class="modal-header">
+      <h3 class="modal-title">Tags</h3>
+    </div>
+
+    <div id="modalTags">
+      {{ range $letter, $tags := .TagGroups }}
+        {{ if or (eq $.Params.Letter "") (eq $.Params.Letter $letter) }}
+          <p class="tag-group">
+            <a
+              href="{{ letterToggleURL $.Params $letter $.CurrentPath }}"
+              class="tag-letter {{ if eq $.Params.Letter $letter }}tag-letter-active{{ end }}"
+            >
+              {{ $letter }}
+            </a>
+
+            {{ range $i, $tag := $tags }}
+              {{ if eq $tag $.Params.Tag }}
+                <span class="tag-side-active">
+                  {{ $tag }}
+                    <a
+                      href="{{ $.URL.ClearTag }}"
+                      class="clear-btn"
+                      title="Clear tag filter"
+                    >
+                      <svg focusable="false" aria-hidden="true" viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          fill-rule="evenodd"
+                          d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10M8.97 8.97a.75.75 0 0 1 1.06 0L12 10.94l1.97-1.97a.75.75 0 0 1 1.06 1.06L13.06 12l1.97 1.97a.75.75 0 0 1-1.06 1.06L12 13.06l-1.97 1.97a.75.75 0 0 1-1.06-1.06L10.94 12l-1.97-1.97a.75.75 0 0 1 0-1.06"
+                          clip-rule="evenodd"
+                        ></path>
+                      </svg>
+                    </a>
+                </span>
+              {{ else }}
+                <a
+                  href="{{ tagURL $.Params $tag $.CurrentPath }}"
+                  class="tag-side"
+                >
+                  {{ $tag }}
+                </a>
+              {{ end }}
+            {{ end }}
+          </div>
+        {{ end }}
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}

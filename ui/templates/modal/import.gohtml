@@ -1,0 +1,102 @@
+{{ define "import" }}
+<div class="modal" id="modal-import">
+  <div class="modal-base import-source-content">
+    {{ template "btn-back" }}
+    {{ template "btn-close" }}
+    <div class="modal-header">
+      <h2 class="modal-title">Import Bookmarks</h2>
+    </div>
+
+    <div class="import-options">
+      <div class="import-option" data-source="html-import">
+        <div class="option-header">
+          <div class="option-icon html-icon">{{ template "svg-doc" }}</div>
+          <div>
+            <h3 class="option-title">HTML File</h3>
+            <p class="option-description">
+              Import from browser bookmark exports
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="import-option" data-source="git-json"> -->
+      <!--   <div class="option-header"> -->
+      <!--     <div class="option-icon git-json-icon">🔗</div> -->
+      <!--     <div> -->
+      <!--       <h3 class="option-title">Git Repository JSON</h3> -->
+      <!--       <p class="option-description"> -->
+      <!--         Import from JSON bookmark repositories -->
+      <!--       </p> -->
+      <!--     </div> -->
+      <!--   </div> -->
+      <!-- </div> -->
+      <!---->
+      <!-- <div class="import-option" data-source="git-gpg"> -->
+      <!--   <div class="option-header"> -->
+      <!--     <div class="option-icon git-gpg-icon">🔐</div> -->
+      <!--     <div> -->
+      <!--       <h3 class="option-title">Git Repository GPG</h3> -->
+      <!--       <p class="option-description"> -->
+      <!--         Import from encrypted Git repositories -->
+      <!--       </p> -->
+      <!--     </div> -->
+      <!--   </div> -->
+      <!-- </div> -->
+
+    </div>
+
+    <div class="file-input-section" id="file-input-section">
+      <p>Select a file to upload</p>
+      <input
+        type="file"
+        id="file-input"
+        class="file-input"
+        accept=".html"
+      />
+      <label for="file-input" class="file-input-label"> Choose File </label>
+      <p>Supported formats: HTML</p>
+    </div>
+
+    <div class="repo-input-section" id="repo-input-section">
+      <input
+        type="text"
+        id="repoInputId"
+        class="repo-input"
+        placeholder="repository to clone"
+        autocomplete="off"
+        value="/home/user/dev/git/golang/gmweb/assets/git"
+      />
+    </div>
+
+    <div class="message-container">
+      <div id="form-error-message" class="message error"></div>
+      <div id="form-success-message" class="message success"></div>
+    </div>
+
+    <div class="btn-container modal-footer" id="modal-import-footer">
+
+      <button class="btn btn-primary" id="btn-import-bookmarks">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        Import Bookmarks
+      </button>
+
+    </div>
+
+  </div>
+</div>
+{{ end }}

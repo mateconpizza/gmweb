@@ -1,0 +1,200 @@
+{{ define "detail"  }}
+<div class="modal" id="modal-detail-{{ .ID }}" data-modal-id="{{ .ID }}">
+  <div class="modal-base modal-detail-content">
+
+    <div class="bookmark-header">
+      {{ template "btn-close" }}
+      <img
+        class="label-url-favicon label-url-favicon-modal"
+        src="{{ if .FaviconLocal }}{{ .FaviconLocal }}{{ else }}/static/img/favicon-star.png{{ end }}"
+        alt="favicon"
+      />
+      <div>
+        {{ if .Title }}
+        <span class="bookmark-detail-title">{{ shortStr .Title }}</span>
+        {{ end }}
+        <a data-id="{{ .ID }}" class="bookmark-detail-url" href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a>
+      </div>
+    </div>
+
+    <div>
+      <div>
+        <!-- Description -->
+        {{ if or .Desc .Title }}
+          <p class="bookmark-detail-desc">{{ if .Desc }}{{ .Desc }}{{else}}{{ .Title }}{{ end }}</p>
+        {{ end }}
+        <!-- Tags -->
+        {{ $tags := TagsWithPoundList .Tags }}
+        {{ if $tags }}
+          <div class="bookmark-tags bookmark-detail-tags">
+            {{ range $i, $tag := $tags }}
+              <a href="#" class="tag-in-modal {{ if ge $i 4 }}tag-hidden hidden{{ end }}" data-tag="{{ $tag }}">{{ $tag }}</a>
+            {{ end }}
+
+            {{ if gt (len $tags) 4 }}
+              <button type="button" class="tag-side tag-toggle" id="tag-toggle">+</button>
+            {{ end }}
+          </div>
+        {{ end }}
+
+          <!-- General Status -->
+          <div class="accordion" id="accordion-status">
+            <div class="accordion-header">
+              <span class="accordion-title">{{ template "svg-status-other" }} Status</span>
+              <button class="accordion-toggle" type="button" aria-expanded="false">
+                +
+              </button>
+            </div>
+
+            <div class="accordion-content">
+              <div class="bookmark-meta">
+                <div class="meta-item">
+                  <span class="meta-label icon-added"><span>{{ template "svg-added" }}</span> Added</span>
+                  <span class="meta-value">{{ formatDate .CreatedAt }}</span>
+                </div>
+                {{ if .LastVisit }}
+                <div class="meta-item">
+                  <span class="meta-label icon-added">{{ template "svg-visited" }} Last visited</span>
+                  <span class="meta-value">{{ RelativeISOTime .LastVisit }}</span>
+                </div>
+                {{ end }} {{ if .VisitCount }}
+                <div class="meta-item">
+                  <span class="meta-label icon-added">{{ template "svg-view" }} Visits</span>
+                  <span class="meta-value">{{ .VisitCount }}</span>
+                </div>
+                {{ end }}
+
+                <div class="meta-item">
+                  <span class="meta-label icon-added">{{ template "svg-status" }} Status</span>
+                  <span class="meta-value">
+                    <span
+                      id="status-span"
+                      class="status-code
+                            {{ if eq .HTTPStatusCode 0 }}unknown
+                            {{ else if ge .HTTPStatusCode 200 }}
+                              {{ if lt .HTTPStatusCode 300 }}success
+                              {{ else if ge .HTTPStatusCode 400 }}error
+                              {{ end }}
+                            {{ end }}"
+                    >
+                      {{ if eq .HTTPStatusCode 0 }} unknown {{ else }} {{ .HTTPStatusCode
+                      }} {{ if .HTTPStatusText }}{{ .HTTPStatusText }}{{ end }} {{ end }}
+                    </span>
+                    <button
+                      id="btn-status-refresh"
+                      class="refresh-btn"
+                      type="button"
+                      title="Last checked: {{ if .LastStatusChecked }}{{ formatTimestamp .LastStatusChecked }}{{else}}never{{end}}"
+                      data-bookmark-id="{{ .ID }}"
+                    >
+                      {{ template "svg-refresh" }}
+                    </button>
+                  </span>
+                </div>
+
+                {{ if .LastStatusChecked }}
+                <div class="meta-item">
+                  <span class="meta-label icon-added">{{ template "svg-info" }} Last checked</span>
+                  <span class="meta-value">{{ formatTimestamp .LastStatusChecked }}</span>
+                </div>
+                {{ end }}
+
+                <div class="meta-item">
+                  <span class="meta-label">
+                    <div class="archive-svg">
+                      {{ template "svg-internet-archive" }} Archive
+                    </div>
+                  </span>
+
+                  {{ if .ArchiveURL }}
+                    <span id="span-fetch-snapshot" class="meta-value">
+                      <a
+                        href="{{ .ArchiveURL }}"
+                        class="snapshot-link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {{ formatTimestamp .ArchiveTimestamp }}
+                      </a>
+                      <button
+                        id="btn-refresh-archive"
+                        class="refresh-btn"
+                        type="button"
+                        title="Refresh Snapshot"
+                        data-bookmark-id="{{ .ID }}"
+                        data-url="{{ .URL }}"
+                      >
+                        {{ template "svg-refresh" }}
+                      </button>
+                    </span>
+                  {{ else }}
+                    <span class="meta-value">
+                      <span class="snapshot-link-error" id="span-fetch-snapshot">Fetch</span>
+                      <button
+                        id="btn-refresh-archive"
+                        class="refresh-btn"
+                        type="button"
+                        title="Fetch Internet Archive Snapshot"
+                        data-bookmark-id="{{ .ID }}"
+                        data-url="{{ .URL }}"
+                      >
+                        {{ template "svg-download" }}
+                      </button>
+                    </span>
+                  {{ end }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- QR Code -->
+          <div class="accordion" id="accordion-qr-code" data-id="{{ .ID }}">
+            <div class="accordion-header">
+              <span class="accordion-title">{{ template "svg-qrcode" }} QR Code</span>
+              <button class="accordion-toggle" type="button" aria-expanded="false">
+                +
+              </button>
+            </div>
+
+            <div class="accordion-content accordion-note">
+              <img id="accordion-qr-image" src="" alt="QR Code"/>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="accordion" id="accordion-note">
+            <div class="accordion-header">
+              <span class="accordion-title">{{ template "svg-notes" }} Notes</span>
+              <button class="accordion-toggle" type="button" aria-expanded="false">
+                +
+              </button>
+            </div>
+
+            <div class="accordion-content accordion-note">
+              <textarea
+                id="bookmark-note"
+                class="input-alt textarea textarea-auto"
+                placeholder="Your note text here"
+                rows="4"
+              >{{ if .Notes }}{{ .Notes }}{{ end }}</textarea>
+              <div class="btn-note-container">
+                <button class="btn btn-secondary disabled" id="add-note-btn" data-id="{{ .ID }}">Save</button>
+              </div>
+            </div>
+          </div>
+
+        <div class="message-container">
+          <div id="form-error-message" class="message error"></div>
+          <div id="form-success-message" class="message success"></div>
+        </div>
+
+        <div class="btn-container modal-footer" id="btn-container-modal">
+          <a href="#" data-id="{{ .ID }}" id="btn-edit" class="btn btn-primary btn-edition">{{ template "svg-btn-edit" }} Edit</a>
+          <a href="#" data-id="{{ .ID }}" id="btn-delete" class="btn btn-primary btn-remove">{{ template "svg-btn-delete" }}Delete</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}

@@ -1,0 +1,155 @@
+{{ define "edition" }}
+<div class="modal" id="modal-edit-{{ .ID }}" data-modal-id="{{ .ID }}">
+  <div class="modal-base modal-detail-content">
+    <div class="bookmark-header">
+      {{ template "btn-close" }}
+      <img
+        class="label-url-favicon label-url-favicon-modal"
+        src="{{ if .FaviconLocal }}{{ .FaviconLocal }}{{ else }}/static/img/favicon-star.png{{ end }}"
+        alt="favicon"
+      />
+      <div>
+        {{ if .Title }}
+        <span class="bookmark-detail-title">{{ shortStr .Title }}</span>
+        {{ end }}
+        <a class="bookmark-detail-url" href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a>
+      </div>
+    </div>
+
+    <form id="form-bookmark-edit" class="form">
+      <input type="hidden" id="edit-bookmark-id" name="id" value="{{ .ID }}" />
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="edit-bookmark-url"
+            name="url"
+            class="input-alt"
+            placeholder="https://example.com"
+            value="{{ .URL }}"
+            autocomplete="off">
+          <label class="floating-label-with-icon">
+            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            URL
+          </label>
+          <div class="input-float-keybind hidden"><kbd></kbd></div>
+        </div>
+
+        <div class="accordion hidden" id="accordion-url-params">
+          <div class="accordion-header accordion-header-url-params">
+            <span class="accordion-title">URL Params</span>
+            <button class="accordion-toggle" type="button" aria-expanded="false">
+              +
+            </button>
+          </div>
+
+          <div class="accordion-content">
+            <div class="url-params-actions sticky-actions">
+              <button type="button" id="toggle-all-params" class="btn btn-sm btn-secondary">
+                Uncheck All
+              </button>
+            </div>
+            <ul class="url-params-unsorted-list" id="url-useless-params"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags with suggestions -->
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input
+            id="edit-bookmark-tags"
+            name="tags"
+            class="input-alt"
+            placeholder="tag1, tag2, tag3"
+            value="{{ .Tags }}"
+            required
+            autocomplete="off"
+          />
+          <label class="floating-label-with-icon" for="edit-bookmark-tags">
+            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+              <line x1="7" y1="7" x2="7.01" y2="7"/>
+            </svg>
+            Tags<span class="field-hint">comma separated</span>
+          </label>
+          <div class="tag-autocmp-dropdown" id="dropdown-tags-cmp"></div>
+          <div class="input-float-keybind hidden"><kbd></kbd></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <button id="btn-refresh-title" class="refresh-btn" type="button">{{ template "svg-refresh" }} Refresh</button>
+        <div class="input-wrapper">
+          <textarea
+            id="edit-bookmark-title"
+            name="title"
+            class="input-alt textarea textarea-auto"
+            placeholder="Bookmark title"
+            rows="1"
+          >{{ .Title }}</textarea>
+          <div class="floating-label-with-icon">
+            <label class="label" for="edit-bookmark-title">
+              <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+              </svg>
+              Title
+            </label>
+          </div>
+          <div class="input-float-keybind hidden"><kbd></kbd></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <button id="btn-refresh-desc" class="refresh-btn" type="button">{{ template "svg-refresh" }} Refresh</button>
+        <div class="input-wrapper">
+          <textarea
+            id="edit-bookmark-desc"
+            name="description"
+            class="input-alt textarea textarea-auto"
+            placeholder="Optional description"
+            rows="1"
+          >{{ .Desc }}</textarea>
+          <div class="floating-label-with-icon">
+            <label class="label" for="edit-bookmark-desc">
+              <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+              </svg>
+              Description
+            </label>
+          </div>
+          <div class="input-float-keybind hidden"><kbd></kbd></div>
+        </div>
+      </div>
+
+      <div id="form-error-message" class="message error"></div>
+      <div id="form-success-message" class="message success"></div>
+
+      <!-- Buttons -->
+      <div class="btn-container" id="btn-container-edit">
+
+        <a class="btn btn-cancel" id="btn-cancel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m6 6 12 12M6 18 18 6"/>
+          </svg>
+          Cancel
+        </a>
+
+        <a class="btn btn-primary btn-save" id="btn-edit-submit">{{ template "svg-save" }} Save</a>
+      </div>
+    </form>
+  </div>
+</div>
+{{ end }}

@@ -1,0 +1,137 @@
+{{ define "index" }}
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ .Cookie.ActiveTheme.Name }}">
+  <head>
+    <script type="module" src="/static/js/theme.js"></script>
+    <link id="theme-colors-link" rel="stylesheet" href="/static/css/{{ .Cookie.ActiveTheme.Name }}" />
+
+    <link rel="icon" href="{{ .Routes.Favicon }}" type="image/png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <title>{{ .PageTitle }}</title>
+    <meta name="description" content="{{ .App.Info.Desc }}" />
+    <meta name="keywords" content="{{ .App.Info.Tags }}" />
+
+    <link rel="stylesheet" href="/static/css/base.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/style.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/side-menu.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/modal.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/buttons.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/tags.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/card.css?ts={{ now }}"/>
+  </head>
+  <body>
+    <script type="module" src="/static/js/init.js" type="text/javascript" defer></script>
+    <script type="module" src="/static/js/index.js" type="text/javascript" defer></script>
+    <script>window.DEV_MODE = {{ .Cookie.DevMode }};</script>
+
+    <!--     Modals     -->
+    {{ template "side-menu" . }}
+    {{ template "about" . }}
+    {{ template "repo-info" . }}
+    {{ template "repo-list" }}
+    {{ template "qrcode" . }}
+    {{ template "import" . }}
+    {{ template "new" . }}
+    {{ template "help" . }}
+    {{ template "help-keybinds" }}
+    {{ template "settings" . }}
+    {{ template "tags-mobile" . }}
+
+    {{/* {{ template "edit" }} */}}
+    {{/* {{ template "tags" . }} */}}
+
+    <div class="container {{ if .Cookie.CompactMode }}compact{{end}}">
+
+      <header>
+        <div class="header">
+          <div class="header-top-row">
+            {{ template "search-bar" . }}
+
+            <div class="action-buttons">
+              {{ template "btn-bookmark-new" . }}
+              {{ template "btn-toggle-theme" }}
+            </div>
+
+            {{ template "btn-side-menu" }}
+          </div>
+
+          {{ if or .Params.Tag .Params.Query .Params.Letter }}
+            <div class="mobile-only">
+              {{ if .Params.Tag }}
+                <span class="tag-side-active">
+                  {{ template "svg-tag" }}<span>{{ .Params.Tag }}</span>
+                  <a href="{{ $.URL.ClearTag }}" class="clear-btn" title="Clear tag filter" >{{ template "svg-btn-circle-x" }}</a>
+                </span>
+              {{ end }}
+
+              {{ if .Params.Letter }}
+                <span class="tag-side-active">
+                  {{ template "svg-tag-letter" }}<span>{{ .Params.Letter }}</span>
+                  <a href="{{ $.URL.ClearLetter }}" class="clear-btn" title="Clear letter filter" >{{ template "svg-btn-circle-x" }}</a>
+                </span>
+              {{ end }}
+
+              {{ if .Params.Query }}
+                <span class="tag-side-active">
+                  {{ template "svg-search" }}{{ .Params.Query }}
+                  <a href="{{ $.URL.ClearQuery }}" class="clear-btn" title="Clear tag filter">{{ template "svg-btn-circle-x" }}</a>
+                </span>
+              {{ end }}
+
+            </div>
+          {{ end }}
+
+        </div>
+      </header>
+
+      {{ if not .Bookmarks }}
+        </div>
+          {{ if and (not .Bookmarks) (not .Params.Tag) (not .Params.Query) (not .Params.FilterBy) }}
+            <!-- Show create new bookmark btn -->
+            {{ template "btn-bookmark-new-large" . }}
+          {{ end }}
+          <p class="no-bookmark-found">
+            No bookmarks found
+            {{ if .Params.Tag }}
+              for this tag: <span class="highlight">{{ .Params.Tag }}</span>
+            {{ else if .Params.Query }}
+              matching search query: <span class="highlight">'{{ .Params.Query }}'</span>
+            {{ else if .Params.FilterBy }}
+              matching filter <span class="highlight">'{{ .Params.FilterBy }}'
+            {{ else }}
+              in <span class="repo-current-from"  id="current-repo-info">{{ .Params.CurrentDB }}</span>
+            {{ end }}
+          </p>
+      {{ else }}
+
+        <div class="main-content-wrapper">
+          <aside class="tag-sidebar">
+            {{ template "tagside" . }}
+          </aside>
+
+          <main id="bookmarkListId" class="bookmark-list">
+            {{ template "bookmarks-list" . }}
+            {{ template "pagination" . }}
+          </main>
+        </div>
+      {{ end }}
+
+      <footer>
+        <p>
+          &copy; {{ .CurrentYear }}
+          <a href="{{ .App.Info.URL }}" target="_blank">{{ .App.Name }}</a>.
+          Powered by
+          <a href="https://golang.org/" target="_blank">
+            <img
+              class="go-gopher-icon"
+              src="/static/img/favicon-gopher.png"
+              alt="Go gopher"
+            />
+          </a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
+{{ end }}

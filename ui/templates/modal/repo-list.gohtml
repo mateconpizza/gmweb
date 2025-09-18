@@ -1,0 +1,17 @@
+{{ define "repo-list" }}
+<div class="modal" id="modal-repo-list">
+  <div class="modal-base modal-repo-list">
+    {{ template "btn-back" }}
+    {{ template "btn-close" }}
+    <div class="modal-header">
+      <h4 class="modal-title">Repositories</h4>
+    </div>
+    <ul id="repo-unsorted-list" class="repo-unsorted-list"></ul>
+
+    <div id="new-repo-container" class="new-repo-container">
+      <button id="btn-new-repo" class="new-repo-btn">+ New Repo</button>
+    </div>
+
+  </div>
+</div>
+{{ end }}
