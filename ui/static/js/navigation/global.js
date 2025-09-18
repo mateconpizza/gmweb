@@ -127,7 +127,7 @@ export default class VimNavigator {
     // Handle 's' for sort menu
     if (key === this.keybinds.utility.sort.key) return this.toggleSortBookmarksMenu();
     // Handle 'Escape'
-    if (key === this.keybinds.utility.escape.key) {
+    if (key === this.keybinds.utility.escape.key || key === this.keybinds.utility.close.key) {
       event.preventDefault();
       // Multi-selection
       if (this.multiSelectMode) {

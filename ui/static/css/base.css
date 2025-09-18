@@ -2,6 +2,8 @@
 
 :root {
   --ff: "Roboto", sans-serif;
+  --fc: ui-monospace, "SFMono-Regular", "Consolas", monospace; /* console */
+  --fcmp: --font-mono, "Monaco", "Menlo", monospace; /* Search input autocomplete */
 
   /* Border */
   --radius-xxs: 0.25rem; /* 4px */

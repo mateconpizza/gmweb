@@ -55,10 +55,13 @@ function setupModalCloseHandlers(modal, closeModalFn) {
     if (e.target === modal) closeModalFn();
   });
 
-  // Escape key – global once
+  // Escape & Close key – global once
   if (!escapeListenerAttached) {
     document.addEventListener("keydown", (event) => {
-      if (event.key === config.keyboard.keybinds.utility.escape.key) {
+      const isEscape = event.key === config.keyboard.keybinds.utility.escape.key;
+      const isClose = event.key === config.keyboard.keybinds.utility.close.key;
+
+      if (isEscape || isClose) {
         const active = document.activeElement;
 
         if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {

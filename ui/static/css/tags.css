@@ -247,8 +247,8 @@
   }
 }
 
-
 /* -- Bookmark Item Styles -- */
+/* FIX: not implemented yet */
 .bookmark-autocmp-item {
   align-items: flex-start;
   padding: var(--space-s) var(--space-m);
@@ -269,7 +269,7 @@
 
 .bookmark-cmp-content {
   flex: 1;
-  min-width: 0; /* Allows text truncation */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -288,7 +288,7 @@
 .bookmark-cmp-url {
   font-size: var(--fs-xs);
   color: var(--text-muted);
-  font-family: var(--font-mono, 'Monaco', 'Menlo', monospace);
+  font-family: var(--fcmp);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

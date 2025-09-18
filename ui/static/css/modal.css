@@ -1184,7 +1184,7 @@ kbd {
   border: 1px solid var(--border);
   border-radius: var(--radius-xxs);
   padding: var(--space-xxs) var(--space-s);
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-family: var(--fc);
   font-size: var(--fs-s);
   font-weight: 500;
   color: var(--text-secondary);
