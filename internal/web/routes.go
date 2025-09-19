@@ -40,6 +40,7 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.Handle("GET "+r.Web.Edit("{id}"), requireIDAndDB(h.recordEdit))
 	mux.Handle("GET "+r.Web.QRCode("{id}"), requireIDAndDB(h.recordQR))
 	mux.Handle("GET "+r.Web.Export(), requireDB(h.recordExport))
+	mux.HandleFunc("POST "+r.Web.Settings(), h.settings)
 
 	// User related
 	mux.HandleFunc("GET "+r.User.Signup, h.userSignup)
@@ -323,6 +324,29 @@ func (h *Handler) recordExport(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to export bookmarks", http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h *Handler) settings(w http.ResponseWriter, r *http.Request) {
+	var f forms.AppSettings
+	err := forms.DecodePostForm(r, &f)
+	if err != nil {
+		h.logger.Error("settings", "error", err)
+		responder.ServerCustomErr(w, r, err, http.StatusBadRequest)
+		return
+	}
+
+	themeMode := "light"
+	if f.DarkMode {
+		themeMode = "dark"
+	}
+
+	cookie.set(w, cookie.jar.compactMode, strconv.FormatBool(f.CompactMode))
+	cookie.set(w, cookie.jar.itemsPerPage, strconv.Itoa(f.ItemsPerPage))
+	cookie.set(w, cookie.jar.themeCurrent, f.ThemeName)
+	cookie.set(w, cookie.jar.themeMode, themeMode)
+	cookie.set(w, cookie.jar.vimMode, strconv.FormatBool(f.VimMode))
+
+	http.Redirect(w, r, h.router.Web.All(), http.StatusSeeOther)
 }
 
 func (h *Handler) userLoginPost(w http.ResponseWriter, r *http.Request) {

@@ -33,6 +33,15 @@ type UserLogin struct {
 	Validator `form:"-"`
 }
 
+type AppSettings struct {
+	ThemeName    string `form:"theme"`
+	DarkMode     bool   `form:"dark_mode"`
+	CompactMode  bool   `form:"compact_mode"`
+	VimMode      bool   `form:"vim_mode"`
+	ItemsPerPage int    `form:"items_per_page"`
+	Validator    `form:"-"`
+}
+
 func DecodePostForm(r *http.Request, dst any) error {
 	err := r.ParseForm()
 	if err != nil {

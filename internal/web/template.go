@@ -82,6 +82,7 @@ type URLs struct {
 	NeverVisited   string
 	ClearTag       string
 	ClearQuery     string
+	ClearLetter    string
 	ExtensionFrame string
 }
 
@@ -185,6 +186,7 @@ func buildURLs(p *RequestParams, r *http.Request) *URLs {
 		NeverVisited:   filterToggleURL(p, "never_visited", path),
 		ClearTag:       p.with().Tag("").Build(path),
 		ClearQuery:     p.with().Query("").Page(1).Build(path),
+		ClearLetter:    p.with().Letter("").Build(path),
 		ExtensionFrame: r.URL.Query().Get("url"),
 	}
 }

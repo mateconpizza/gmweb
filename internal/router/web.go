@@ -22,9 +22,10 @@ func (w *WebRouter) NewFrame() string        { return w.bookmarksPath("/frame") 
 func (w *WebRouter) Detail(id string) string { return w.bookmarksPath("/detail/" + id) }
 func (w *WebRouter) View(id string) string   { return w.bookmarksPath("/view/" + id) }
 func (w *WebRouter) Edit(id string) string   { return w.bookmarksPath("/edit/" + id) }
+func (w *WebRouter) QRCode(id string) string { return w.bookmarksPath("/qr/" + id) }
 func (w *WebRouter) Import() string          { return w.bookmarksPath("/import") }
 func (w *WebRouter) Export() string          { return w.bookmarksPath("/export") }
-func (w *WebRouter) QRCode(id string) string { return w.bookmarksPath("/qr/" + id) }
+func (w *WebRouter) Settings() string        { return "/settings" }
 func (w *WebRouter) Favicon() string         { return "/static/img/favicon.png" }
 func (w *WebRouter) bookmarksPath(path string) string {
 	return fmt.Sprintf("/web/%s/bookmarks%s", w.db, path)
