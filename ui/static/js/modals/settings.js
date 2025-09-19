@@ -38,17 +38,17 @@ const SettingsApp = {
     // Handle open settings modal
     if (target.closest("#btn-settings")) return this.open();
     // Handle `Theme` selection
-    if (target.closest("#select-theme")) return this.selectTheme(target);
-    // Handle `CompactMode` toggle
-    if (target.closest("#checkbox-compact-mode")) return this.toggleCompactMode(target);
-    // Handle `VimMode` toggle
-    if (target.closest("#checkbox-vim-mode")) return this.toggleVimMode(target);
-    // Handle `ItemsPerPage` selection
-    if (target.closest("#items-per-page")) return this.setItemsPerPageCookie(target);
-    // Handle `DarkMode` toggle
-    if (target.closest("#settings-dark-mode")) return this.setThemeModeCookie(target);
+    // if (target.closest("#select-theme")) return this.selectTheme(target);
+    // // Handle `CompactMode` toggle
+    // if (target.closest("#checkbox-compact-mode")) return this.toggleCompactMode(target);
+    // // Handle `VimMode` toggle
+    // if (target.closest("#checkbox-vim-mode")) return this.toggleVimMode(target);
+    // // Handle `ItemsPerPage` selection
+    // if (target.closest("#items-per-page")) return this.setItemsPerPageCookie(target);
+    // // Handle `DarkMode` toggle
+    // if (target.closest("#settings-dark-mode")) return this.setThemeModeCookie(target);
     // Handle `Save` button in settings modal
-    if (target.closest("#btn-save")) return this.applySettings(target);
+    // if (target.closest("#btn-save")) return this.applySettings(target);
   },
 
   // --- Handlers ---
@@ -95,7 +95,8 @@ const SettingsApp = {
     const spinner = utils.createBtnSpinner(saveBtn);
     spinner.start();
     setTimeout(() => {
-      window.location.reload();
+      // window.location.reload();
+      spinner.stop();
     }, 500);
   },
 

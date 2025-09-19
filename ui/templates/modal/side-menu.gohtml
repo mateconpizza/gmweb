@@ -3,7 +3,7 @@
   <div class="slide-menu" id="slide-menu">
     <div class="action-buttons-mobile">
       {{ template "btn-bookmark-new" . }}
-      {{ template "btn-toggle-theme" }}
+      {{/* {{ template "btn-toggle-theme" }} */}}
     </div>
 
     <div class="menu-content">
@@ -47,6 +47,7 @@
     <div class="menu-section">
       <h3>Others</h3>
 
+      <!-- Import -->
       <a href="#" class="menu-item" id="btn-import">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -66,6 +67,7 @@
         Import
       </a>
 
+      <!-- Export -->
       <a
           href="{{ .Routes.Export }}?{{ if .Params.Tag }}tag={{ .Params.Tag }}{{ else if .Params.Query }}q={{ .Params.Query }}{{ end }}"
           class="menu-item"
@@ -88,6 +90,32 @@
         Export
       </a>
 
+      <!-- Shutdown -->
+        <a href="#" class="menu-item">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 100 100"
+            xmlns="http://www.w3.org/2000/svg"
+            version="1.1"
+          >
+            <g
+              style="
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 12px;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+              "
+            >
+              <path d="m 50,10 0,35" />
+              <path d="M 26,20 C -3,48 16,90 51,90 79,90 89,67 89,52 89,37 81,26 74,20" />
+            </g>
+          </svg>
+          Shutdown
+        </a>
+
+      <!-- About -->
       <a href="#" class="menu-item about-link" id="btn-about-app">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>

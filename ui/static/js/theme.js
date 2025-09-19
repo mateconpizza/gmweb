@@ -1,6 +1,5 @@
 // theme.js
 
-import Cookie from "./cookie.js";
 
 const theme = {
   /**
@@ -16,8 +15,6 @@ const theme = {
       document.documentElement.setAttribute("data-theme", newTheme);
 
       localStorage.setItem("theme", newTheme);
-
-      Cookie.set(Cookie.jar.themeMode, newTheme);
 
       if (settingsToggle) {
         settingsToggle.checked = newTheme === "dark";

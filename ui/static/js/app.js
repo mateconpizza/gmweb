@@ -30,7 +30,7 @@ const App = {
     repo.setupNewRepoBtn();
 
     // colorscheme
-    theme.switcher();
+    // theme.switcher();
   },
 
   /**

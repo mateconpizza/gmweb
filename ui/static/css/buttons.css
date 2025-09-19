@@ -100,12 +100,14 @@
 }
 
 .btn-save {
-  color: var(--text-on-accent);
-  border-color: var(--accent-hover);
-  background-color: var(--accent-hover);
-  font-size: var(--fs-m);
-  padding: var(--space-xs) var(--space-l);
+  color: var(--bg);
+  background-color: var(--active-item);
+  border: 2px solid var(--active-item);
   opacity: 0.8;
+}
+
+.btn-save svg {
+  transform: scale(1.2);
 }
 
 .btn-save:hover {
@@ -287,8 +289,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  height: var(--space-xxxl);
+  padding: 0 var(--space-m);
+  gap: var(--space-xs);
   border-radius: var(--radius-xs);
   background-color: var(--error);
   border: none;
@@ -300,6 +303,8 @@
   box-shadow: var(--shadow-strong);
   outline: none;
   flex-shrink: 0;
+  color: var(--text-on-accent);
+  font-weight: 500;
 }
 
 .btn-new-bookmark:hover {
@@ -352,8 +357,8 @@
 }
 
 .sort-main-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   transition: transform 0.2s ease;
   stroke-width: 1;
 }
@@ -457,7 +462,7 @@
 }
 
 .modal-control-btn:hover {
-  background-color: var(--bg-hover, rgba(0, 0, 0, 0.08));
+  background-color: var(--bg-hover);
   color: var(--text);
   transform: scale(1.05);
 }

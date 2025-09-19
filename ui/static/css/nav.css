@@ -102,6 +102,14 @@ body:has(.modal.show) .nav-state {
   transform: scale(1.1);
 }
 
+.nav-btn.btn-new-nav:hover .nav-icon {
+  color: var(--error);
+}
+
+.nav-btn.btn-favorite-nav:hover .nav-icon {
+  color: var(--favorite);
+}
+
 /* Active state */
 .nav-btn.active {
   color: var(--bg-atl);
@@ -115,6 +123,11 @@ body:has(.modal.show) .nav-state {
 .nav-btn.active svg {
   stroke: var(--active-item);
   fill: var(--active-item);
+}
+
+.nav-btn.btn-favorite-nav.active svg {
+  stroke: var(--favorite);
+  fill: var(--favorite);
 }
 
 /* Hamburger Menu Styles */
