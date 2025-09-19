@@ -40,6 +40,7 @@ const Nav = {
     if (!header) return;
 
     header.classList.toggle("visible");
+    document.getElementById("btn-search-nav").classList.toggle("active");
 
     if (header.classList.contains("visible")) {
       header.querySelector('.search-bar input[type="text"]').focus();

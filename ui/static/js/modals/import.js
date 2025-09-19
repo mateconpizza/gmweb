@@ -5,6 +5,12 @@ import repo from "../repo.js";
 import routes from "../services/routes.js";
 import utils from "../utils/utils.js";
 
+const endpoints = {
+  "html-import": routes.api.importHtml,
+  "git-json": routes.api.importRepoJson,
+  "git-gpg": routes.api.importRepoGpg,
+};
+
 const ImportManager = {
   /** @type {HTMLElement|null} */
   modal: null,
@@ -14,12 +20,6 @@ const ImportManager = {
 
   /** @type {string} */
   selectedSource: null,
-
-  endpoints: {
-    "html-import": routes.api.importHtml,
-    "git-json": routes.api.importRepoJson,
-    "git-gpg": routes.api.importRepoGpg,
-  },
 
   init() {
     document.addEventListener("click", this.handleClick.bind(this));
@@ -120,7 +120,7 @@ const ImportManager = {
     const dbName = repo.getCurrent();
 
     const formData = new FormData();
-    const endpoint = this.endpoints[this.selectedSource](dbName);
+    const endpoint = endpoints[this.selectedSource](dbName);
 
     if (this.selectedSource === "html-import") {
       if (!fileInput.files.length) {

@@ -47,7 +47,10 @@ const BookmarkCard = {
       console.error("DotsMenu: dropdown not found.");
     }
 
-    closeAllMenus();
+    if (!dropdown.classList.contains("visible")) {
+      closeAllMenus();
+    }
+
     dropdown.classList.toggle("visible");
   },
 

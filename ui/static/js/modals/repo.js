@@ -15,15 +15,9 @@ const Repository = {
     const { target } = e;
 
     // Handle repo info
-    if (target.matches("#current-repo-info")) {
-      return await this.open();
-    }
-
+    if (target.matches("#current-repo-info")) return await this.open();
     // Handle 'Change Repo' button or 'Repositories' button in Side menu
-    const repoListBtn = target.closest("#btn-list-repos");
-    if (repoListBtn) {
-      return await this.openRepoList();
-    }
+    if (target.closest("#btn-list-repos")) return await this.openRepoList();
   },
 
   /**

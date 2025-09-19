@@ -6,7 +6,7 @@ import BookmarkMgr from "./bookmark/bookmark.js";
 /**
  * Sets up event delegation on the main document.
  */
-const GlobalEvents = {
+const IndexEvents = {
   init() {
     document.addEventListener("click", this.handleClick.bind(this));
   },
@@ -16,7 +16,7 @@ const GlobalEvents = {
     const { target } = e;
 
     // Handle `New bookmark` button
-    if (target.closest("#btn-new-bookmark")) return BookmarkMgr.New.open();
+    if (target.closest("#btn-new-bookmark, #btn-new-nav")) return BookmarkMgr.New.open();
     // Handle `Sort` bookmarks menu
     if (target.closest("#btn-sort-bookmark")) return this.showSortMenu(target);
   },
@@ -25,7 +25,6 @@ const GlobalEvents = {
     const container = target.closest(".sort-menu-container");
     const dropdown = container.querySelector("#sort-dropdown");
     dropdown.classList.toggle("visible");
-    console.log({ dropdown });
     return;
   },
 };
@@ -33,5 +32,5 @@ const GlobalEvents = {
 document.addEventListener("DOMContentLoaded", () => {
   App.init();
   App.setupModals();
-  GlobalEvents.init();
+  IndexEvents.init();
 });
