@@ -551,6 +551,7 @@
   box-shadow: var(--shadow-light);
   line-height: 1.5;
   height: 48px;
+  margin-top: var(--space-xxs);
 }
 
 .input-alt:focus {
@@ -562,6 +563,7 @@
 
 .input-alt:focus + .floating-label-with-icon {
   font-weight: 600;
+  transform: translateY(-5px);
 }
 
 .input-alt:focus + .floating-label-with-icon .label-icon {
@@ -1522,7 +1524,6 @@ input:checked + .slider::before {
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  color: var(--text-secondary);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     color 0.2s ease;

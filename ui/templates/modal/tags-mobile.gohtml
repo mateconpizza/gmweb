@@ -1,38 +1,10 @@
 {{ define "tags-mobile" }}
 <div class="modal" id="modal-tags-mobile">
   <div class="modal-base">
-    {{ template "btn-back" }}
-    {{ template "btn-close" }}
     <div class="modal-header">
+      {{ template "btn-close" }}
       <h3 class="modal-title">Tags</h3>
     </div>
-
-    <!-- Current selection -->
-    {{ if or .Params.Tag .Params.Query .Params.Letter }}
-      <div class="mobile-only">
-        {{ if .Params.Tag }}
-          <span class="tag-side-active">
-            {{ template "svg-tag" }}<span>{{ .Params.Tag }}</span>
-            <a href="{{ $.URL.ClearTag }}" class="clear-btn" title="Clear tag filter" >{{ template "svg-btn-circle-x" }}</a>
-          </span>
-        {{ end }}
-
-        {{ if .Params.Letter }}
-          <span class="tag-side-active">
-            {{ template "svg-tag-letter" }}<span>{{ .Params.Letter }}</span>
-            <a href="{{ $.URL.ClearLetter }}" class="clear-btn" title="Clear tag filter" >{{ template "svg-btn-circle-x" }}</a>
-          </span>
-        {{ end }}
-
-        {{ if .Params.Query }}
-          <span class="tag-side-active">
-            {{ template "svg-search" }}{{ .Params.Query }}
-            <a href="{{ $.URL.ClearQuery }}" class="clear-btn" title="Clear tag filter">{{ template "svg-btn-circle-x" }}</a>
-          </span>
-        {{ end }}
-
-      </div>
-    {{ end }}
 
     <div class="modal-tags-container">
       {{ range $letter, $tags := .TagGroups }}

@@ -332,6 +332,29 @@ sup.new {
   margin-left: auto;
 }
 
+.dropdown-sort-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--space-xxs));
+  right: 0;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xxs);
+  box-shadow: var(--shadow-medium);
+  z-index: 100;
+  min-width: 140px;
+  padding: var(--space-xxxs);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.2s ease;
+}
+
+.dropdown-sort-menu.visible {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .bookmark-count {
   opacity: 0.7;
   text-align: center;
@@ -509,7 +532,7 @@ sup.new {
   }
 }
 
-@media (width >= 768px) {
+@media (width >= 767px) {
   .header {
     justify-content: flex-start;
   }

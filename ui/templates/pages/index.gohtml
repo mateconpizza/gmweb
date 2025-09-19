@@ -1,6 +1,6 @@
 {{ define "index" }}
 <!DOCTYPE html>
-<html lang="en" data-theme="{{ .Cookie.ActiveTheme.Name }}">
+<html lang="en" data-theme="{{ .Cookie.ActiveTheme.Mode }}">
   <head>
     <script type="module" src="/static/js/theme.js"></script>
     <link id="theme-colors-link" rel="stylesheet" href="/static/css/{{ .Cookie.ActiveTheme.Name }}" />
@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="/static/css/tags.css?ts={{ now }}"/>
     <link rel="stylesheet" href="/static/css/card.css?ts={{ now }}"/>
     <link rel="stylesheet" href="/static/css/nav.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/mobile.css?ts={{ now }}"/>
   </head>
   <body>
     <script type="module" src="/static/js/init.js" type="text/javascript" defer></script>
@@ -38,9 +39,10 @@
     {{ template "help-keybinds" }}
     {{ template "settings" . }}
     {{ template "tags-mobile" . }}
-    <div class="mobile-only">
-      {{ template "nav" . }}
-    </div>
+
+    <!-- Floating nav bar -->
+    {{ template "nav-state" . }}
+    {{ template "nav" . }}
 
     <div class="container {{ if .Cookie.CompactMode }}compact{{end}}">
 
@@ -56,33 +58,6 @@
 
             {{ template "btn-side-menu" }}
           </div>
-
-          {{ if or .Params.Tag .Params.Query .Params.Letter }}
-            <div class="mobile-only">
-              {{ if .Params.Tag }}
-                <span class="tag-side-active">
-                  {{ template "svg-tag" }}<span>{{ .Params.Tag }}</span>
-                  <a href="{{ $.URL.ClearTag }}" class="clear-btn" title="Clear tag filter" >{{ template "svg-btn-circle-x" }}</a>
-                </span>
-              {{ end }}
-
-              {{ if .Params.Letter }}
-                <span class="tag-side-active">
-                  {{ template "svg-tag-letter" }}<span>{{ .Params.Letter }}</span>
-                  <a href="{{ $.URL.ClearLetter }}" class="clear-btn" title="Clear letter filter" >{{ template "svg-btn-circle-x" }}</a>
-                </span>
-              {{ end }}
-
-              {{ if .Params.Query }}
-                <span class="tag-side-active">
-                  {{ template "svg-search" }}{{ .Params.Query }}
-                  <a href="{{ $.URL.ClearQuery }}" class="clear-btn" title="Clear tag filter">{{ template "svg-btn-circle-x" }}</a>
-                </span>
-              {{ end }}
-
-            </div>
-          {{ end }}
-
         </div>
       </header>
 

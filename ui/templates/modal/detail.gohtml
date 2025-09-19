@@ -189,6 +189,12 @@
         </div>
 
         <div class="btn-container modal-footer" id="btn-container-modal">
+          <a class="btn btn-cancel" id="btn-cancel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 6 12 12M6 18 18 6"/>
+            </svg>
+            Close
+          </a>
           <a href="#" data-id="{{ .ID }}" id="btn-edit" class="btn btn-primary btn-edition">{{ template "svg-btn-edit" }} Edit</a>
           <a href="#" data-id="{{ .ID }}" id="btn-delete" class="btn btn-primary btn-remove">{{ template "svg-btn-delete" }}Delete</a>
         </div>

@@ -60,7 +60,7 @@
 
 .tag-side,
 .tag-in-modal {
-  background-color: transparent;
+  background-color: var(--bg-hover);
   border-radius: var(--radius-xs);
   border: 1px solid var(--border);
   color: var(--text-secondary);
@@ -84,13 +84,13 @@
   color: var(--text-on-accent);
   border-color: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-medium);
 }
 
 .tag-side:active,
 .tag-in-modal:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-medium);
 }
 
 .tag-side-active {
@@ -229,7 +229,7 @@
 }
 
 /* -- Responsive Styles -- */
-@media (width >= 768px) {
+@media (width >= 767px) {
   .tag-sidebar {
     display: block;
     flex-shrink: 0;
@@ -348,7 +348,7 @@
 }
 
 /* -- Responsive adjustments -- */
-@media (max-width: 768px) {
+@media (width <= 767px) {
   .bookmark-autocmp-item {
     padding: var(--space-xs) var(--space-s);
     gap: var(--space-xs);

@@ -1,6 +1,6 @@
 {{ define "about" }}
-<div class="modal" id="modal-about-app">
-  <div class="modal-base modal-content">
+<div class="modal modal-desktop" id="modal-about-app">
+  <div class="modal-base modal-content" id="modal-about-app-content">
     {{ template "btn-close" }}
 
     <div class="modal-header">
@@ -14,12 +14,10 @@
     </p>
     <div class="author">
       <span class="link-emojis">🧉❤️🍕</span>
-      <a class="link-author" href="{{ .App.Info.AuthorURL }}">
-        {{ .App.Info.Author }}
-      </a>
+      <a class="link-author" href="{{ .App.Info.AuthorURL }}" target="_blank">{{ .App.Info.Author }}</a>
 
         <div class="btn-container btn-container-about">
-          <a href="{{ .App.Info.URL }}" class="btn btn-primary btn-edition" target="_blank">
+          <a href="{{ .App.Info.URL }}" class="btn btn-primary btn-save" target="_blank">
           Source Code {{ template "svg-open" }}
           </a>
         </div>

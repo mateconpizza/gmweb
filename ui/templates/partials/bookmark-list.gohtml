@@ -1,0 +1,132 @@
+{{ define "bookmarks-list" }}
+<div class="bookmark-list-header">
+  <h2 class="bookmark-count">
+    <span class="highlight">{{ .Pagination.TotalBookmarks }}</span>bookmark{{ if gt .Pagination.TotalBookmarks 1 }}s{{ end }}
+    from <span title="Current database" class="repo-current-from" id="current-repo-info">{{ .Params.CurrentDB }}</span>
+  </h2>
+
+  <div class="sort-menu-container">
+    <button id="btn-sort-bookmark" class="sort-main-btn">{{ template "svg-sort" }}</button>
+    <div id="sort-dropdown" class="dropdown-sort-menu">
+      <div class="dropdown-option {{ if .Params.IsFilterActive "newest" }}selected{{ end }}"><a href="{{ .URL.Newest }}">Newest</a></div>
+      <div class="dropdown-option {{ if .Params.IsFilterActive "oldest" }}selected{{ end }}"><a href="{{ .URL.Oldest }}">Oldest</a></div>
+      <div class="dropdown-option {{ if .Params.IsFilterActive "last_visit" }}selected{{ end }}"><a href="{{ .URL.LastVisited }}">Last visited</a></div>
+      <div class="dropdown-option {{ if .Params.IsFilterActive "favorites" }}selected{{ end }}"><a href="{{ .URL.Favorites }}">Favorites</a></div>
+      <div class="dropdown-option {{ if .Params.IsFilterActive "more_visits" }}selected{{ end }}"><a href="{{ .URL.MoreVisits }}">More visits</a></div>
+    </div>
+  </div>
+</div>
+
+  {{ range $bookmark := .Bookmarks }}
+
+  <!-- Modals -->
+  {{ template "detail" $bookmark }}
+  {{ template "edition" $bookmark }}
+
+    <div class="bookmark-card" data-id="{{ .ID }}">
+      <div class="bookmark-url">
+
+        <img
+          class="label-url-favicon"
+          src="{{ if .FaviconLocal }}{{ .FaviconLocal }}{{ else }}/static/img/favicon-star.png{{ end }}"
+          alt="favicon"
+        />
+
+        {{ if isNew .CreatedAt }}
+          <sup class="new">New</sup>
+        {{ end }}
+
+        <a
+          id="url-visit"
+          href="{{ .URL }}"
+          data-id="{{ .ID }}"
+          target="_blank">
+            {{ if .Title }}
+              {{ .Title }}
+            {{ else if (eq .Title "untitled (unfiled)") }}
+              {{ .URL }}
+            {{ else }}
+              {{ .URL }}
+            {{ end }}
+        </a>
+      </div>
+
+      <div class="btn-dots-menu-container" data-id="{{ .ID }}" data-bookmark-url="{{ .URL }}">
+        <div class="btn-dots-menu">{{ template "svg-dots-menu" }}</div>
+        <div class="dropdown-menu" id="dot-menu-{{ .ID }}">
+          <div id="copyOpt" data-action="copy" class="dropdown-card-opt">{{ template "svg-copy" }} Copy</div>
+          <div data-action="qrcode" class="dropdown-card-opt">{{ template "svg-btn-qr" }} QRCode</div>
+          <div data-action="edition" class="dropdown-card-opt">{{ template "svg-btn-edit" }} Edit</div>
+          <div data-action="delete" class="dropdown-card-opt">{{ template "svg-btn-delete" }} Delete</div>
+        </div>
+      </div>
+
+      <a data-id="{{ .ID }}" class="bookmark-card-link">
+        {{ if .Desc }}
+          <div class="bookmark-desc">{{ .Desc }}</div>
+        {{ else }}
+          <div class="bookmark-desc">{{ .Title }}</div>
+        {{ end }}
+      </a>
+
+
+        <div class="bookmark-card-footer">
+          {{ $tags := TagsWithPoundList .Tags }}
+          {{ if $tags }}
+            <div class="bookmark-tags">
+              {{ range $i, $tag := $tags }}
+                <a
+                  href="{{ tagURL $.Params $tag $.CurrentPath }}"
+                  class="tag-side {{ if ge $i 3 }}tag-hidden hidden{{ end }}"
+                  title="{{ $tag }}"
+                >
+                  {{ $tag }}
+                </a>
+              {{ end }}
+
+              {{ if gt (len $tags) 3 }}
+                <button type="button" class="tag-side tag-toggle">+</button>
+              {{ end }}
+            </div>
+          {{ end }}
+          <div class="bookmark-card-footer-actions">
+            {{ if gt .VisitCount 0 }}
+              <span class="stat-item visit-count">
+                {{ template "svg-view" }}
+                <span class="stat-value" title="Visited Count">{{ .VisitCount }}</span>
+              </span>
+
+              <span class="stat-item last-visit">
+                {{ template "svg-visited" }}
+                  <span class="stat-value" title="Visited At: {{ formatDate .LastVisit }}">{{ RelativeISOTime .LastVisit }}</span>
+              </span>
+            {{ end }}
+
+            <span class="stat-item created-at">
+              {{ template "svg-added" }}
+              <span class="stat-value" title="Created At: {{ formatDate .CreatedAt }}">{{ RelativeISOTime .CreatedAt }}</span>
+            </span>
+
+            <button
+                class="bookmark-detail-fav-btn {{ if .Favorite }}favorited{{ end }}"
+                data-bookmark-id="{{ .ID }}"
+                title="{{ if .Favorite }}Remove from favorites{{ else }}Add to favorites{{ end }}"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+            </button>
+
+          </div>
+        </div>
+    </div>
+  {{ end }}
+{{ end }}

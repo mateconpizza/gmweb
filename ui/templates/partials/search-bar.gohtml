@@ -1,0 +1,30 @@
+{{ define "search-bar" }}
+<div class="search-container" id="search-container">
+  <input type="hidden" name="csrf_token" value="{{ $.CSRFToken }}">
+  <form method="GET" action="{{ .CurrentPath }}" class="search-bar">
+    <a href="/" class="logo">
+      <img src="/static/img/favicon-star.png"/>
+      <span class="logo-text">Bookmarks</span>
+    </a>
+    <div class="input-wrapper">
+      <input
+        type="text"
+        name="q"
+        placeholder="Search by word or #tags"
+        value="{{ .Params.Query }}"
+      />
+      <a
+        href="{{ .URL.ClearQuery }}"
+        class="clear-search-btn"
+        title="Clear search">
+        {{ template "svg-clear-btn" }}
+      </a>
+      <div class="keybind-tip">{{ .KeybindTip }}</div>
+      <div class="tag-autocmp-dropdown" id="tag-cmp-search-bar"></div>
+      <div class="url-autocomplete-dropdown" id="url-cmp-search-bar"></div>
+    </div>
+    {{ if .Params.Tag }}<input type="hidden" name="tag" value="{{ .Params.Tag }}" />{{ end }}
+    {{ if .Params.FilterBy }}<input type="hidden" name="filter" value="{{ .Params.FilterBy }}" />{{ end }}
+  </form>
+</div>
+{{ end }}

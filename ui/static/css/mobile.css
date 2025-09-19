@@ -1,0 +1,209 @@
+@media (width <= 480px) {
+  /* -- Global -- */
+  .logo img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .bookmark-count {
+    font-size: var(--fs-m);
+    padding-top: var(--space-xxxs);
+  }
+
+  /* -- Modals -- */
+  .modal-base {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    transform: translateY(100vh);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-desktop .modal-base {
+    width: 90%;
+    max-width: 500px;
+    height: auto;
+    max-height: 90vh;
+    border-radius: var(--radius-xs);
+    border: 2px solid var(--border);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(20px); /* Adjust transform to be centered */
+  }
+
+  .modal.show .modal-base {
+    transform: translateY(0);
+  }
+
+  .modal-desktop.modal.show .modal-base {
+    transform: translateY(0); /* Adjust to slide in from the top or scale up */
+  }
+
+  .modal-content {
+    padding: var(--space-s) var(--space-m);
+  }
+
+  .close-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 3;
+  }
+
+  #modal-about-app-content {
+    padding-top: 0;
+  }
+
+  /* -- Modal Bookmark Detail -- */
+  .bookmark-detail-desc {
+    padding: var(--space-xxs) var(--space-l);
+    margin-bottom: var(--space-s);
+    font-size: var(--fs-l);
+  }
+
+  .bookmark-tags {
+    padding: var(--space-xs);
+  }
+
+  .tag-in-modal {
+    font-size: var(--fs-m);
+  }
+
+  .accordion-header {
+    padding: var(--space-s) var(--space-m);
+  }
+
+  .accordion-title {
+    font-size: var(--fs-m);
+    color: var(--text-muted);
+  }
+
+  .accordion-toggle {
+    font-size: var(--fs-xl);
+    color: var(--text-muted);
+  }
+
+  /* -- Floating Nav -- */
+  .floating-nav {
+    left: 10px;
+    right: 10px;
+    transform: none;
+    width: calc(100% - 20px);
+  }
+
+  .floating-nav:hover {
+    transform: translateY(-2px);
+  }
+
+  body:has(.modal.show) .floating-nav {
+    transform: translateY(20px);
+  }
+
+  .nav-container {
+    justify-content: space-around;
+  }
+
+  .nav-btn {
+    min-width: auto;
+    padding: 10px 12px;
+  }
+
+  #btn-hamburger {
+    display: none;
+  }
+
+  header {
+    display: none;
+  }
+
+  header.visible {
+    display: block;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding-right: var(--space-xxxxl);
+    font-size: var(--fs-m);
+    border: 2px solid var(--bg-alt);
+    border-radius: var(--radius-xs);
+    background: var(--input-bg);
+    box-shadow: var(--shadow-input);
+    outline: none;
+    transition: all 0.3s ease;
+    color: var(--text-muted);
+  }
+
+  .search-bar input:focus {
+    border-color: var(--link-hover);
+    box-shadow: var(--shadow-light);
+  }
+
+  /* -- Forms -- */
+  .form-group {
+    position: relative;
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-xxl);
+  }
+
+  .btn-container {
+    display: flex;
+    gap: var(--space-s);
+    margin-top: var(--space-xl);
+    flex-wrap: wrap;
+  }
+
+  .btn-container .btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 120px;
+    font-size: var(--fs-m);
+  }
+
+  /* -- Bookmark Card -- */
+  .bookmark-card-footer-actions .visit-count,
+  .bookmark-card-footer-actions .last-visit,
+  .bookmark-card-footer-actions .created-at {
+    display: none;
+  }
+
+  .dropdown-option a,
+  .dropdown-card-opt {
+    color: var(--text);
+    font-size: var(--fs-m);
+  }
+
+  /* -- Nav state -- */
+  .tag-side-active {
+    font-size: var(--fs-m);
+  }
+
+  .tag-side-active a.clear-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* -- SVGs -- */
+  .dropdown-option svg,
+  .dropdown-card-opt svg,
+  .bookmark-detail-fav-btn svg,
+  .btn-dots-menu svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .bookmark-detail-fav-btn {
+    transform: translateY(var(--space-xxs));
+  }
+
+  #btn-sort-bookmark svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* -- Form -- */
+  .floating-label-with-icon {
+    font-size: var(--fs-m);
+  }
+}

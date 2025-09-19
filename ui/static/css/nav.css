@@ -1,24 +1,37 @@
-.floating-nav {
+.floating-base {
   position: fixed;
-  bottom: var(--space-m);
   left: 50%;
   transform: translateX(-50%);
   background: var(--bg);
   backdrop-filter: blur(20px);
   border: 2px solid var(--bg-hover);
-  border-radius: var(--radius-l);
-  padding: var(--space-xs) var(--space-m);
+  border-radius: var(--radius-m);
   box-shadow: var(--shadow-strong);
   z-index: 1000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.floating-nav:hover {
+.floating-nav {
+  bottom: var(--space-m);
+  padding: var(--space-xs) var(--space-m);
+}
+
+.nav-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  bottom: calc(var(--space-m) + 50px + 24px);
+  padding: var(--space-xxs) var(--space-s);
+}
+
+.floating-nav:hover,
+.nav-state:hover {
   transform: translateX(-50%) translateY(-2px);
   box-shadow: var(--shadow-strong);
 }
 
-body:has(.modal.show) .floating-nav {
+body:has(.modal.show) .floating-nav,
+body:has(.modal.show) .nav-state {
   opacity: 0;
   visibility: hidden;
   transform: translateX(-50%) translateY(20px);
@@ -100,7 +113,8 @@ body:has(.modal.show) .floating-nav {
 }
 
 .nav-btn.active svg {
-  fill: var(--text);
+  stroke: var(--active-item);
+  fill: var(--active-item);
 }
 
 /* Hamburger Menu Styles */
@@ -144,58 +158,9 @@ body:has(.modal.show) .floating-nav {
 }
 
 /* Responsive Design */
-@media (width <= 480px) {
-  .floating-nav {
-    left: 10px;
-    right: 10px;
-    transform: none;
-    width: calc(100% - 20px);
-  }
-
-  .floating-nav:hover {
-    transform: translateY(-2px);
-  }
-
-  body:has(.modal.show) .floating-nav {
-    transform: translateY(20px);
-  }
-
-  .nav-container {
-    justify-content: space-around;
-  }
-
-  .nav-btn {
-    min-width: auto;
-    padding: 10px 12px;
-  }
-
-  #btn-hamburger {
+@media (width >= 767px) {
+  .floating-nav,
+  .nav-state {
     display: none;
-  }
-
-  header {
-    display: none;
-  }
-
-  header.visible {
-    display: block;
-  }
-
-  .search-bar input {
-    width: 100%;
-    padding-right: var(--space-xxxxl);
-    font-size: var(--fs-m);
-    border: 2px solid var(--bg-alt);
-    border-radius: var(--radius-xs);
-    background: var(--input-bg);
-    box-shadow: var(--shadow-input);
-    outline: none;
-    transition: all 0.3s ease;
-    color: var(--text-muted);
-  }
-
-  .search-bar input:focus {
-    border-color: var(--link-hover);
-    box-shadow: var(--shadow-light);
   }
 }
