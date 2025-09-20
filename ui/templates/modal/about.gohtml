@@ -2,11 +2,9 @@
 <div class="modal modal-desktop" id="modal-about-app">
   <div class="modal-base modal-content" id="modal-about-app-content">
     {{ template "btn-close" }}
-
     <div class="modal-header">
       <h3 class="modal-title">About the App</h3>
     </div>
-
     <p class="about-desc">
       Managing bookmarks should be fast, clean, and distraction-free. I wanted
       to create a simple and intuitive tool that's actually enjoyable to use,
@@ -15,13 +13,11 @@
     <div class="author">
       <span class="link-emojis">🧉❤️🍕</span>
       <a class="link-author" href="{{ .App.Info.AuthorURL }}" target="_blank">{{ .App.Info.Author }}</a>
-
-        <div class="btn-container btn-container-about">
-          <a href="{{ .App.Info.URL }}" class="btn btn-primary btn-save" target="_blank">
-          Source Code {{ template "svg-open" }}
-          </a>
-        </div>
-
+      <div class="btn-container btn-container-about">
+        <a href="{{ .App.Info.URL }}"
+           class="btn btn-primary btn-save"
+           target="_blank">Source Code {{ template "svg-open" }}</a>
+      </div>
     </div>
   </div>
 </div>

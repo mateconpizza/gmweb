@@ -3,30 +3,29 @@
 <html lang="en" data-theme="{{ .Cookie.ActiveTheme.Mode }}">
   <head>
     <script type="module" src="/static/js/theme.js"></script>
-    <link id="theme-colors-link" rel="stylesheet" href="/static/css/{{ .Cookie.ActiveTheme.Name }}" />
-
-    <link rel="icon" href="{{ .Routes.Favicon }}" type="image/png"/>
+    <link id="theme-colors-link"
+          rel="stylesheet"
+          href="/static/css/{{ .Cookie.ActiveTheme.Name }}" />
+    <link rel="icon" href="{{ .Routes.Favicon }}" type="image/png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8" />
     <title>{{ .PageTitle }}</title>
     <meta name="description" content="{{ .App.Info.Desc }}" />
     <meta name="keywords" content="{{ .App.Info.Tags }}" />
-
-    <link rel="stylesheet" href="/static/css/base.css?ts={{ now }}"/>
-    <link rel="stylesheet" href="/static/css/style.css?ts={{ now }}"/>
-    <link rel="stylesheet" href="/static/css/side-menu.css?ts={{ now }}"/>
-    <link rel="stylesheet" href="/static/css/modal.css?ts={{ now }}"/>
-    <link rel="stylesheet" href="/static/css/buttons.css?ts={{ now }}"/>
-    <link rel="stylesheet" href="/static/css/tags.css?ts={{ now }}"/>
-    <link rel="stylesheet" href="/static/css/card.css?ts={{ now }}"/>
-    <link rel="stylesheet" href="/static/css/nav.css?ts={{ now }}"/>
-    <link rel="stylesheet" href="/static/css/mobile.css?ts={{ now }}"/>
+    <link rel="stylesheet" href="/static/css/base.css?ts={{ now }}" />
+    <link rel="stylesheet" href="/static/css/style.css?ts={{ now }}" />
+    <link rel="stylesheet" href="/static/css/side-menu.css?ts={{ now }}" />
+    <link rel="stylesheet" href="/static/css/modal.css?ts={{ now }}" />
+    <link rel="stylesheet" href="/static/css/buttons.css?ts={{ now }}" />
+    <link rel="stylesheet" href="/static/css/tags.css?ts={{ now }}" />
+    <link rel="stylesheet" href="/static/css/card.css?ts={{ now }}" />
+    <link rel="stylesheet" href="/static/css/nav.css?ts={{ now }}" />
+    <link rel="stylesheet" href="/static/css/mobile.css?ts={{ now }}" />
   </head>
   <body>
     <script type="module" src="/static/js/init.js" type="text/javascript" defer></script>
     <script type="module" src="/static/js/index.js" type="text/javascript" defer></script>
     <script>window.DEV_MODE = {{ .Cookie.DevMode }};</script>
-
     <!--     Modals     -->
     {{ template "side-menu" . }}
     {{ template "about" . }}
@@ -39,75 +38,63 @@
     {{ template "help-keybinds" }}
     {{ template "settings" . }}
     {{ template "tags-mobile" . }}
-
     <!-- Floating nav bar -->
     {{ template "nav-state" . }}
     {{ template "nav" . }}
-
     <div class="container {{ if .Cookie.CompactMode }}compact{{end}}">
-
       <header>
         <div class="header">
           <div class="header-top-row">
             {{ template "search-bar" . }}
-
             <div class="action-buttons">
               {{ template "btn-bookmark-new" . }}
-              {{/* {{ template "btn-toggle-theme" }} */}}
-            </div>
-
-            {{ template "btn-side-menu" }}
+            {{/* {{ template "btn-toggle-theme" }} */}}
           </div>
+          {{ template "btn-side-menu" }}
         </div>
-      </header>
-
-      {{ if not .Bookmarks }}
-        </div>
-          {{ if and (not .Bookmarks) (not .Params.Tag) (not .Params.Query) (not .Params.FilterBy) }}
-            <!-- Show create new bookmark btn -->
-            {{ template "btn-bookmark-new-large" . }}
-          {{ end }}
-          <p class="no-bookmark-found">
-            No bookmarks found
-            {{ if .Params.Tag }}
-              for this tag: <span class="highlight">{{ .Params.Tag }}</span>
-            {{ else if .Params.Query }}
-              matching search query: <span class="highlight">'{{ .Params.Query }}'</span>
-            {{ else if .Params.FilterBy }}
-              matching filter <span class="highlight">'{{ .Params.FilterBy }}'
-            {{ else }}
-              in <span class="repo-current-from"  id="current-repo-info">{{ .Params.CurrentDB }}</span>
-            {{ end }}
-          </p>
-      {{ else }}
-
-        <div class="main-content-wrapper">
-          <aside class="tag-sidebar">
-            {{ template "tagside" . }}
-          </aside>
-
-          <main id="bookmarkListId" class="bookmark-list">
-            {{ template "bookmarks-list" . }}
-            {{ template "pagination" . }}
-          </main>
-        </div>
+      </div>
+    </header>
+    {{ if not .Bookmarks }}
+    {{ if and (not .Bookmarks) (not .Params.Tag) (not .Params.Query) (not .Params.FilterBy) }}
+    <!-- Show create new bookmark btn -->
+    {{ template "btn-bookmark-new-large" . }}
+    {{ end }}
+    <p class="no-bookmark-found">
+      No bookmarks found
+      {{ if .Params.Tag }}
+      for this tag: <span class="highlight">{{ .Params.Tag }}</span>
+      {{ else if .Params.Query }}
+      matching search query: <span class="highlight">'{{ .Params.Query }}'</span>
+      {{ else if .Params.FilterBy }}
+      matching filter <span class="highlight">'{{ .Params.FilterBy }}'</span>
+    {{ else }}
+      in <span class="repo-current-from"  id="current-repo-info">{{ .Params.CurrentDB }}</span>
       {{ end }}
-
-      <footer>
-        <p>
-          &copy; {{ .CurrentYear }}
-          <a href="{{ .App.Info.URL }}" target="_blank">{{ .App.Name }}</a>.
-          Powered by
-          <a href="https://golang.org/" target="_blank">
-            <img
-              class="go-gopher-icon"
-              src="/static/img/favicon-gopher.png"
-              alt="Go gopher"
-            />
-          </a>
-        </p>
-      </footer>
+    </p>
+  {{ else }}
+    <div class="main-content-wrapper">
+      <aside class="tag-sidebar">
+        {{ template "tagside" . }}
+      </aside>
+      <main id="bookmarkListId" class="bookmark-list">
+        {{ template "bookmarks-list" . }}
+        {{ template "pagination" . }}
+      </main>
     </div>
-  </body>
+    {{ end }}
+    <footer>
+      <p>
+        © {{ .CurrentYear }}
+        <a href="{{ .App.Info.URL }}" target="_blank">{{ .App.Name }}</a>.
+        Powered by
+        <a href="https://golang.org/" target="_blank">
+          <img class="go-gopher-icon"
+               src="/static/img/favicon-gopher.png"
+               alt="Go gopher" />
+        </a>
+      </p>
+    </footer>
+  </div>
+</body>
 </html>
 {{ end }}
