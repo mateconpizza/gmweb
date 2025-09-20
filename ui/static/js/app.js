@@ -5,7 +5,6 @@ import Modal from "./modals/modals.js";
 import VimNavigator from "./navigation/global.js";
 import repo from "./repo.js";
 import { InputCmp, keybindTipHandler } from "./search.js";
-import theme from "./theme.js";
 
 const App = {
   /**

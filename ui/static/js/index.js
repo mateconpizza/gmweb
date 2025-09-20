@@ -19,6 +19,8 @@ const IndexEvents = {
     if (target.closest("#btn-new-bookmark, #btn-new-nav")) return BookmarkMgr.New.open();
     // Handle `Sort` bookmarks menu
     if (target.closest("#btn-sort-bookmark")) return this.showSortMenu(target);
+    // Handle `Sort` click outside
+    if (!target.closest("#btn-sort-bookmark")) return this.hideSortMenu();
   },
 
   showSortMenu(target) {
@@ -26,6 +28,13 @@ const IndexEvents = {
     const dropdown = container.querySelector("#sort-dropdown");
     dropdown.classList.toggle("visible");
     return;
+  },
+  hideSortMenu() {
+    const dropdown = document.getElementById("sort-dropdown");
+    if (!dropdown) return;
+    if (dropdown.classList.contains("visible")) {
+      dropdown.classList.toggle("visible");
+    }
   },
 };
 

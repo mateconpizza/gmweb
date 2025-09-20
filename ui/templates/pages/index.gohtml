@@ -37,10 +37,11 @@
     {{ template "help" . }}
     {{ template "help-keybinds" }}
     {{ template "settings" . }}
-    {{ template "tags-mobile" . }}
     <!-- Floating nav bar -->
     {{ template "nav-state" . }}
     {{ template "nav" . }}
+    {{ template "tags-mobile" . }}
+    <!-- Main content -->
     <div class="container {{ if .Cookie.CompactMode }}compact{{end}}">
       <header>
         <div class="header">
@@ -48,7 +49,6 @@
             {{ template "search-bar" . }}
             <div class="action-buttons">
               {{ template "btn-bookmark-new" . }}
-            {{/* {{ template "btn-toggle-theme" }} */}}
           </div>
           {{ template "btn-side-menu" }}
         </div>
@@ -91,6 +91,7 @@
           <img class="go-gopher-icon"
                src="/static/img/favicon-gopher.png"
                alt="Go gopher" />
+          Golang
         </a>
       </p>
     </footer>

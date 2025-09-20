@@ -175,11 +175,16 @@
   }
 
   /* -- Nav state -- */
-  .tag-side-active {
+  .pill-active {
     font-size: var(--fs-m);
   }
 
-  .tag-side-active a.clear-btn {
+  .pill-active span,
+  .pill-active-query span {
+    max-width: 6ch;
+  }
+
+  .pill-active a.clear-btn {
     width: 24px;
     height: 24px;
   }

@@ -93,7 +93,7 @@
   box-shadow: var(--shadow-medium);
 }
 
-.tag-side-active {
+.pill-active {
   background-color: var(--accent-hover);
   border: 1px solid var(--accent-hover);
   border-color: var(--accent-hover);
@@ -109,6 +109,24 @@
   max-width: 200px;
 }
 
+.pill-active span {
+  white-space: nowrap;
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pill-active-query {
+  background-color: var(--error);
+  border-color: var(--error);
+  color: var(--text-on-accent);
+}
+
+.pill-active-letter {
+  background-color: var(--accent-light);
+  border-color: var(--accent-light);
+}
+
 .tag-text {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -118,11 +136,11 @@
   font-weight: 500;
 }
 
-.tag-side-active svg {
+.pill-active svg {
   flex-shrink: 0;
 }
 
-.tag-side-active a.clear-btn {
+.pill-active a.clear-btn {
   flex-shrink: 0;
   opacity: 0.48;
   width: 16px;
@@ -130,7 +148,7 @@
   color: var(--header-bg);
 }
 
-.tag-side-active a.clear-btn:hover {
+.pill-active a.clear-btn:hover {
   opacity: 0.8;
   color: var(--header-bg);
 }
@@ -176,6 +194,12 @@
   transition: background-color 0.2s ease;
   display: flex;
   align-items: center;
+}
+
+.bookmark-autocmp-item {
+  align-items: flex-start;
+  padding: var(--space-s) var(--space-m);
+  gap: var(--space-s);
 }
 
 .tag-autocmp-item:last-child,
@@ -248,13 +272,8 @@
 }
 
 /* -- Bookmark Item Styles -- */
-/* FIX: not implemented yet */
-.bookmark-autocmp-item {
-  align-items: flex-start;
-  padding: var(--space-s) var(--space-m);
-  gap: var(--space-s);
-}
 
+/* FIX: not implemented yet */
 .bookmark-cmp-icon {
   flex-shrink: 0;
   margin-top: 2px; /* Slight offset to align with text */

@@ -23,7 +23,7 @@
   <!-- Query Search -->
   {{ if .Params.Query }}
   <span class="pill-active pill-active-query">
-    {{ template "svg-search" }}{{ .Params.Query }}
+    {{ template "svg-search" }}<span>{{ .Params.Query }}</span>
     <a href="{{ $.URL.ClearQuery }}"
        class="clear-btn"
        title="Clear tag filter">{{ template "svg-btn-circle-x" }}</a>

@@ -66,7 +66,6 @@
 .modal-detail-content {
   overflow-x: auto;
   overflow-wrap: break-word;
-  word-break: break-word;
 }
 
 .modal-tags-container {
@@ -250,6 +249,16 @@
   transition: width 0.3s ease;
 }
 
+.link-container a {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 500;
+  padding: var(--space-s) var(--space-xl);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--radius-xs);
+  transition: all 0.3s ease;
+}
+
 .bookmark-detail-content a:hover {
   font-weight: 500;
 }
@@ -349,6 +358,24 @@
 }
 
 .meta-label svg {
+  width: 18px;
+  height: 18px;
+}
+
+.link-container svg {
+  width: 24px;
+  height: 24px;
+}
+
+.option-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentcolor;
+  stroke-width: 1;
+  fill: currentcolor;
+}
+
+.accordion-title svg {
   width: 18px;
   height: 18px;
 }
@@ -528,6 +555,14 @@
   pointer-events: none;
 }
 
+kbd {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xxs);
+  padding: var(--space-xxs) var(--space-xs);
+  font-size: var(--fs-s);
+}
+
 .input-float-keybind kbd {
   font-size: var(--fs-s);
   padding: var(--space-xxs);
@@ -633,25 +668,10 @@ textarea.textarea-auto {
   transition: all 0.2s ease;
 }
 
-.link-container a {
-  color: var(--link);
-  text-decoration: none;
-  font-weight: 500;
-  padding: var(--space-s) var(--space-xl);
-  border: 1px solid var(--btn-border);
-  border-radius: var(--radius-xs);
-  transition: all 0.3s ease;
-}
-
 .link-container a:hover {
   background-color: var(--border);
   color: var(--link-hover);
   box-shadow: var(--shadow-medium);
-}
-
-.link-container svg {
-  width: 24px;
-  height: 24px;
 }
 
 /* -- Repo Info -- */
@@ -984,14 +1004,6 @@ textarea.textarea-auto {
   transition: all 0.3s ease;
 }
 
-.option-icon svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentcolor;
-  stroke-width: 1;
-  fill: currentcolor;
-}
-
 .import-option.selected .option-icon {
   background: var(--bg-card);
 }
@@ -1132,14 +1144,6 @@ textarea.textarea-auto {
 }
 
 /* -- Modal Help -- */
-kbd {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xxs);
-  padding: var(--space-xxs) var(--space-xs);
-  font-size: var(--fs-s);
-}
-
 .category-container {
   margin-bottom: var(--space-m);
 }
@@ -1513,14 +1517,10 @@ input:checked + .slider::before {
   gap: var(--space-xxs);
 }
 
-.accordion-title svg {
-  width: 18px;
-  height: 18px;
-}
-
 .accordion-toggle {
   border: none;
   background: none;
+  color: var(--text-muted);
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;

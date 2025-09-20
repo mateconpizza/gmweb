@@ -32,6 +32,12 @@
   display: none;
 }
 
+.compact .bookmark-card {
+  padding: var(--space-xs) var(--space-s);
+  margin-bottom: var(--space-xxs);
+  gap: var(--space-xxs);
+}
+
 .bookmark-card:has(.dropdown-menu.visible) {
   z-index: 10;
 }
@@ -97,7 +103,7 @@
   width: 16px;
   height: 16px;
   margin-top: -8px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--bg-card);
   border-top-color: var(--border);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -266,8 +272,8 @@
 }
 
 .btn-dots-menu svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   display: block;
 }
 
@@ -407,11 +413,6 @@
 }
 
 /* -- Compact Mode -- */
-.compact .bookmark-card {
-  padding: var(--space-xs) var(--space-s);
-  margin-bottom: var(--space-xxs);
-  gap: var(--space-xxs);
-}
 
 /* Compact URL section */
 .compact .bookmark-url {

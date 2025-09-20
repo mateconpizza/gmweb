@@ -191,6 +191,8 @@ header {
 
 /* -- Footer -- */
 footer {
+  display: flex;
+  justify-content: center;
   text-align: center;
   color: var(--text-muted);
   font-size: var(--fs-s);
@@ -263,8 +265,8 @@ sup.new {
 }
 
 .go-gopher-icon {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
 }
 
 .repo-current-from {

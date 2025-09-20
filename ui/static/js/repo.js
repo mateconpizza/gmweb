@@ -9,6 +9,10 @@ import utils from "./utils/utils.js";
 
 const KEYBINDS = config.keyboard.keybinds;
 
+/**
+ * Retrieves the current web path segment or returns the default database name.
+ * @returns {string} The current path segment or the default database name.
+ */
 function getCurrent() {
   const match = window.location.pathname.match(/\/web\/([^/]+)/);
   return match ? match[1] : config.dbName;

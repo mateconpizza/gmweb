@@ -22,6 +22,8 @@
   align-items: center;
   bottom: calc(var(--space-m) + 50px + 24px);
   padding: var(--space-xxs) var(--space-s);
+  margin-bottom: var(--space-m);
+  gap: var(--space-xxs);
 }
 
 .floating-nav:hover,
@@ -108,6 +110,10 @@ body:has(.modal.show) .nav-state {
 
 .nav-btn.btn-favorite-nav:hover .nav-icon {
   color: var(--favorite);
+}
+
+.nav-btn.btn-tag-nav:hover .nav-icon {
+  color: var(--accent-hover);
 }
 
 /* Active state */
