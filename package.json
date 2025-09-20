@@ -1,0 +1,43 @@
+{
+  "name": "gmweb",
+  "version": "0.1.0",
+  "description": "Simple yet powerful bookmark manager for your webbrowser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mateconpizza/gm-web.git"
+  },
+  "keywords": [
+    "golang",
+    "awesome",
+    "bookmarks",
+    "cli",
+    "manager"
+  ],
+  "author": "mateconpizza",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mateconpizza/gm-web/issues"
+  },
+  "homepage": "https://github.com/mateconpizza/gm-web#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "djlint": "^1.36.4",
+    "eslint": "^9.32.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsdoc": "^53.0.1",
+    "globals": "^16.3.0",
+    "stylelint": "^16.23.1",
+    "stylelint-config-standard-scss": "^15.0.1",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.42.0"
+  },
+  "prettier": {
+    "printWidth": 120
+  }
+}

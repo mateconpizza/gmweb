@@ -19,3 +19,24 @@ repos:
       - id: go-unit-tests
       - id: go-mod-tidy
       - id: no-go-testing
+  - repo: local
+    hooks:
+      - id: eslint_d
+        name: eslint_d
+        entry: eslint_d
+        language: system
+        files: \.(js|mjs|cjs)$
+        pass_filenames: true
+      - id: stylelint
+        name: stylelint
+        entry: npx stylelint
+        language: system
+        files: \.(css|scss)$
+        pass_filenames: true
+      - id: djlint
+        name: djlint
+        entry: djlint
+        language: system
+        files: \.(gohtml)$
+        args: ["--ignore=H006,H013,H020"]
+        pass_filenames: true
