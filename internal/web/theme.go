@@ -28,6 +28,11 @@ type ColorScheme struct {
 	Fg string `json:"fg"`
 }
 
+type AppColorscheme struct {
+	Default string
+	List    []string
+}
+
 func getCurrentTheme(content []byte, name string) (*ThemeConfig, error) {
 	var themes []ThemeConfig
 	err := json.Unmarshal(content, &themes)
@@ -43,7 +48,7 @@ func getCurrentTheme(content []byte, name string) (*ThemeConfig, error) {
 
 	theme, ok := themeMap[name]
 	if !ok {
-		defaultTheme := files.StripSuffixes(ui.DefaultColorsCSS)
+		defaultTheme := files.StripSuffixes(ui.DefaultColorschemeFile)
 		slog.Error("theme not found", "theme", name, "default", defaultTheme)
 		theme = themeMap[defaultTheme]
 	}
@@ -52,7 +57,7 @@ func getCurrentTheme(content []byte, name string) (*ThemeConfig, error) {
 }
 
 func getColorschemesNames(staticFiles *embed.FS) ([]string, error) {
-	entries, err := staticFiles.ReadDir(ui.ColorSchemes)
+	entries, err := staticFiles.ReadDir(ui.ColorschemesPath)
 	if err != nil {
 		return nil, err
 	}

@@ -11,15 +11,15 @@ import (
 var Files embed.FS
 
 const (
-	CacheFavicon     string = "/cache/favicon/"               // Path to read favicons
-	ColorSchemes     string = "static/css/colorshemes"        // Path to colorschemes files
-	DefaultColorsCSS string = "default-colors.css"            // Default colors
-	TemplateGlob     string = "templates/**/*.gohtml"         // Template files
-	ColorSchemesJSON string = "static/json/colorschemes.json" // File used to generate QRCode
+	FaviconCachePath       string = "/cache/favicon/"               // Path to read favicons
+	ColorschemesPath       string = "static/css/colorshemes"        // Path to colorschemes files
+	DefaultColorschemeFile string = "default-colors.css"            // Default colors
+	TemplatePattern        string = "templates/**/*.gohtml"         // Template files
+	ColorSchemesDataFile   string = "static/json/colorschemes.json" // File used to generate QRCode
 )
 
 func SupportedColorschemes() []string {
-	entries, err := Files.ReadDir(ColorSchemes)
+	entries, err := Files.ReadDir(ColorschemesPath)
 	if err != nil {
 		return []string{}
 	}

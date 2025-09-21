@@ -101,7 +101,7 @@ func (c *cookieType) userPref(r *http.Request) *CookieState {
 		Name: cookie.getWithValidation(
 			r,
 			cookie.jar.themeCurrent,
-			ui.DefaultColorsCSS,
+			ui.DefaultColorschemeFile,
 			ui.IsValidColorscheme,
 		),
 		Mode: cookie.getWithValidation(

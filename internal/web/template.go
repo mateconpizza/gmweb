@@ -47,7 +47,7 @@ type TemplateData struct {
 	CurrentYear int
 
 	// Theme
-	Colorschemes []string
+	Colorscheme *AppColorscheme
 
 	// Cookies
 	Cookie *CookieState
@@ -170,6 +170,9 @@ func buildIndexTemplateData(ctx *TemplateContext) *TemplateData {
 		URL:         buildURLs(p, r),
 		Cookie:      cookie.userPref(r),
 		KeybindTip:  keybind,
+		Colorscheme: &AppColorscheme{
+			Default: ui.DefaultColorschemeFile,
+		},
 	}
 }
 
@@ -197,5 +200,5 @@ func createMainTemplate(f *embed.FS) (*template.Template, error) {
 		return template.New("pages/base").Funcs(templateFuncs).ParseGlob("ui/templates/**/*.gohtml")
 	}
 	// Production: use embedded files
-	return template.New("pages/base").Funcs(templateFuncs).ParseFS(f, ui.TemplateGlob)
+	return template.New("pages/base").Funcs(templateFuncs).ParseFS(f, ui.TemplatePattern)
 }
