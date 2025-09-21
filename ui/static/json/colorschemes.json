@@ -1,0 +1,101 @@
+[
+  {
+    "name": "default-colors",
+    "light": {
+      "bg": "#ffffff",
+      "fg": "#374151"
+    },
+    "dark": {
+      "bg": "#111827",
+      "fg": "#f9fafb"
+    }
+  },
+  {
+    "name": "catppuccin",
+    "light": {
+      "bg": "#eff1f5",
+      "fg": "#4c4f69"
+    },
+    "dark": {
+      "bg": "#1e1e2e",
+      "fg": "#cdd6f4"
+    }
+  },
+  {
+    "name": "gruvbox-material",
+    "light": {
+      "bg": "#fbf1c7",
+      "fg": "#3c3836"
+    },
+    "dark": {
+      "bg": "#282828",
+      "fg": "#ebdbb2"
+    }
+  },
+  {
+    "name": "gruvbox-medium",
+    "light": {
+      "bg": "#fbf1c7",
+      "fg": "#3c3836"
+    },
+    "dark": {
+      "bg": "#1d2021",
+      "fg": "#ebdbb2"
+    }
+  },
+  {
+    "name": "monochrome",
+    "light": {
+      "bg": "#ffffff",
+      "fg": "#212121"
+    },
+    "dark": {
+      "bg": "#121212",
+      "fg": "#e0e0e0"
+    }
+  },
+  {
+    "name": "onedark",
+    "light": {
+      "bg": "#fafafa",
+      "fg": "#383a42"
+    },
+    "dark": {
+      "bg": "#282c34",
+      "fg": "#abb2bf"
+    }
+  },
+  {
+    "name": "papercolor",
+    "light": {
+      "bg": "#eeeeee",
+      "fg": "#4e4e4e"
+    },
+    "dark": {
+      "bg": "#1c1c1c",
+      "fg": "#d0d0d0"
+    }
+  },
+  {
+    "name": "tokyonight",
+    "light": {
+      "bg": "#e1e2e7",
+      "fg": "#3760bf"
+    },
+    "dark": {
+      "bg": "#1a1b26",
+      "fg": "#c0caf5"
+    }
+  },
+  {
+    "name": "solarized",
+    "light": {
+      "bg": "#fdf6e3",
+      "fg": "#657b83"
+    },
+    "dark": {
+      "bg": "#002b36",
+      "fg": "#839496"
+    }
+  }
+]
