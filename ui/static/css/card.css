@@ -198,6 +198,7 @@
   display: block;
   cursor: pointer;
   font-size: var(--fs-s);
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* -- Footer -- */
@@ -208,6 +209,55 @@
   font-size: var(--fs-xs);
   color: var(--text-secondary);
   margin-top: var(--space-xxs);
+}
+
+.bookmark-card-footer svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-secondary);
+}
+
+.bookmark-card-coso {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-xxs);
+  gap: var(--space-m);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bookmark-card-coso svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-muted);
+}
+
+.stat-item svg {
+  stroke: var(--text-secondary);
+}
+
+.bookmark-card-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xxs);
+}
+
+.bookmark-card-btn:active {
+  color: var(--accent);
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+.bookmark-card-btn[data-action="delete"].confirm-state {
+  background-color: var(--btn-error-bg-light);
+  color: var(--error-dark);
+  border-radius: var(--radius-xxs);
+  transition: all 0.3s ease;
+  animation: pulse-red 1s infinite alternate;
 }
 
 .bookmark-tags {
@@ -242,10 +292,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.stat-item svg {
-  stroke: var(--text-secondary);
 }
 
 .stat-value {
@@ -283,6 +329,10 @@
   height: 16px;
 }
 
+.bookmark-card-coso svg:hover {
+  transform: scale(1.1);
+}
+
 .bookmark-detail-fav-btn:hover svg {
   stroke: var(--favorite);
   transform: scale(1.1);
@@ -292,6 +342,26 @@
   fill: var(--favorite);
   stroke: var(--favorite);
   transform: scale(1.1);
+}
+
+.compact .btn-dots-menu svg {
+  width: 14px;
+  height: 14px;
+}
+
+.compact .bookmark-card-footer-actions svg {
+  width: 14px;
+  height: 14px;
+}
+
+.compact .bookmark-detail-fav-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.bookmark-card-btn:not([data-action="delete"]):active svg {
+  stroke: var(--accent);
+  fill: var(--accent);
 }
 
 .bookmark-detail-fav-btn {
@@ -426,7 +496,7 @@
 }
 
 .compact .bookmark-url a {
-  font-size: var(--h3);
+  font-size: var(--fs-m);
   font-weight: 500;
   margin-right: var(--space-m);
 }
@@ -441,8 +511,8 @@
 
 /* Compact tags */
 .compact .tag-side {
-  font-size: var(--fs-xs);
-  padding: var(--space-xxxs) var(--space-xxs);
+  font-size: var(--fs-s);
+  padding: var(--space-xxs) var(--space-xs);
   margin-right: var(--space-xxs);
 }
 
@@ -455,7 +525,7 @@
 .compact .bookmark-tags {
   display: flex;
   flex-wrap: wrap;
-  font-size: var(--fs-xxs);
+  font-size: var(--fs-s);
   margin-bottom: var(--space-xxs);
 }
 
@@ -483,29 +553,16 @@
   gap: var(--space-xxs);
 }
 
-.compact .bookmark-card-footer-actions svg {
-  width: 14px;
-  height: 14px;
-}
-
 .compact .bookmark-detail-fav-btn {
-  top: var(--space-xxs);
-}
-
-.compact .bookmark-detail-fav-btn svg {
-  width: 16px;
-  height: 16px;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
 }
 
 /* Compact dropdown menu positioning */
 .compact .btn-dots-menu-container {
   top: var(--space-xxs);
   right: var(--space-xxs);
-}
-
-.compact .btn-dots-menu svg {
-  width: 14px;
-  height: 14px;
 }
 
 .compact .bookmark-card:hover {
@@ -526,18 +583,5 @@
   .compact .btn-dots-menu svg {
     width: 18px;
     height: 18px;
-  }
-}
-
-@media (width >= 767px) {
-  .btn-dots-menu-container {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease-in-out;
-  }
-
-  .bookmark-card:hover .btn-dots-menu-container {
-    opacity: 1;
-    pointer-events: auto;
   }
 }

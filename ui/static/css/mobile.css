@@ -199,7 +199,7 @@
   }
 
   .bookmark-detail-fav-btn {
-    transform: translateY(var(--space-xxs));
+    transform: translateY(var(--space-xxxs));
   }
 
   #btn-sort-bookmark svg {

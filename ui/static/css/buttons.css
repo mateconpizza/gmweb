@@ -130,13 +130,12 @@
   transform: translateY(-1px);
 }
 
-/* Styles for the "Confirm" state */
 .btn-remove.confirm-state {
   background-color: var(--error-dark);
   color: var(--error-dark-confirm);
   border-color: var(--error-dark);
   font-weight: bold;
-  animation: pulse-red 0.5s infinite alternate;
+  animation: pulse-red 1s infinite alternate;
 }
 
 @keyframes pulse-red {
@@ -159,11 +158,6 @@
   background-color: var(--bg-input);
   color: var(--text);
   border: 2px solid var(--border);
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  white-space: nowrap;
 }
 
 .btn-cancel:hover {
@@ -233,7 +227,8 @@
   background-color: var(--error-dark);
   color: var(--error-dark-confirm);
   font-weight: bold;
-  animation: pulse-red 0.5s infinite alternate;
+  transition: all 0.3s ease;
+  animation: pulse-red 1s infinite alternate;
 }
 
 .btn-repo-remove.confirm-state:hover {

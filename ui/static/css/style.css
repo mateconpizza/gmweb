@@ -47,9 +47,24 @@ header {
 
 .header-top-row {
   display: flex;
+  justify-content: center;
   align-items: center;
   width: 100%;
   gap: var(--space-m);
+}
+
+.pills-container .pill-active-query {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.pills-container .pill-active span {
+  max-width: 8ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .search-container {
@@ -325,13 +340,22 @@ sup.new {
 .bookmark-list-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: var(--space-xxxs);
+  gap: var(--space-m);
+}
+
+.pills-container {
+  display: flex; /* Makes the pills inside a flex container */
+  gap: var(--space-xs); /* Adds space between individual pills */
+  justify-content: center; /* Centers the pills horizontally */
+  flex-grow: 1; /* Allows the pills container to take up available space */
 }
 
 .sort-menu-container {
   position: relative;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .dropdown-sort-menu {

@@ -8,7 +8,7 @@
   {{ range $i, $tag := $tags }}
   {{ if eq $tag $.Params.Tag }}
   <span class="pill-active">
-    {{ $tag }}
+    <span>{{ $tag }}</span>
     <a href="{{ $.URL.ClearTag }}"
        class="clear-btn"
        title="Clear tag filter">

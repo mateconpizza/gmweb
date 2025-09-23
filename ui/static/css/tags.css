@@ -12,6 +12,7 @@
   padding: 1em;
   margin-bottom: 1em;
   color: var(--text);
+  overflow-y: auto;
 }
 
 .tag-sidebar .tag-group {
@@ -123,8 +124,9 @@
 }
 
 .pill-active-letter {
-  background-color: var(--accent-light);
-  border-color: var(--accent-light);
+  background-color: var(--active-item);
+  border-color: var(--active-item);
+  color: var(--text);
 }
 
 .tag-text {
@@ -272,11 +274,9 @@
 }
 
 /* -- Bookmark Item Styles -- */
-
-/* FIX: not implemented yet */
 .bookmark-cmp-icon {
   flex-shrink: 0;
-  margin-top: 2px; /* Slight offset to align with text */
+  margin-top: var(--space-xxxs);
 }
 
 .bookmark-cmp-icon svg {
@@ -291,7 +291,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-xxxs);
 }
 
 .bookmark-cmp-title {
@@ -338,8 +338,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px; /* Spacing between elements within the same group. */
-  margin-bottom: 12px; /* Spacing between different tag groups. */
+  gap: var(--space-xs);
+  margin-bottom: var(--space-s);
 }
 
 .modal-tags-letter {

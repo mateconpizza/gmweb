@@ -183,3 +183,9 @@ body:has(.modal.show) .nav-state {
     display: none;
   }
 }
+
+@media (width <= 480px) {
+  .pills-container {
+    display: none;
+  }
+}

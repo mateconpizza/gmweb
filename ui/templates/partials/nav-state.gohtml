@@ -1,34 +1,6 @@
 {{ define "nav-state" }}
 <!-- Current selection -->
 {{ if or .Params.Tag .Params.Query .Params.Letter }}
-<div class="floating-base nav-state">
-  <!-- Letter -->
-  {{ if .Params.Letter }}
-  <span class="pill-active pill-active-letter">
-    {{ template "svg-book" }}<span>{{ .Params.Letter }}</span>
-    <a href="{{ $.URL.ClearLetter }}"
-       class="clear-btn"
-       title="Clear tag filter">{{ template "svg-btn-circle-x" }}</a>
-  </span>
-  {{ end }}
-  <!-- Tags -->
-  {{ if .Params.Tag }}
-  <span class="pill-active">
-    {{ template "svg-tag" }}<span>{{ .Params.Tag }}</span>
-    <a href="{{ $.URL.ClearTag }}"
-       class="clear-btn"
-       title="Clear tag filter">{{ template "svg-btn-circle-x" }}</a>
-  </span>
-  {{ end }}
-  <!-- Query Search -->
-  {{ if .Params.Query }}
-  <span class="pill-active pill-active-query">
-    {{ template "svg-search" }}<span>{{ .Params.Query }}</span>
-    <a href="{{ $.URL.ClearQuery }}"
-       class="clear-btn"
-       title="Clear tag filter">{{ template "svg-btn-circle-x" }}</a>
-  </span>
-  {{ end }}
-</div>
+<div class="floating-base nav-state">{{ template "pills" . }}</div>
 {{ end }}
 {{ end }}
