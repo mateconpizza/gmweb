@@ -1,5 +1,3 @@
-/* CSS Variables for Light|Dark Mode */
-
 :root {
   /* Light theme colors */
 
@@ -8,21 +6,25 @@
   --bg-alt: #f3f4f6;
   --bg-hover: #e5e7eb;
   --bg-card: #fff;
-  --text: #374151;
-  --text-secondary: #6b7280;
-  --text-muted: #6c757d;
-  --text-light: #4a5568;
   --border: #d1d5db;
+
+  /* Text Colors */
+  --text: #374151;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+
+  /* Utility */
   --edit: #cbd5e0;
   --favorite: #f6ad55;
   --active-item: #b2f5ea;
 
   /* Accent Colors */
-  --accent: #495057;
-  --accent-light: #bbdefb;
-  --accent-hover: #5a67d8;
-  --text-on-accent: #fff;
+  --accent: #5a67d8;
+  --accent-light: #c3dafe;
+  --accent-hover: #434190;
   --current-db: #5a67d8;
+  --text-on-accent: #fff;
 
   /* Action Colors */
   --link: #5a67d8;
@@ -42,29 +44,29 @@
   --modal-overlay: rgb(0 0 0 / 50%);
 
   /* Shadows */
-  --shadow-input: 0 8px 32px rgb(0 0 0 / 10%);
-  --shadow-light: 0 2px 4px rgb(0 0 0 / 5%);
-  --shadow-medium: 0 4px 20px rgb(0 0 0 / 5%);
-  --shadow-strong: 0 8px 30px rgb(0 0 0 / 10%);
-  --shadow-dropdown: 0 4px 10px rgb(0 0 0 / 10%);
+  --shadow-input: 0 8px 32px rgb(0 0 0 / 12%);
+  --shadow-light: 0 2px 4px rgb(0 0 0 / 6%);
+  --shadow-medium: 0 4px 20px rgb(0 0 0 / 10%);
+  --shadow-strong: 0 8px 30px rgb(0 0 0 / 15%);
+  --shadow-dropdown: 0 4px 10px rgb(0 0 0 / 12%);
   --shadow-autocomplete: 0 4px 6px rgb(0 0 0 / 10%);
   --shadow-modal: 0 20px 40px rgb(0 0 0 / 20%);
 
   /* Button Shadows */
-  --btn-success-shadow: 0 6px 12px rgb(56 161 105 / 30%);
-  --btn-success-shadow-hover: 0 8px 16px rgb(56 161 105 / 40%);
-  --btn-success-shadow-active: 0 4px 8px rgb(56 161 105 / 20%);
-  --btn-error-shadow: 0 6px 12px rgb(220 53 69 / 30%);
-  --btn-error-shadow-hover: 0 8px 16px rgb(220 53 69 / 40%);
-  --btn-error-shadow-active: 0 4px 8px rgb(220 53 69 / 20%);
+  --btn-success-shadow: 0 6px 12px rgb(56 161 105 / 25%);
+  --btn-success-shadow-hover: 0 8px 16px rgb(56 161 105 / 35%);
+  --btn-success-shadow-active: 0 4px 8px rgb(56 161 105 / 18%);
+  --btn-error-shadow: 0 6px 12px rgb(220 53 69 / 25%);
+  --btn-error-shadow-hover: 0 8px 16px rgb(220 53 69 / 35%);
+  --btn-error-shadow-active: 0 4px 8px rgb(220 53 69 / 18%);
 
   /* Button Backgrounds with Transparency */
-  --btn-error-bg-light: rgb(220 53 69 / 10%);
-  --btn-accent-bg-light: rgb(90 103 216 / 10%);
-  --btn-favorite-bg-light: rgb(246 173 85 / 10%);
+  --btn-error-bg-light: rgb(220 53 69 / 12%);
+  --btn-accent-bg-light: rgb(90 103 216 / 12%);
+  --btn-favorite-bg-light: rgb(246 173 85 / 12%);
 
   /* Gradient Colors */
-  --gradient-start: rgb(220 53 69 / 40%);
+  --gradient-start: rgb(220 53 69 / 35%);
   --gradient-end: rgb(220 53 69 / 0%);
 }
 
@@ -76,25 +78,29 @@
   --bg-alt: #1f2937;
   --bg-hover: #374151;
   --bg-card: #1f2937;
+  --border: #4b5563;
+
+  /* Text Colors */
   --text: #f9fafb;
   --text-secondary: #d1d5db;
   --text-muted: #9ca3af;
-  --text-light: #d1d5db;
-  --border: #4b5563;
+  --text-light: #6b7280;
+
+  /* Utility */
   --edit: #6b7280;
   --favorite: #f6ad55;
   --active-item: #34d399;
 
   /* Accent Colors */
-  --accent: #4b5563;
-  --accent-light: #67e8f9;
-  --accent-hover: #93c5fd;
-  --text-on-accent: #f9fafb;
+  --accent: #93c5fd;
+  --accent-light: #bfdbfe;
+  --accent-hover: #60a5fa;
   --current-db: #a78bfa;
+  --text-on-accent: #f9fafb;
 
   /* Action Colors */
   --link: #93c5fd;
-  --link-hover: #bfdbfe;
+  --link-hover: #60a5fa;
   --success: #10b981;
   --success-dark: #059669;
   --success-darker: #047857;
@@ -110,24 +116,24 @@
   --modal-overlay: rgb(0 0 0 / 70%);
 
   /* Shadows */
-  --shadow-input: 0 8px 32px rgb(0 0 0 / 30%);
-  --shadow-light: 0 2px 4px rgb(0 0 0 / 20%);
-  --shadow-medium: 0 4px 20px rgb(0 0 0 / 20%);
-  --shadow-strong: 0 8px 30px rgb(0 0 0 / 40%);
-  --shadow-dropdown: 0 4px 10px rgb(0 0 0 / 30%);
-  --shadow-autocomplete: 0 4px 6px rgb(0 0 0 / 30%);
-  --shadow-modal: 0 20px 40px rgb(0 0 0 / 40%);
+  --shadow-input: 0 8px 32px rgb(0 0 0 / 28%);
+  --shadow-light: 0 2px 4px rgb(0 0 0 / 18%);
+  --shadow-medium: 0 4px 20px rgb(0 0 0 / 22%);
+  --shadow-strong: 0 8px 30px rgb(0 0 0 / 35%);
+  --shadow-dropdown: 0 4px 10px rgb(0 0 0 / 28%);
+  --shadow-autocomplete: 0 4px 6px rgb(0 0 0 / 22%);
+  --shadow-modal: 0 20px 40px rgb(0 0 0 / 38%);
 
   /* Button Shadows */
-  --btn-success-shadow: 0 6px 12px rgb(16 185 129 / 30%);
-  --btn-success-shadow-hover: 0 8px 16px rgb(16 185 129 / 40%);
-  --btn-success-shadow-active: 0 4px 8px rgb(16 185 129 / 20%);
-  --btn-error-shadow: 0 6px 12px rgb(239 68 68 / 30%);
-  --btn-error-shadow-hover: 0 8px 16px rgb(239 68 68 / 40%);
-  --btn-error-shadow-active: 0 4px 8px rgb(239 68 68 / 20%);
+  --btn-success-shadow: 0 6px 12px rgb(16 185 129 / 25%);
+  --btn-success-shadow-hover: 0 8px 16px rgb(16 185 129 / 35%);
+  --btn-success-shadow-active: 0 4px 8px rgb(16 185 129 / 18%);
+  --btn-error-shadow: 0 6px 12px rgb(239 68 68 / 25%);
+  --btn-error-shadow-hover: 0 8px 16px rgb(239 68 68 / 35%);
+  --btn-error-shadow-active: 0 4px 8px rgb(239 68 68 / 18%);
 
   /* Button Backgrounds with Transparency */
-  --btn-error-bg-light: rgb(220 53 69 / 10%);
+  --btn-error-bg-light: rgb(220 53 69 / 12%);
   --btn-accent-bg-light: rgb(147 197 253 / 15%);
   --btn-favorite-bg-light: rgb(114 236 126 / 15%);
 }
