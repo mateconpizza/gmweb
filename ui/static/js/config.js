@@ -58,6 +58,7 @@ const config = {
         themeToggle: { key: "T", description: "Toggle dark/light mode", done: true },
         reload: { key: "R", description: "Reload page", done: true },
         escape: { key: "Escape", description: "Close modal", done: true },
+        escapeAlt: { shortcut: "Ctrl-[", key: "[", description: "Close modal", done: true },
         close: { key: "q", description: "Close modal", done: true },
         sort: { key: "s", description: "sort menu" },
       },

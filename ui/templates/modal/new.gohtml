@@ -5,7 +5,7 @@
       {{ template "btn-close" }}
       <img id="img-bookmark-favicon"
            class="label-url-favicon"
-           src="/static/img/favicon-star.png"
+           src="{{ .Routes.Favicon }}"
            alt="favicon" />
       <div>
         <span class="bookmark-detail-title">New Bookmark</span>
@@ -13,10 +13,10 @@
       </div>
     </div>
     <form id="form-new-bookmark" class="form">
-      <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
       <div class="form-group">
         <div class="input-wrapper">
           <input type="text"
+                 name="url"
                  inputmode="url"
                  id="input-bookmark-url"
                  name="url"

@@ -47,55 +47,54 @@
         <div class="header">
           <div class="header-top-row">
             {{ template "search-bar" . }}
-            <div class="action-buttons">
-              {{ template "btn-bookmark-new" . }}
+            <div class="pills-container">{{ template "pills" . }}</div>
+            <div class="action-buttons">{{ template "btn-bookmark-new" . }}</div>
+            {{ template "btn-side-menu" }}
           </div>
-          {{ template "btn-side-menu" }}
         </div>
-      </div>
-    </header>
-    {{ if not .Bookmarks }}
-    {{ if and (not .Bookmarks) (not .Params.Tag) (not .Params.Query) (not .Params.FilterBy) }}
-    <!-- Show create new bookmark btn -->
-    {{ template "btn-bookmark-new-large" . }}
-    {{ end }}
-    <p class="no-bookmark-found">
-      No bookmarks found
-      {{ if .Params.Tag }}
-      for this tag: <span class="highlight">{{ .Params.Tag }}</span>
-      {{ else if .Params.Query }}
-      matching search query: <span class="highlight">'{{ .Params.Query }}'</span>
-      {{ else if .Params.FilterBy }}
-      matching filter <span class="highlight">'{{ .Params.FilterBy }}'</span>
-    {{ else }}
-      in <span class="repo-current-from"  id="current-repo-info">{{ .Params.CurrentDB }}</span>
+      </header>
+      {{ if not .Bookmarks }}
+      {{ if and (not .Bookmarks) (not .Params.Tag) (not .Params.Query) (not .Params.FilterBy) }}
+      <!-- Show create new bookmark btn -->
+      {{ template "btn-bookmark-new-large" . }}
       {{ end }}
-    </p>
-  {{ else }}
-    <div class="main-content-wrapper">
-      <aside class="tag-sidebar">
-        {{ template "tagside" . }}
-      </aside>
-      <main id="bookmarkListId" class="bookmark-list">
-        {{ template "bookmarks-list" . }}
-        {{ template "pagination" . }}
-      </main>
-    </div>
-    {{ end }}
-    <footer>
-      <p>
-        © {{ .CurrentYear }}
-        <a href="{{ .App.Info.URL }}" target="_blank">{{ .App.Name }}</a>.
-        Powered by
-        <a href="https://golang.org/" target="_blank">
-          <img class="go-gopher-icon"
-               src="/static/img/favicon-gopher.png"
-               alt="Go gopher" />
-          Golang
-        </a>
+      <p class="no-bookmark-found">
+        No bookmarks found
+        {{ if .Params.Tag }}
+        for this tag: <span class="highlight">{{ .Params.Tag }}</span>
+        {{ else if .Params.Query }}
+        matching search query: <span class="highlight">'{{ .Params.Query }}'</span>
+        {{ else if .Params.FilterBy }}
+        matching filter <span class="highlight">'{{ .Params.FilterBy }}'</span>
+      {{ else }}
+        in <span class="repo-current-from"  id="current-repo-info">{{ .Params.CurrentDB }}</span>
+        {{ end }}
       </p>
-    </footer>
-  </div>
-</body>
+    {{ else }}
+      <div class="main-content-wrapper">
+        <aside class="tag-sidebar">
+          {{ template "tagside" . }}
+        </aside>
+        <main id="bookmarkListId" class="bookmark-list">
+          {{ template "bookmarks-list" . }}
+          {{ template "pagination" . }}
+        </main>
+      </div>
+      {{ end }}
+      <footer>
+        <p>
+          © {{ .CurrentYear }}
+          <a href="{{ .App.Info.URL }}" target="_blank">{{ .App.Name }}</a>.
+          Powered by
+          <a href="https://golang.org/" target="_blank">
+            <img class="go-gopher-icon"
+                 src="/static/img/favicon-gopher.png"
+                 alt="Go gopher" />
+            Golang
+          </a>
+        </p>
+      </footer>
+    </div>
+  </body>
 </html>
 {{ end }}

@@ -51,7 +51,7 @@ const BookmarkMgr = {
    * @param {string} id - The ID of the bookmark to delete.
    * @returns {Promise<void>}
    */
-  async handleDeleteClick(deleteBtn, id) {
+  async handleDeleteClickOnModal(deleteBtn, id) {
     const modal = deleteBtn.closest(".modal");
     const btnContainer = modal.querySelector("#btn-container-modal");
     const spinner = utils.createBtnSpinner(deleteBtn);

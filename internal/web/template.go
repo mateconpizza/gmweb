@@ -23,7 +23,10 @@ var (
 	ErrWrongHTMLFile = errors.New("file must be an HTML file")
 )
 
-var devMode bool
+var (
+	devMode     bool
+	compactMode bool
+)
 
 // TemplateData holds all data needed for template rendering.
 type TemplateData struct {
@@ -96,6 +99,8 @@ var templateFuncs = template.FuncMap{
 	"RelativeISOTime":   helpers.RelativeISOTime,
 	"sortCurrentDB":     helpers.SortCurrentDB,
 	"shortStr":          func(s string) string { return helpers.ShortStr(s, 80) },
+	"faviconPath":       func() string { return ui.DefaultFaviconPath },
+	"compactMode":       func() bool { return compactMode },
 	"isNew":             helpers.IsWithinLastWeek,
 	"stripSuffix":       files.StripSuffixes,
 	"now":               func() int64 { return time.Now().UnixNano() },
@@ -149,11 +154,12 @@ func buildIndexTemplateData(ctx *TemplateContext) *TemplateData {
 	r := ctx.Request
 	p := ctx.Params
 
-	vimMode := cookie.getBool(r, cookie.jar.vimMode, false)
+	c := cookie.userPref(r)
 	keybind := "Ctlr-k"
-	if vimMode {
+	if c.VimMode {
 		keybind = "/"
 	}
+	compactMode = c.CompactMode
 
 	return &TemplateData{
 		App:         ctx.App,
@@ -168,7 +174,7 @@ func buildIndexTemplateData(ctx *TemplateContext) *TemplateData {
 		CurrentURI:  r.RequestURI,
 		Routes:      ctx.Routes.SetRepo(p.CurrentDB).Web,
 		URL:         buildURLs(p, r),
-		Cookie:      cookie.userPref(r),
+		Cookie:      c,
 		KeybindTip:  keybind,
 		Colorscheme: &AppColorscheme{
 			Default: ui.DefaultColorschemeFile,

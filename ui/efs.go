@@ -16,6 +16,7 @@ const (
 	DefaultColorschemeFile string = "default-colors.css"            // Default colors
 	TemplatePattern        string = "templates/**/*.gohtml"         // Template files
 	ColorSchemesDataFile   string = "static/json/colorschemes.json" // File used to generate QRCode
+	DefaultFaviconPath     string = "/static/img/favicon-star.png"  // Path to default favicon
 )
 
 func SupportedColorschemes() []string {

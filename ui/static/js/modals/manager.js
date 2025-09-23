@@ -57,11 +57,12 @@ function setupModalCloseHandlers(modal, closeModalFn) {
 
   // Escape & Close key – global once
   if (!escapeListenerAttached) {
-    document.addEventListener("keydown", (event) => {
-      const isEscape = event.key === config.keyboard.keybinds.utility.escape.key;
-      const isClose = event.key === config.keyboard.keybinds.utility.close.key;
+    document.addEventListener("keydown", (e) => {
+      const isEscape = e.key === config.keyboard.keybinds.utility.escape.key;
+      const isClose = e.key === config.keyboard.keybinds.utility.close.key;
+      const isEscapeAlt = (e.ctrlKey || e.metaKey) && e.key === config.keyboard.keybinds.utility.escapeAlt.key;
 
-      if (isEscape || isClose) {
+      if (isEscape || isClose || isEscapeAlt) {
         const active = document.activeElement;
 
         if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {

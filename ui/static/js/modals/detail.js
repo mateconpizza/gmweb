@@ -20,11 +20,11 @@ const BookmarkDetail = {
   async handleClick(e) {
     const { target } = e;
     // Handle 'Detail modal'
-    if (target.matches(".bookmark-card-link, .bookmark-desc")) return this.open(target);
+    if (target.matches(".bookmark-card-link, .bookmark-desc")) return this.setup(target);
     // Handle accordion toggle
     if (target.closest(".accordion-header")) return this.handleAccordion(target);
-    // Handle buttons
-    if (target.closest("a[data-id]")) return this.buttonsHandler(target);
+    // Handle buttons (Edit, Delete)
+    if (target.closest("button[data-id]")) return this.buttonsHandler(target);
     // Handle 'Refresh' button (status)
     if (target.closest("#btn-status-refresh")) return await this.bookmarkStatus(target);
     // Handle fetch `Internet Archive` button
@@ -36,14 +36,18 @@ const BookmarkDetail = {
   },
 
   // --- Handlers ---
-  open(target) {
+  setup(target) {
     const bookmarkLink = target.closest(".bookmark-card-link");
     if (!bookmarkLink) {
       console.error("DetailEvent: Bookmark link not found");
       return;
     }
-    const id = bookmarkLink.getAttribute("data-id");
 
+    const id = bookmarkLink.getAttribute("data-id");
+    return this.open(id);
+  },
+
+  open(id) {
     // Main bookmark modal
     const modal = document.getElementById(`modal-detail-${id}`);
     const controller = Manager.register(modal);
@@ -96,7 +100,7 @@ const BookmarkDetail = {
   },
 
   buttonsHandler(target) {
-    const clickedButton = target.closest("a[data-id]");
+    const clickedButton = target.closest("button[data-id]");
     const id = clickedButton.dataset.id;
     const buttonId = clickedButton.id;
 
@@ -104,7 +108,7 @@ const BookmarkDetail = {
       case "btn-edit":
         return this.editBookmark(id);
       case "btn-delete":
-        return BookmarkMgr.handleDeleteClick(clickedButton, id);
+        return BookmarkMgr.handleDeleteClickOnModal(clickedButton, id);
     }
   },
 

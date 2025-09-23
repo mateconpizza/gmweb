@@ -2,7 +2,11 @@ package router
 
 // TODO: drop this...
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/mateconpizza/gmweb/ui"
+)
 
 // WebRouter handles web page routing.
 type WebRouter struct{ db string }
@@ -26,7 +30,7 @@ func (w *WebRouter) QRCode(id string) string { return w.bookmarksPath("/qr/" + i
 func (w *WebRouter) Import() string          { return w.bookmarksPath("/import") }
 func (w *WebRouter) Export() string          { return w.bookmarksPath("/export") }
 func (w *WebRouter) Settings() string        { return "/settings" }
-func (w *WebRouter) Favicon() string         { return "/static/img/favicon.png" }
+func (w *WebRouter) Favicon() string         { return ui.DefaultFaviconPath }
 func (w *WebRouter) bookmarksPath(path string) string {
 	return fmt.Sprintf("/web/%s/bookmarks%s", w.db, path)
 }

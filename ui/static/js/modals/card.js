@@ -3,6 +3,7 @@
 import BookmarkMgr from "../bookmark/bookmark.js";
 import config from "../config.js";
 import utils from "../utils/utils.js";
+import BookmarkDetail from "./detail.js";
 import Manager from "./manager.js";
 import QRCode from "./qrcode.js";
 
@@ -11,6 +12,14 @@ const closeAllMenus = () => {
   openMenus.forEach((menu) => {
     menu.classList.remove("visible");
   });
+};
+
+const ACTIONS = {
+  QRCODE: "qrcode",
+  COPY: "copy",
+  EDIT: "edition",
+  DELETE: "delete",
+  DETAIL: "detail",
 };
 
 const BookmarkCard = {
@@ -32,6 +41,8 @@ const BookmarkCard = {
     if (target.matches(".dropdown-card-opt")) return this.handleMenuOpt(target);
     // Handle `3dots` menu
     if (target.closest(".btn-dots-menu-container")) return this.toggleMenu(target);
+    // Handle `Icons` click in Compact mod
+    if (target.closest(".bookmark-card-coso")) return this.handleCompactCardBtns(target);
     // Handle `3dots` click outside menu
     if (!target.closest(".dropdown-menu") || !target.closest(".btn-dots-menu-container")) return closeAllMenus();
   },
@@ -59,6 +70,7 @@ const BookmarkCard = {
    * @param {HTMLElement} target The element that was clicked, expected to be a `.dropdown-option`.
    */
   handleMenuOpt(target) {
+    // FIX: merge with `handleCompactCardBtns`
     const action = target.getAttribute("data-action");
     const container = target.closest(".btn-dots-menu-container");
     const record = {
@@ -69,27 +81,25 @@ const BookmarkCard = {
     target.closest(".dropdown-menu").classList.remove("visible");
 
     switch (action) {
-      case "qrcode": {
+      case ACTIONS.QRCODE: {
         console.log("Showing QR code for bookmark ID:", record.id);
         QRCode.open(record.id);
         break;
       }
-      case "copy": {
+      case ACTIONS.COPY: {
         console.log("Copying URL to clipboard:", record.url);
         utils.clipboard.copy(record.url);
         break;
       }
-      case "edition": {
-        const modal = document.getElementById(`modal-edit-${record.id}`);
-        const controller = Manager.register(modal);
-        BookmarkMgr.Edit.setup(modal);
-        controller.open();
+      case ACTIONS.EDIT: {
+        this.openEditionModal(record.id);
         break;
       }
-      case "delete": {
+      case ACTIONS.DELETE: {
         // FIX: Deletion logic is not yet implemented.
         console.log("Deleting bookmark with ID:", record.id);
         console.error("Delete action is not yet implemented.");
+        this.confirmDelete(record.id);
         break;
       }
       default: {
@@ -119,10 +129,69 @@ const BookmarkCard = {
     const container = target.closest(".bookmark-tags");
     const hiddenTags = container.querySelectorAll(".tag-hidden");
     hiddenTags.forEach((tag) => tag.classList.toggle("hidden"));
-    const isOpen = target.textContent === "+";
-    target.textContent = isOpen ? " - " : "+";
+    if (!config.keyboard.vimMode) {
+      const isOpen = target.textContent === "+";
+      target.textContent = isOpen ? " - " : "+";
+    }
 
     return;
+  },
+
+  handleCompactCardBtns(target) {
+    // FIX: merge with `handleMenuOpt`
+    const btn = target.closest(".bookmark-card-btn");
+    if (!btn) return;
+
+    const card = btn.closest(".bookmark-card");
+    if (!card) return;
+
+    const { action } = btn.dataset;
+    const { id, url } = card.dataset;
+
+    switch (action) {
+      case ACTIONS.COPY:
+        return utils.clipboard.copy(url);
+      case ACTIONS.QRCODE:
+        return QRCode.open(id);
+      case ACTIONS.EDIT:
+        return this.openEditionModal(id);
+      case ACTIONS.DELETE:
+        return this.confirmDelete(btn, id);
+      case ACTIONS.DETAIL:
+        return BookmarkDetail.open(id);
+      default:
+        console.warn(`Unknown compact card action: ${action}`);
+    }
+  },
+
+  openEditionModal(id) {
+    const modal = document.getElementById(`modal-edit-${id}`);
+    const controller = Manager.register(modal);
+    BookmarkMgr.Edit.setup(modal);
+    controller.open();
+  },
+
+  confirmDelete(btn, id) {
+    if (btn.dataset.state === "confirm") {
+      console.log("Deleting!!!", { id });
+    } else {
+      if (!btn.dataset.originalContent) {
+        btn.dataset.originalContent = btn.innerHTML;
+      }
+
+      btn.classList.add("confirm-state");
+      btn.dataset.state = "confirm";
+      setTimeout(() => {
+        if (btn.dataset.state === "confirm") {
+          btn.classList.remove("confirm-state");
+          btn.dataset.state = "";
+
+          if (btn.dataset.originalContent) {
+            btn.innerHTML = btn.dataset.originalContent;
+          }
+        }
+      }, 3000);
+    }
   },
 };
 
