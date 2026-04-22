@@ -1,0 +1,13 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8200:8200"
+    volumes:
+        - ./docker/data:/root/.local/share/gomarks
+        - ./docker/cache:/root/.cache/gomarks
+    environment:
+      - CGO_ENABLED=0
+    restart: unless-stopped
