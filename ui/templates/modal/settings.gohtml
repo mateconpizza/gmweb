@@ -10,6 +10,7 @@
           action="{{ .Routes.Settings }}"
           method="post"
           novalidate>
+      <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
       <div class="modal-settings-content">
         <!-- Appearance Settings -->
         <div class="setting-section">
