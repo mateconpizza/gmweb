@@ -9,6 +9,7 @@ import config from "../config.js";
  * @typedef {object} APIEndpoints
  * @property {string} scrapeUrl - Endpoint for scraping metadata.
  * @property {string} archiveUrl - Endpoint for archiving a URL.
+ * @property {string} shutdown - Endpoint for shutting down.
  * @property {(db: string) => string} importHtml - Import bookmarks from HTML.
  * @property {(db: string) => string} importRepoJson - Import repo in JSON format.
  * @property {(db: string) => string} importRepoGpg - Import repo with GPG verification.
@@ -36,6 +37,7 @@ const API = {
   // Global Endpoints
   scrapeUrl: `${API_BASE_PATH}/scrape`,
   archiveUrl: `${API_BASE_PATH}/archive`,
+  shutdown: `${API_BASE_PATH}/shutdown`,
 
   // Import Endpoints
   importHtml: (db) => `${API_BASE_PATH}/${db}/import/html`,

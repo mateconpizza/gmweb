@@ -16,7 +16,6 @@ import routes from "./routes.js";
  * @typedef {import('../types.js').BookmarkJSON} BookmarkJSON
  */
 
-
 /**
  * Collection of API methods for managing bookmarks and databases.
  *
@@ -275,9 +274,22 @@ const api = {
         body: JSON.stringify({ notes: notes }),
       });
 
-      return res
+      return res;
     } catch (error) {
       console.error(`Failed to update notes: ${error.message}`);
+    }
+  },
+
+  async shutdown() {
+    try {
+      const res = await fetch(routes.api.shutdown, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      return res;
+    } catch (error) {
+      console.error(`Failed to shutdown server: ${error.message}`);
     }
   },
 };

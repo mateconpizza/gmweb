@@ -152,6 +152,7 @@ func (h *Handler) recordQR(w http.ResponseWriter, r *http.Request) {
 	currentTheme := files.StripSuffixes(
 		filepath.Base(cookie.get(r, cookie.jar.themeCurrent, ui.DefaultColorschemeFile)),
 	)
+
 	t, err := getCurrentTheme(f, currentTheme)
 	if err != nil {
 		responder.ServerErr(w, r, err)

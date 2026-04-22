@@ -10,6 +10,7 @@ type API struct {
 	Health   func() string
 	GenQR    func() string
 	GenQRPNG func() string
+	Shutdown func() string
 
 	// Import endpoints
 	ImportHTML     func() string
@@ -58,6 +59,7 @@ func NewAPIRoutes(db string) *API {
 		Scrape:   func() string { return "/api/scrape" },
 		GenQR:    func() string { return "/api/qr" },
 		GenQRPNG: func() string { return "/api/qr/png" },
+		Shutdown: func() string { return "/api/shutdown" },
 
 		// Import endpoints
 		ImportHTML:     func() string { return basePath("/import/html") },

@@ -1,5 +1,7 @@
 // sidemenu.js
 
+import api from "../services/api.js";
+
 // TODO:
 // - [ ] Redo closeSideMenu, add addEventListener for 'escape'
 
@@ -30,6 +32,8 @@ const SideMenu = {
     if (target.closest("#menu-overlay") || target.closest(".menu-item")) this.closeSideMenu();
     // Handle `new bookmark` button
     if (target.closest("#btn-new-bookmark")) this.closeSideMenu();
+    // Handle `shutdown` button
+    if (target.closest("#btn-shutdown")) this.shutdown();
   },
 
   openSideMenu() {
@@ -40,6 +44,11 @@ const SideMenu = {
   closeSideMenu() {
     this.menu.classList.remove("show");
     this.overlay.classList.remove("show");
+  },
+
+  async shutdown() {
+    const res = await api.shutdown();
+    console.log(res);
   },
 };
 

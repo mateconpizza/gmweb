@@ -42,9 +42,9 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST "+r.Scrape(), h.scrapeData)
 	mux.HandleFunc("GET "+r.Health(), h.health)
 	mux.HandleFunc("POST "+r.InternetArchiveURL(), h.snapshotURL)
-	mux.HandleFunc("POST /api/qr", h.genQR)
-	mux.HandleFunc("POST /api/qr/png", h.genQRPNG)
-	mux.HandleFunc("GET /api/shutdown", h.shutdown)
+	mux.HandleFunc("POST "+r.GenQR(), h.genQR)
+	mux.HandleFunc("POST "+r.GenQRPNG(), h.genQRPNG)
+	mux.HandleFunc("GET "+r.Shutdown(), h.shutdown)
 
 	// Records
 	mux.Handle("GET "+r.All(), mustDBParam(h.allBookmarks))
@@ -847,6 +847,7 @@ func (h *Handler) importGPG(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) shutdown(w http.ResponseWriter, r *http.Request) {
+	// FIX: make it a `form` with method `POST`
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(`{"status": "initiating shutdown"}`))
 
