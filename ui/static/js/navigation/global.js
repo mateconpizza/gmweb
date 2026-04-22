@@ -80,6 +80,9 @@ export default class VimNavigator {
     if (key === this.keybinds.navigation.pageNext.key) return this.goToNextPage();
     // Handle 'p' prev page
     if (key === this.keybinds.navigation.pagePrev.key) return this.goToPrevPage();
+    // Handle 'gi' focus search bar
+    if (key === "i" && this.lastPressedKey === "g" && currentTime - this.lastKeyPressTime < 300)
+      return this.focusSearchBar(event);
 
     // -- Actions --
     // Handle 'Enter' key for open Detail modal
@@ -450,5 +453,12 @@ export default class VimNavigator {
   }
   goToPrevPage() {
     return document.getElementById("btn-prev-page")?.click();
+  }
+  focusSearchBar(e) {
+    e.preventDefault();
+    const searchBar = document.querySelector('input[name="q"]');
+    searchBar.focus();
+
+    this.lastPressedKey = "";
   }
 }

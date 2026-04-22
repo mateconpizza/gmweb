@@ -76,7 +76,7 @@ func (bm *BookmarkModel) Name() string {
 	return bm.store.Name()
 }
 
-func (bm *BookmarkModel) Count(ctx context.Context, table string) int {
+func (bm *BookmarkModel) Count(ctx context.Context, table db.Table) int {
 	return bm.store.Count(ctx, table)
 }
 

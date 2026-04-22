@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -45,6 +44,7 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/qr/png", h.genQRPNG)
 
 	// Records
+	mux.Handle("GET "+r.All(), mustDBParam(h.allBookmarks))
 	mux.Handle("GET "+r.BookmarkByID("{id}"), mustIDAndDBParam(h.recordByID))
 	mux.Handle("GET "+r.Tags(), mustDBParam(h.tagsList))
 	mux.Handle("POST "+r.NewBookmark(), mustDBParam(h.newRecord))
@@ -74,6 +74,27 @@ func (h *Handler) index(w http.ResponseWriter, _ *http.Request) {
 	if err := json.NewEncoder(w).Encode(h.appInfo); err != nil {
 		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
 	}
+}
+
+func (h *Handler) allBookmarks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	dbName := r.PathValue("db")
+	repo, err := h.repoLoader(dbName)
+	if err != nil {
+		h.logger.Error("all bookmarks", "error", err, "db", dbName)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	bs, err := repo.All(r.Context())
+	if err != nil {
+		h.logger.Error("all bookmarks", "error", err, "db", dbName)
+		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responder.WriteJSON(w, http.StatusOK, bs)
 }
 
 // dbList returns the repo availables list.
@@ -645,36 +666,7 @@ func (h *Handler) tagsList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) snapshotURL(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	u := r.URL.Query().Get("url")
-	if u == "" {
-		h.logger.Error("internet archive URL", "error", "empty URL")
-		responder.EncodeErrJSON(w, http.StatusBadRequest, "empty URL")
-		return
-	}
-
-	h.logger.Debug("internet archive URL", "url", u)
-
-	ws, err := scraper.WaybackSnapshot(u)
-	if err != nil {
-		h.logger.Error("internet archive URL", "error", err)
-		if errors.Is(err, scraper.ErrNoVersionAvailable) {
-			responder.EncodeErrJSON(w, http.StatusNotFound, err.Error())
-			return
-		}
-
-		responder.EncodeErrJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	res := responder.FetchSnapshotResponse{
-		URL:              strings.TrimSuffix(u, "/"),
-		ArchiveURL:       ws.URL,
-		ArchiveTimestamp: ws.Timestamp,
-	}
-
-	responder.WriteJSON(w, http.StatusOK, res)
+	responder.WriteJSON(w, http.StatusOK, []string{})
 }
 
 func (h *Handler) health(w http.ResponseWriter, r *http.Request) {
@@ -729,7 +721,9 @@ func (h *Handler) checkStatus(w http.ResponseWriter, r *http.Request) {
 
 //nolint:funlen //ignore
 func (h *Handler) importHTML(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(10 << 20) // 10MB limit
+	const maxSize = 5 << 20 // 5 MB
+	r.Body = http.MaxBytesReader(w, r.Body, maxSize)
+	err := r.ParseMultipartForm(2 << 20)
 	if err != nil {
 		h.logger.Error("Error parsing form", "error", err)
 		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
@@ -816,37 +810,9 @@ func (h *Handler) importHTML(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) importJSON(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(1 << 20) // 1MB limit
-	if err != nil {
-		h.logger.Error("Error parsing form", "error", err)
-		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	// parse file
-	repoPath := r.FormValue("repo")
-	if repoPath == "" {
-		responder.EncodeErrJSON(w, http.StatusBadRequest, "repository path not provided")
-		return
-	}
-
-	bj := bookio.NewJSONParser()
-	bs, err := bj.Parse(repoPath)
-	if err != nil {
-		responder.EncodeErrJSON(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
 	res := responder.ResponseData{
-		Message:    fmt.Sprintf("Found %d", len(bs)),
+		Message:    "not implemented yet...",
 		StatusCode: http.StatusOK,
-	}
-
-	for i := range bs {
-		if i == 10 {
-			break
-		}
-		fmt.Printf("bs[i].URL: %v\n", bs[i].URL)
 	}
 
 	responder.WriteJSON(w, http.StatusOK, res)

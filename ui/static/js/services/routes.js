@@ -12,6 +12,7 @@ import config from "../config.js";
  * @property {(db: string) => string} importHtml - Import bookmarks from HTML.
  * @property {(db: string) => string} importRepoJson - Import repo in JSON format.
  * @property {(db: string) => string} importRepoGpg - Import repo with GPG verification.
+ * @property {(db: string) => string} listBookmarks - Fetch all bookmarks.
  * @property {(db: string) => string} listTags - Fetch all tags.
  * @property {(db: string) => string} createBookmark - Create a new bookmark.
  * @property {(db: string, id: string) => string} toggleFavorite - Mark a bookmark as favorite.
@@ -42,6 +43,7 @@ const API = {
   importRepoGpg: (db) => `${API_BASE_PATH}/${db}/import/repogpg`,
 
   // Bookmark/Record Endpoints
+  listBookmarks: (db) => `${API_BASE_PATH}/${db}/bookmarks/all`,
   listTags: (db) => `${API_BASE_PATH}/${db}/bookmarks/tags`,
   createBookmark: (db) => `${API_BASE_PATH}/${db}/bookmarks/new`,
   toggleFavorite: (db, id) => `${API_BASE_PATH}/${db}/bookmarks/${id}/favorite`,

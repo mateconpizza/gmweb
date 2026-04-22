@@ -24,6 +24,7 @@ type API struct {
 	RepoDelete func() string
 
 	// Bookmark endpoints
+	All                func() string
 	Tags               func() string
 	NewBookmark        func() string
 	InternetArchiveURL func() string
@@ -71,6 +72,7 @@ func NewAPIRoutes(db string) *API {
 		RepoDelete: func() string { return basePath("/delete") },
 
 		// Bookmark endpoints
+		All:                func() string { return bookmarksPath("/all") },
 		Tags:               func() string { return bookmarksPath("/tags") },
 		NewBookmark:        func() string { return bookmarksPath("/new") },
 		InternetArchiveURL: func() string { return "/api/archive" },

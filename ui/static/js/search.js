@@ -1,10 +1,12 @@
 // search.js
 
 import config from "./config.js";
+import repo from "./repo.js";
+import routes from "./services/routes.js";
 import { tagOps } from "./tags.js";
 
 const keyboard = config.keyboard;
-const keybinds = keyboard.keybinds;
+const KEYBINDS = keyboard.keybinds;
 
 /**
  * Handles the visibility of the keybind tip for the search input field.
@@ -45,7 +47,7 @@ export function keybindTipHandler() {
       if (isModalOpen) return;
 
       if (!keyboard.vimMode) {
-        if ((e.ctrlKey || e.metaKey) && e.key === keybinds.search.focus.key) {
+        if ((e.ctrlKey || e.metaKey) && e.key === KEYBINDS.search.focus.key) {
           e.preventDefault();
           searchInput.focus();
           searchInput.select();
@@ -53,13 +55,13 @@ export function keybindTipHandler() {
       }
 
       // VimMode
-      if (e.key === keybinds.search.search.key) {
+      if (e.key === KEYBINDS.search.search.key) {
         e.preventDefault();
         searchInput.focus();
         searchInput.select();
       }
 
-      if (e.key === keybinds.utility.escape.key) {
+      if (e.key === KEYBINDS.utility.escape.key) {
         if (document.activeElement === searchInput) {
           searchInput.blur();
         }
@@ -76,18 +78,20 @@ export function keybindTipHandler() {
  */
 export class InputCmp {
   constructor() {
-    this.container = document.getElementById("search-container");
-    this.input = this.container.querySelector('input[name="q"]');
-    this.dropdown = this.container.querySelector("#tag-cmp-search-bar");
-    this.form = this.container.querySelector(".search-bar");
-    this.clearBtn = this.container.querySelector(".clear-search-btn");
+    this.input = document.querySelector('input[name="q"]');
+    this.dropdown = document.getElementById("tag-cmp-search-bar");
+    this.form = document.querySelector(".search-bar");
+    this.clearBtn = document.querySelector(".clear-search-btn");
 
     this.selectedIndex = -1;
     this.isTagMode = false;
+    this.isBookmarkMode = false;
     this.currentSuggestions = [];
+    this.bookmarks = [];
     this.availableTags = [];
 
     this.bindEvents();
+    this.loadBookmarks();
 
     tagOps.fetch().then((tags) => {
       if (tags) {
@@ -103,6 +107,38 @@ export class InputCmp {
         this.showDropdown();
       }
     });
+  }
+
+  async loadBookmarks() {
+    try {
+      const response = await fetch(routes.api.listBookmarks(repo.getCurrent()), {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      // The data from the API is already the bookmarks array.
+      const bookmarksData = await response.json();
+      this.bookmarks = bookmarksData.map((bookmark) => {
+        return {
+          url: bookmark.url,
+          title: bookmark.title,
+          desc: bookmark.desc,
+          tags: bookmark.tags,
+          id: bookmark.id,
+        };
+      });
+
+      console.log("Bookmarks loaded:", this.bookmarks.length);
+    } catch (error) {
+      console.error("Failed to load bookmarks:", error);
+      this.bookmarks = [];
+    }
   }
 
   bindEvents() {
@@ -131,6 +167,7 @@ export class InputCmp {
   handleInput(e) {
     const value = e.target.value.trim();
     this.isTagMode = value.startsWith("#");
+    this.isBookmarkMode = !this.isTagMode && value.length > 0;
 
     if (this.isTagMode) {
       const tagQuery = value.substring(1).toLowerCase();
@@ -148,6 +185,12 @@ export class InputCmp {
       if (tipEl) tipEl.style.opacity = "0";
 
       this.showTagSuggestions(tagQuery);
+    } else if (this.isBookmarkMode) {
+      // Hide tip for bookmark mode
+      const tipEl = document.querySelector(".keybind-tip");
+      if (tipEl) tipEl.style.opacity = "0";
+
+      this.showBookmarkSuggestions(value.toLowerCase());
     } else {
       this.hideDropdown();
       const tipEl = document.querySelector(".keybind-tip");
@@ -164,37 +207,42 @@ export class InputCmp {
       return;
     }
 
+    const isCtrlOrMeta = e.ctrlKey || e.metaKey;
+
     switch (e.key) {
       case "ArrowDown":
-      case keybinds.dropdown.downCtrl.key:
-        e.preventDefault();
-        if (e.ctrlKey && e.key === keybinds.dropdown.downCtrl.key) {
-          this.moveSelection(1);
-        } else if (e.key === "ArrowDown") {
-          this.moveSelection(1);
-        }
+        this.moveSelection(1);
         break;
 
       case "ArrowUp":
-      case keybinds.dropdown.upCtrl.key:
-        e.preventDefault();
-        if (e.ctrlKey && e.key === keybinds.dropdown.upCtrl.key) {
-          this.moveSelection(-1);
-        } else if (e.key === "ArrowUp") {
+        this.moveSelection(-1);
+        break;
+
+      case KEYBINDS.dropdown.downCtrl.key:
+        if (isCtrlOrMeta) {
+          e.preventDefault();
+          this.moveSelection(1);
+        }
+        break;
+
+      case KEYBINDS.dropdown.upCtrl.key:
+        if (isCtrlOrMeta) {
+          e.preventDefault();
           this.moveSelection(-1);
         }
         break;
 
-      case "Enter":
-      case keybinds.dropdown.accept.key:
-        if (this.selectedIndex >= 0 || (e.ctrlKey && e.key === keybinds.dropdown.accept.key)) {
+      case KEYBINDS.actions.enter.key:
+      case KEYBINDS.dropdown.accept.key:
+        if (this.selectedIndex >= 0 || (isCtrlOrMeta && e.key === "y")) {
+          e.preventDefault();
           this.selectCurrent();
-        } else {
+        } else if (e.key === "Enter") {
           this.form.submit();
         }
         break;
 
-      case "Tab": // Add Tab key support
+      case KEYBINDS.dropdown.tab.key:
         e.preventDefault();
         if (e.shiftKey) {
           this.moveSelection(-1); // Shift+Tab moves up
@@ -203,7 +251,7 @@ export class InputCmp {
         }
         break;
 
-      case "Escape":
+      case KEYBINDS.utility.escape.key:
         this.hideDropdown();
         break;
     }
@@ -214,6 +262,8 @@ export class InputCmp {
     if (this.isTagMode) {
       const tagQuery = value.substring(1).toLowerCase();
       this.showTagSuggestions(tagQuery);
+    } else if (value.length > 0) {
+      this.showBookmarkSuggestions(value.toLowerCase());
     }
   }
 
@@ -222,6 +272,25 @@ export class InputCmp {
     this.currentSuggestions = filtered;
     this.selectedIndex = -1;
     this.renderTagSuggestions(filtered);
+    this.showDropdown();
+  }
+
+  showBookmarkSuggestions(query) {
+    const q = query.toLowerCase();
+    const filtered = this.bookmarks
+      .filter((bookmark) => {
+        const title = bookmark.title?.toLowerCase() || "";
+        const desc = bookmark.desc?.toLowerCase() || "";
+        const url = bookmark.url?.toLowerCase() || "";
+        const tags = bookmark.tags?.toLowerCase() || "";
+
+        return title.includes(q) || desc.includes(q) || url.includes(q) || tags.includes(q);
+      })
+      .slice(0, 8);
+
+    this.currentSuggestions = filtered;
+    this.selectedIndex = -1;
+    this.renderBookmarkSuggestions(filtered);
     this.showDropdown();
   }
 
@@ -255,8 +324,64 @@ export class InputCmp {
     });
   }
 
+  renderBookmarkSuggestions(suggestions) {
+    if (suggestions.length === 0) {
+      this.dropdown.innerHTML = '<div class="no-results">No bookmarks found</div>';
+      return;
+    }
+
+    this.dropdown.innerHTML = suggestions
+      .map((bookmark, index) => {
+        const displayUrl = this.truncateUrl(bookmark.url);
+        const displayTitle = this.truncateText(bookmark.title, 50);
+
+        return `
+          <div class="bookmark-autocmp-item" data-index="${index}" data-url="${bookmark.url}">
+            <div class="bookmark-cmp-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+            </div>
+            <div class="bookmark-cmp-content">
+              <div class="bookmark-cmp-title">${displayTitle}</div>
+              <div class="bookmark-cmp-url">${displayUrl}</div>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    // Add click handlers
+    this.dropdown.querySelectorAll(".bookmark-autocmp-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        const url = item.dataset.url;
+        this.selectBookmark(url);
+      });
+    });
+  }
+
+  truncateUrl(url) {
+    try {
+      const urlObj = new URL(url);
+      const domain = urlObj.hostname.replace("www.", "");
+      const path = urlObj.pathname;
+
+      if (path.length > 25) {
+        return `${domain}${path.substring(0, 22)}...`;
+      }
+      return `${domain}${path}`;
+    } catch {
+      return url.length > 40 ? url.substring(0, 37) + "..." : url;
+    }
+  }
+
+  truncateText(text, maxLength) {
+    return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
+  }
+
   moveSelection(direction) {
-    const items = this.dropdown.querySelectorAll(".tag-autocmp-item");
+    const items = this.dropdown.querySelectorAll(".tag-autocmp-item, .bookmark-autocmp-item");
     if (items.length === 0) return;
 
     // Remove current highlight
@@ -283,6 +408,9 @@ export class InputCmp {
       if (this.isTagMode) {
         const tag = this.currentSuggestions[this.selectedIndex];
         this.selectTag(tag.name);
+      } else if (this.isBookmarkMode) {
+        const bookmark = this.currentSuggestions[this.selectedIndex];
+        this.selectBookmark(bookmark.url);
       }
     }
   }
@@ -292,6 +420,12 @@ export class InputCmp {
     this.input.name = "tag";
     this.hideDropdown();
     this.form.submit();
+  }
+
+  selectBookmark(url) {
+    window.open(url, "_blank");
+    this.hideDropdown();
+    this.input.value = '';
   }
 
   showDropdown() {

@@ -1,8 +1,8 @@
 // bookmark.js
 
-import api from "../services/api.js";
 import config from "../config.js";
 import repo from "../repo.js";
+import api from "../services/api.js";
 import routes from "../services/routes.js";
 import utils from "../utils/utils.js";
 import Edit from "./edit.js";

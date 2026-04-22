@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/mateconpizza/gm/pkg/bookmark"
+	"github.com/mateconpizza/gm/pkg/db"
 )
 
 // Reader provides methods to read from the repository.
@@ -18,7 +19,7 @@ type Reader interface {
 	Has(ctx context.Context, url string) (*bookmark.Bookmark, bool)
 
 	// Count returns the number of records in the given table.
-	Count(ctx context.Context, table string) int
+	Count(ctx context.Context, table db.Table) int
 
 	// CountFavorites returns the number of favorite records.
 	CountFavorites(ctx context.Context) int

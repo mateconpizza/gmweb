@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/mateconpizza/gm/pkg/bookmark"
+	"github.com/mateconpizza/gm/pkg/db"
 )
 
 var ErrMock = errors.New("mock error")
@@ -67,30 +68,19 @@ func (m *Mock) Has(ctx context.Context, url string) (*bookmark.Bookmark, bool) {
 	return nil, false
 }
 
-func (m *Mock) Count(ctx context.Context, table string) int { return 5 }
-
-func (m *Mock) CountFavorites(ctx context.Context) int { return 2 }
-
-func (m *Mock) CountTags(ctx context.Context) (map[string]int, error) { return m.TagsCount, nil }
-
-func (m *Mock) Close() {}
-
-func (m *Mock) Name() string { return "mock" }
-
-func (m *Mock) Fullpath() string { return "/mock" }
-
-func (m *Mock) Init(ctx context.Context) error { return nil }
-
+func (m *Mock) Count(ctx context.Context, table db.Table) int                      { return 5 }
+func (m *Mock) CountFavorites(ctx context.Context) int                             { return 2 }
+func (m *Mock) CountTags(ctx context.Context) (map[string]int, error)              { return m.TagsCount, nil }
+func (m *Mock) Close()                                                             {}
+func (m *Mock) Name() string                                                       { return "mock" }
+func (m *Mock) Fullpath() string                                                   { return "/mock" }
+func (m *Mock) Init(ctx context.Context) error                                     { return nil }
 func (m *Mock) InsertOne(ctx context.Context, b *bookmark.Bookmark) (int64, error) { return 0, nil }
-
-func (m *Mock) InsertMany(ctx context.Context, bs []*bookmark.Bookmark) error { return nil }
-
-func (m *Mock) UpdateNotes(ctx context.Context, bID int, notes string) error { return nil }
-
-func (m *Mock) UpdateOne(ctx context.Context, b *bookmark.Bookmark) error { return nil }
-
-func (m *Mock) SetFavorite(ctx context.Context, b *bookmark.Bookmark) error { return nil }
-
+func (m *Mock) InsertMany(ctx context.Context, bs []*bookmark.Bookmark) error      { return nil }
+func (m *Mock) UpdateNotes(ctx context.Context, bID int, notes string) error       { return nil }
+func (m *Mock) UpdateOne(ctx context.Context, b *bookmark.Bookmark) error          { return nil }
+func (m *Mock) SetFavorite(ctx context.Context, b *bookmark.Bookmark) error        { return nil }
+func (m *Mock) DeleteMany(ctx context.Context, bs []*bookmark.Bookmark) error      { return nil }
 func (m *Mock) AddVisit(ctx context.Context, bID int) error {
 	if m.MockSetVisitCount != nil {
 		return m.MockSetVisitCount(ctx, bID)
@@ -100,8 +90,6 @@ func (m *Mock) AddVisit(ctx context.Context, bID int) error {
 	}
 	return nil
 }
-
-func (m *Mock) DeleteMany(ctx context.Context, bs []*bookmark.Bookmark) error { return nil }
 
 func New() *Mock {
 	return &Mock{}
