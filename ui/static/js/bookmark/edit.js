@@ -1,6 +1,7 @@
 // edit.js
 
 import config from "../config.js";
+import ModalNavigator from "../navigation/modal.js";
 import repo from "../repo.js";
 import api from "../services/api.js";
 import routes from "../services/routes.js";
@@ -11,6 +12,42 @@ import bUtils from "./utils.js";
 const SCRAPE = {
   TITLE: "title",
   DESC: "desc",
+};
+
+const modalKeybinds = {
+  focus: {
+    url: { key: "u", selector: "#edit-bookmark-url", description: "Focus URL", focus: true },
+    tags: { key: "a", selector: "#edit-bookmark-tags", description: "Focus Tags", focus: true },
+    title: { key: "t", selector: "#edit-bookmark-title", description: "Focus Title", focus: true },
+    description: { key: "d", selector: "#edit-bookmark-desc", description: "Focus Description", focus: true },
+  },
+  custom: {
+    refreshTitle: {
+      key: "r",
+      selector: "#btn-refresh-title",
+      description: "Fetch title",
+    },
+    refreshDesc: {
+      key: "D",
+      selector: "#btn-refresh-desc",
+      description: "Fetch title",
+    },
+    save: {
+      key: "S",
+      selector: "#btn-edit-submit",
+      description: "Save",
+    },
+    cancel: {
+      key: "Escape",
+      selector: "#btn-cancel",
+      description: "Cancel",
+    },
+    toggleURLParams: {
+      key: "p",
+      selector: "#accordion-url-params .accordion-toggle",
+      description: "Toggle Params accordion",
+    },
+  },
 };
 
 const Edit = {
@@ -55,6 +92,12 @@ const Edit = {
     const btnTitleSpinner = utils.createBtnSpinner(btnTitleRefresh);
     const btnDescRefresh = modal.querySelector("#btn-refresh-desc");
     const btnDescSpinner = utils.createBtnSpinner(btnDescRefresh);
+
+    // show keybind shortcuts
+    if (config.keyboard.vimMode) {
+      const editionNavigator = new ModalNavigator(modal, modalKeybinds);
+      editionNavigator.updateKeybindHints();
+    }
 
     new TagAutocomplete(tagsInput, dropdown, form, (selectedTag, lastQuery) => {
       const currentTags = tagsInput.value

@@ -66,6 +66,7 @@ export default class VimNavigator {
     }
 
     const currentTime = Date.now();
+    // const isCtrlOrMeta = e.ctrlKey || e.metaKey;
     console.log("VimNavigator", { key });
 
     // -- Navigation --

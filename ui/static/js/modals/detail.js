@@ -2,11 +2,47 @@
 
 import BookmarkMgr from "../bookmark/bookmark.js";
 import config from "../config.js";
+import ModalNavigator from "../navigation/modal.js";
 import repo from "../repo.js";
 import routes from "../services/routes.js";
 import utils from "../utils/utils.js";
 import Manager from "./manager.js";
 import QRCode from "./qrcode.js";
+
+const KEYBINDS = config.keyboard.keybinds;
+
+const modalKeybinds = {
+  accordion: {
+    status: {
+      key: "s",
+      selector: "#accordion-status .accordion-toggle",
+      description: "Toggle Status accordion",
+    },
+    archive: {
+      key: "a",
+      selector: "#btn-refresh-archive",
+      description: "Fetch Internet Archive",
+    },
+    qrCode: {
+      key: KEYBINDS.actions.qrcode.key,
+      selector: "#accordion-qr-code .accordion-toggle",
+      description: "Toggle QR Code accordion",
+    },
+    notes: {
+      key: "n",
+      selector: "#accordion-note .accordion-toggle",
+      description: "Toggle Notes accordion",
+      focus: "#bookmark-note",
+    },
+  },
+  misc: {
+    edit: {
+      key: "e",
+      selector: "#btn-edit",
+      description: "Edit bookmark",
+    },
+  },
+};
 
 /**
  * Sets up event handlers for modal detail interactions.
@@ -23,14 +59,14 @@ const BookmarkDetail = {
     if (target.matches(".bookmark-card-link, .bookmark-desc")) return this.setup(target);
     // Handle accordion toggle
     if (target.closest(".accordion-header")) return this.handleAccordion(target);
+    // Handle `Save` notes button
+    if (target.closest("#add-note-btn")) return this.addNote(target);
     // Handle buttons (Edit, Delete)
     if (target.closest("button[data-id]")) return this.buttonsHandler(target);
     // Handle 'Refresh' button (status)
     if (target.closest("#btn-status-refresh")) return await this.bookmarkStatus(target);
     // Handle fetch `Internet Archive` button
     if (target.closest("#btn-refresh-archive")) return await this.fetchArchive(target);
-    // Handle `Save` notes button
-    if (target.closest("#add-note-btn")) return this.addNote(target);
     // Handle `Un|check all` URL params
     if (target.closest("#toggle-all-params")) return this.toggleAllParams(target);
   },
@@ -75,6 +111,11 @@ const BookmarkDetail = {
         window.location.href = currentUrl.toString();
       });
     });
+
+    // Keybinds
+    if (config.keyboard.vimMode) {
+      new ModalNavigator(modal, modalKeybinds);
+    }
 
     controller.open();
   },
@@ -135,6 +176,8 @@ const BookmarkDetail = {
     container.querySelectorAll(".accordion.open").forEach((a) => {
       if (a !== accordion) {
         a.classList.remove("open");
+        if (config.keyboard.vimMode) return;
+
         const btn = a.querySelector(".accordion-toggle");
         if (btn) {
           btn.textContent = "+";

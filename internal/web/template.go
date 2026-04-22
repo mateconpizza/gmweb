@@ -74,6 +74,18 @@ func newTemplateData(r *http.Request) *TemplateData {
 	}
 }
 
+type BookmarkTemplateData struct {
+	Bookmark *bookmark.Bookmark
+	FuncMap  template.FuncMap
+	Routes   *router.WebRouter
+}
+
+func newBookmarkTemplateData(b *bookmark.Bookmark) *BookmarkTemplateData {
+	return &BookmarkTemplateData{
+		Bookmark: b,
+	}
+}
+
 type URLs struct {
 	Base           string
 	Newest         string
@@ -102,6 +114,7 @@ var templateFuncs = template.FuncMap{
 	"faviconPath":       func() string { return ui.DefaultFaviconPath },
 	"compactMode":       func() bool { return compactMode },
 	"isNew":             helpers.IsWithinLastWeek,
+	"BookmarkData":      newBookmarkTemplateData,
 	"stripSuffix":       files.StripSuffixes,
 	"now":               func() int64 { return time.Now().UnixNano() },
 	"add":               func(a, b int) int { return a + b },
