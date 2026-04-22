@@ -27,9 +27,9 @@
 
 ### Record
 
-|                  Record                   |                         Status                          |                     QRCode                      |                         Notes                         |
-| :---------------------------------------: | :-----------------------------------------------------: | :---------------------------------------------: | :---------------------------------------------------: |
-| ![record](./assets/screenshot-record.png) | ![record-status](./assets/screenshot-record-status.png) | ![record-qr](./assets/screenshot-record-qr.png) | ![record-notes](./assets/screenshot-record-notes.png) |
+|                         Status                          |                     QRCode                      |                         Notes                         |
+| :-----------------------------------------------------: | :---------------------------------------------: | :---------------------------------------------------: |
+| ![record-status](./assets/screenshot-record-status.png) | ![record-qr](./assets/screenshot-record-qr.png) | ![record-notes](./assets/screenshot-record-notes.png) |
 
 ---
 
