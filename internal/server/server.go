@@ -78,13 +78,13 @@ func New(opts ...ServerOptFn) *Server {
 		addr:   ":8080",
 	}
 
-	if o.logger == nil {
-		o.logger = slog.New(slog.NewTextHandler(os.Stderr, nil))
-	}
-
 	// Apply options
 	for _, optFn := range opts {
 		optFn(o)
+	}
+
+	if o.logger == nil {
+		o.logger = slog.New(slog.NewTextHandler(os.Stderr, nil))
 	}
 
 	// Apply middlewares in reverse order (last middleware wraps first)

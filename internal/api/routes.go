@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/mateconpizza/gm/pkg/bookio"
@@ -42,6 +44,7 @@ func (h *Handler) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST "+r.InternetArchiveURL(), h.snapshotURL)
 	mux.HandleFunc("POST /api/qr", h.genQR)
 	mux.HandleFunc("POST /api/qr/png", h.genQRPNG)
+	mux.HandleFunc("GET /api/shutdown", h.shutdown)
 
 	// Records
 	mux.Handle("GET "+r.All(), mustDBParam(h.allBookmarks))
@@ -841,4 +844,20 @@ func (h *Handler) importGPG(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(2 * time.Second)
 
 	responder.WriteJSON(w, http.StatusOK, res)
+}
+
+func (h *Handler) shutdown(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(`{"status": "initiating shutdown"}`))
+
+	p, err := os.FindProcess(os.Getpid())
+	if err != nil {
+		h.logger.Error("shutdown", "error", err.Error())
+		return
+	}
+
+	// send SIGTERM (capture by `graceful` pkg)
+	go func() {
+		_ = p.Signal(syscall.SIGTERM)
+	}()
 }
