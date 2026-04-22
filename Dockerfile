@@ -1,18 +1,19 @@
 FROM docker.io/golang:1.24.5-alpine AS build
 
 WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
-ENV CGO_ENABLED=0
-
-RUN go mod download
-RUN go build -o server .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-s -w" -o server
 
 FROM alpine:3.20
 
 WORKDIR /app
 COPY --from=build /app/server .
 
-EXPOSE 8083
+EXPOSE 8200
 
 CMD ["./server", "-a", ":8200", "-vvvvvv"]

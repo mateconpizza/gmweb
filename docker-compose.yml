@@ -8,6 +8,4 @@ services:
     volumes:
         - ./docker/data:/root/.local/share/gomarks
         - ./docker/cache:/root/.cache/gomarks
-    environment:
-      - CGO_ENABLED=0
     restart: unless-stopped
