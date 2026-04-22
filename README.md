@@ -5,13 +5,55 @@
   <p>A simple and powerful bookmark manager built with Go.</p>
 
   <p>
-    <img src="https://img.shields.io/github/go-mod/go-version/mateconpizza/gm" alt="Go Version"/>
+    <img src="https://img.shields.io/github/go-mod/go-version/mateconpizza/gmweb" alt="Go Version"/>
     <img src="https://img.shields.io/badge/-Linux-grey?logo=linux" alt="Linux compatible"/>
     <img src="https://img.shields.io/badge/sqlite-%2307405e.svg?style=Flat&logo=sqlite&logoColor=white" alt="SQLite database"/>
+    <img src="https://img.shields.io/github/v/release/mateconpizza/gmweb" alt="Release"/>
+    <img src="https://goreportcard.com/badge/github.com/mateconpizza/gmweb" alt="Go Report Card"/>
   </p>
 
   <p><sub><i>🚧 Work in Progress</i></sub></p>
 </div>
+
+## Podman | Docker
+
+## Screenshots
+
+### Index
+
+|                 Main                  |                       Mobile                        |                           Mobile Search                           |
+| :-----------------------------------: | :-------------------------------------------------: | :---------------------------------------------------------------: |
+| ![main](./assets/screenshot-main.png) | ![main-mobile](./assets/screenshot-main-mobile.png) | ![main-mobile-search](./assets/screenshot-main-mobile-search.png) |
+
+### Record
+
+|                  Record                   |                         Status                          |                     QRCode                      |                         Notes                         |
+| :---------------------------------------: | :-----------------------------------------------------: | :---------------------------------------------: | :---------------------------------------------------: |
+| ![record](./assets/screenshot-record.png) | ![record-status](./assets/screenshot-record-status.png) | ![record-qr](./assets/screenshot-record-qr.png) | ![record-notes](./assets/screenshot-record-notes.png) |
+
+---
+
+<details>
+<summary><strong>Settings</strong></summary>
+
+### Settings
+
+|                   Settings                    |                  Themes                   |                    VIM Keybinds                    |
+| :-------------------------------------------: | :---------------------------------------: | :------------------------------------------------: |
+| ![settings](./assets/screenshot-settings.png) | ![themes](./assets/screenshot-themes.png) | ![VIM-mode](./assets/screenshot-vim-mode-keys.png) |
+
+</details>
+
+<details>
+<summary><strong>Repository</strong></summary>
+
+### Repository
+
+|                     Repository                     |                      New                      |                      List                       |
+| :------------------------------------------------: | :-------------------------------------------: | :---------------------------------------------: |
+| ![repository](./assets/screenshot-repo-detail.png) | ![repo-new](./assets/screenshot-repo-new.png) | ![repo-list](./assets/screenshot-repo-list.png) |
+
+</details>
 
 <details>
 <summary><strong>Routes</strong></summary>
