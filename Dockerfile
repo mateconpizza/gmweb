@@ -14,6 +14,6 @@ FROM alpine:3.20
 WORKDIR /app
 COPY --from=build /app/server .
 
-EXPOSE 8200
+EXPOSE 8080
 
-CMD ["./server", "-a", ":8200", "-vvvvvv"]
+CMD ["./server"]

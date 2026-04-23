@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8200:8200"
+      - "8080:8080"
     volumes:
       - ./deploy/data:/root/.local/share/gomarks
       - ./deploy/cache:/root/.cache/gomarks
