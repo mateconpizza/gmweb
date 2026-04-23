@@ -196,6 +196,7 @@ func registerCleanups(app *application.App, srv *server.Server) {
 		database.CloseAll()
 		return nil
 	})
+
 	graceful.Register(func() error {
 		app.Log.Info("shutting down HTTP server")
 		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)

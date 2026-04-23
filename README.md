@@ -15,7 +15,67 @@
   <p><sub><i>🚧 Work in Progress</i></sub></p>
 </div>
 
-## Podman | Docker
+## Features
+
+- [x] Bookmark management
+- [x] `Tagging` and filtering
+- [x] Multiple repositories `databases`
+- [x] `Metadata` extraction (title, description, keywords, tags)
+- [x] `QR-code` generation
+- [x] Visit tracking
+- [x] Favorites
+- [x] Notes
+- [x] Mobile-friendly UI
+- [x] `Import` from HTML
+- [ ] Sync with `Git`
+  - [ ] As JSON
+  - [ ] As GPG
+- [ ] Authentication — <strong>WIP</strong>
+
+## Run
+
+```sh
+$ go build -o gmweb .
+./gmweb -vvv
+```
+
+Default: http://localhost:8080
+
+## Usage
+
+```sh
+$ ./gmweb -h
+gmweb v0.1.0 linux/amd64
+
+A simple web bookmark manager
+
+Usage:
+  gmweb [options]
+
+Options:
+  -p, --path <path>	Path to store data (default: $XDG_DATA_HOME/gomarks)
+  -a, --addr <addr>	Address to listen on (default: :8080)
+  -v, --verbose		Increase verbosity (-v, -vv, -vvv)
+  -V, --version		Show version
+  -h, --help		Show this help
+```
+
+## Containers
+
+```sh
+# Build
+$ docker build -t gmweb .
+
+docker run -p 8080:8080 \
+  -v $(pwd)/deploy/data:/root/.local/share/gomarks \
+  -v $(pwd)/deploy/cache:/root/.cache/gomarks \
+  gmweb
+
+# or
+
+# Compose
+docker compose up --build
+```
 
 ## Screenshots
 
