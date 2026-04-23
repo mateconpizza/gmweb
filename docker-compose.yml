@@ -6,6 +6,12 @@ services:
     ports:
       - "8200:8200"
     volumes:
-        - ./docker/data:/root/.local/share/gomarks
-        - ./docker/cache:/root/.cache/gomarks
+      - ./deploy/data:/root/.local/share/gomarks
+      - ./deploy/cache:/root/.cache/gomarks
     restart: unless-stopped
+
+volumes:
+  data:
+    driver: local
+  cache:
+    driver: local

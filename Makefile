@@ -31,6 +31,12 @@ testfn:
 tidy:
 	go mod tidy
 
+docker:
+	docker-compose up
+
+podman:
+	podman compose up
+
 run:
 	go run . -a :8083 --dev -vvvvvvv
 
