@@ -10,8 +10,6 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-var version string = "0.1.0"
-
 const (
 	appName string = "gmweb"
 	mainDB  string = "main" // Default name of the main database
@@ -53,14 +51,15 @@ type (
 		Title     string `json:"title"`
 		Tags      string `json:"tags"`
 		Desc      string `json:"desc"`
+		Version   string `json:"version"`
 	}
 )
 
 func (a *Config) String() string {
-	return fmt.Sprintf("%s v%s %s/%s\n", a.Name, version, runtime.GOOS, runtime.GOARCH)
+	return fmt.Sprintf("%s v%s %s/%s\n", a.Name, a.Info.Version, runtime.GOOS, runtime.GOARCH)
 }
 
-// dataPath load data and cache directories.
+// loadPaths load data and cache directories.
 func (a *App) loadPaths() error {
 	scope := gap.NewScope(gap.User, a.Cfg.DataDir)
 
@@ -82,9 +81,9 @@ func (a *App) loadPaths() error {
 	return nil
 }
 
-func (a *App) Parse() *App {
+func (a *App) Parse() error {
 	if err := a.loadPaths(); err != nil {
-		panic(err)
+		return err
 	}
 
 	flag.StringVarP(&a.Flags.Path, "path", "p", a.Cfg.DataDir, "")
@@ -106,9 +105,6 @@ func (a *App) Parse() *App {
 	}
 
 	a.Cfg.DataDir = a.Flags.Path
-	if err := files.MkdirAll(a.Cfg.CacheDir, a.Cfg.DataDir); err != nil {
-		panic(err)
-	}
 
-	return a
+	return files.MkdirAll(a.Cfg.CacheDir, a.Cfg.DataDir)
 }

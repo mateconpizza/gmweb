@@ -14,7 +14,7 @@ type App struct {
 	Log    *slog.Logger
 }
 
-func New() *App {
+func New(ver string) *App {
 	return &App{
 		Cfg: &Config{
 			Name:    appName,
@@ -27,6 +27,7 @@ func New() *App {
 				Title:     "A simple web bookmark manager",
 				Tags:      "golang,awesome,bookmarks,cli,manager",
 				Desc:      "Simple yet powerful bookmark manager for your browser",
+				Version:   ver,
 			},
 		},
 		Flags: &Flags{

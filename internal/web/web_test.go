@@ -1,4 +1,3 @@
-//nolint:funlen //test
 package web
 
 import (
@@ -21,7 +20,7 @@ import (
 func setupHandler(t *testing.T, mock *mocks.Mock) *Handler {
 	t.Helper()
 
-	app := application.New()
+	app := application.New("0.0.1")
 	database.Register(mock.Name(), "")
 
 	return NewHandler(
