@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -86,60 +87,65 @@ func run(app *application.App) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	logFile := filepath.Join(app.Flags.Path, "log.json")
-	f, logger, err := setupLogger(logFile, app.Flags.Verbose)
-	if err != nil {
+	if err := setupLogging(app); err != nil {
 		return err
 	}
-
-	defer func() {
-		slog.Info("closing logfile")
-		if err := f.Close(); err != nil {
-			slog.Error("failed to close logfile", "err", err)
-		}
-	}()
-
-	app.Log = logger
-	app.Log.Debug("app paths", "data", app.Cfg.DataDir, "cache", app.Cfg.CacheDir, "log", logFile)
 
 	if err := setupRepos(app); err != nil {
 		return err
 	}
 
+	srv := setupServer(app)
+	registerCleanups(app, srv)
+	graceful.Listen(ctx, cancel)
+
+	err := srv.Start()
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		cancel()
+	}
+
+	graceful.Wait()
+
+	return err
+}
+
+func setupServer(app *application.App) *server.Server {
 	middle := []server.Middleware{
 		middleware.Logging,
 		middleware.PanicRecover,
 	}
-
 	if !app.Flags.DevMode {
 		middle = append(middle, middleware.CommonHeaders, middleware.NoSurf)
 	}
-
-	mux := setupRoutes(app)
-	srv := server.New(
+	return server.New(
 		server.WithAddr(app.Flags.Addr),
 		server.WithLogger(app.Log),
-		server.WithMux(mux),
+		server.WithMux(setupRoutes(app)),
 		server.WithMiddleware(middle...),
 		server.WithTLS(app.Server.CertFile, app.Server.KeyFile),
 	)
+}
 
-	cleanups := []graceful.CleanupFunc{
-		func() error {
-			database.CloseAll()
-			return nil
-		},
-		func() error {
-			app.Log.Info("shutting down HTTP server")
-			shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer shutdownCancel()
-			return srv.Shutdown(shutdownCtx)
-		},
+func setupLogging(app *application.App) error {
+	logFile := filepath.Join(app.Flags.Path, "log.json")
+	file, logger, err := setupLogger(logFile, app.Flags.Verbose)
+	if err != nil {
+		return err
 	}
 
-	graceful.Listen(ctx, cancel, cleanups...)
+	app.Log = logger
+	app.Log.Debug("app paths",
+		"data", app.Cfg.DataDir,
+		"cache", app.Cfg.CacheDir,
+		"log", logFile,
+	)
 
-	return srv.Start()
+	graceful.Register(func() error {
+		slog.Info("closing logfile")
+		return file.Close()
+	})
+
+	return nil
 }
 
 func setupLogger(fn string, verbosity int) (*os.File, *slog.Logger, error) {
@@ -183,4 +189,17 @@ func setupLogger(fn string, verbosity int) (*os.File, *slog.Logger, error) {
 	slog.SetDefault(logger)
 
 	return f, logger, nil
+}
+
+func registerCleanups(app *application.App, srv *server.Server) {
+	graceful.Register(func() error {
+		database.CloseAll()
+		return nil
+	})
+	graceful.Register(func() error {
+		app.Log.Info("shutting down HTTP server")
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer shutdownCancel()
+		return srv.Shutdown(shutdownCtx)
+	})
 }
